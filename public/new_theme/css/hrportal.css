@@ -10,6 +10,18 @@ html, body { overflow-x: hidden; }
 .hrp-main{flex:1; min-width:0; padding-left:8px; display:flex; flex-direction:column; height:100%; overflow:hidden}
 .hrp-content{padding:10px 0 6px; flex:1 1 auto; overflow:auto}
 
+/* Typography & color: keep dark text inside the app window (screenshot style) */
+.macos-theme .hrp-window{ color:#111; }
+.macos-theme .hrp-window h1,
+.macos-theme .hrp-window h2,
+.macos-theme .hrp-window h3,
+.macos-theme .hrp-window h4,
+.macos-theme .hrp-window h5,
+.macos-theme .hrp-window h6{ color:#111; }
+.macos-theme .hrp-window .hrp-page-title{ color:#111; }
+.macos-theme .hrp-window a.hrp-link{ color:#111; text-decoration:underline; }
+.macos-theme .hrp-window .text-muted{ color:#6b7280 !important; }
+
 /* Responsive table wrapper */
 .hrp-table-wrap{width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch}
 .hrp-card .dataTables_wrapper{width:100%; overflow-x:auto}
@@ -84,16 +96,180 @@ html, body { overflow-x: hidden; }
 
 /* Form card */
 .hrp-card{background:#ffffff;border-radius:16px;box-shadow:0 10px 24px rgba(0,0,0,.08);padding:12px;border:1px solid #f0f0f0}
-.hrp-card-body{padding:6px 2px 10px}
+.hrp-card-body{padding:3px 2px 10px}
 .hrp-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
 .hrp-col-6{grid-column:span 6}
 .hrp-col-12{grid-column:span 12}
 
+/* Figma container card (Rectangle-30) */
+.Rectangle-30{
+  width: 100%;
+  margin: 0 10px;
+  padding: 45px 50px 25px 40px;
+  border-radius: 43px;
+  box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.25);
+  background-color: #f5f5f5;
+}
+
 .hrp-label{font-weight:700;font-size:12px;color:#111;margin:6px 6px}
-.hrp-input,.hrp-select, .hrp-textarea, .hrp-file{width:100%;background:#f5f7f9;border:1px solid #e5e7eb;border-radius:20px;padding:10px 14px;outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+/* Upgrade label typography inside cards to Visby, larger and bold (like Mobile-No) */
+.hrp-card .hrp-label{
+  font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  color: #414141;
+  line-height: 0.8;
+}
+.hrp-input,.hrp-select, .hrp-textarea, .hrp-file{width:100%;background:#f5f7f9;border:1px solid #e5e7eb;border-radius:20px;padding:10px 14px;outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.6);min-height:44px}
 .hrp-input:focus,.hrp-select:focus,.hrp-textarea:focus{border-color:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
 .hrp-textarea{min-height:92px;border-radius:16px}
 .hrp-file{padding:8px 12px;border-radius:14px;background:#f9fafb}
+/* Placeholder color per mock */
+.hrp-input::placeholder,
+.hrp-textarea::placeholder{ color:#9ca3af; opacity:1; }
+
+/* Number inputs (Experience Count, Previous Salary) - remove spinners and unify look */
+.hrp-input[type=number]{
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.hrp-input[type=number]::-webkit-outer-spin-button,
+.hrp-input[type=number]::-webkit-inner-spin-button{
+  -webkit-appearance: none;
+  margin: 0;
+}
+.hrp-input[type=number]{ padding-right: 14px; }
+
+/* Ensure exact visual match and override Bootstrap defaults for number inputs */
+.hrp-card input[type=number].hrp-input,
+.hrp-card .hrp-input[type=number]{
+  background:#fff !important;
+  border:1px solid #e8e8e8 !important;
+  border-radius:413px !important;
+  padding:21px 31px !important;
+  height:58px !important;
+  line-height:1.2;
+  box-sizing:border-box;
+  box-shadow: inset 0 2px 3px rgba(0,0,0,.2), 0 1px 0 #fff;
+}
+
+/* Figma-style pill input (Rectangle-29) */
+.Rectangle-29{
+  width: 100%; /* responsive instead of fixed 713px */
+  height: 58px;
+  margin: 20px 0 0;
+  padding: 21px 31px; /* left padding 31px; right balanced for full width */
+  border-radius: 413px;
+  box-shadow: inset 0 2px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 0 0 #fff;
+  background-color: #fff;
+  font-size: 18px;
+  color: #414141;
+  font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 500;
+  line-height: 0.8;
+}
+/* Make sure it wins over hrp-input base */
+.hrp-card .Rectangle-29{
+  background-color:#fff !important;
+  border:1px solid #e8e8e8 !important;
+}
+.Rectangle-29::placeholder{ font-size: 16px; }
+
+/* Global form typography for inputs/selects/textarea inside app window */
+.macos-theme .hrp-window input.hrp-input,
+.macos-theme .hrp-window select.hrp-input,
+.macos-theme .hrp-window textarea.hrp-textarea{
+  font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  color: #414141;
+  line-height: 0.8;
+}
+
+/* Uniform 58px for selects to match inputs */
+.Rectangle-29-select{
+  -webkit-appearance:none; appearance:none;
+  height:58px; line-height:58px; font-size:18px; padding-right:48px;
+  background:#fff;
+  background-image: linear-gradient(45deg, transparent 50%, #9ca3af 50%), linear-gradient(135deg, #9ca3af 50%, transparent 50%);
+  background-position: right 20px center, right 15px center; background-size: 8px 8px, 8px 8px; background-repeat: no-repeat;
+  color:#111; font-weight:700; font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+.Rectangle-29-select option{ color:#111; font-weight:700; }
+
+/* Larger address textarea matching mock */
+.Rectangle-29-textarea{
+  width:100%; min-height:110px; padding:16px 20px; border-radius:20px; background:#fff; border:1px solid #e8e8e8; box-shadow: inset 0 2px 3px rgba(0,0,0,.2), 0 1px 0 #fff; font-size:16px;
+}
+
+/* Styled file input look (Rectangle-25) */
+.Rectangle-25{
+  width: 100%;
+  height: 60px;
+  margin: 20px 0 0;
+  padding: 17px 33px; /* left 33px as provided */
+  border-radius: 413px;
+  box-shadow: inset 0 2px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 0 0 #fff, inset 150px 0 0 0 rgba(0, 0, 0, 0.15);
+  background-color: #fff;
+  display:flex; align-items:center; gap:12px;
+}
+.Rectangle-25 input[type=file]{
+  width: 100%;
+  border:0; background:transparent; padding:0; height:auto;
+}
+.Rectangle-25::-webkit-file-upload-button{ visibility:hidden }
+.Rectangle-25::file-selector-button{ display:none }
+
+/* Custom upload pill with left grey segment */
+.upload-pill{
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 60px;
+  border-radius: 413px;
+  box-shadow: inset 0 2px 3px rgba(0,0,0,.2), 0 1px 0 #fff;
+  background: #fff;
+  overflow: hidden;
+}
+.upload-pill .choose{
+  min-width: 180px;
+  height: 100%;
+  display:flex; align-items:center; justify-content:center;
+  background: #d9d9d9;
+  color: #ffffff;
+  font-weight: 700;
+  border-top-left-radius: 413px; border-bottom-left-radius: 413px;
+}
+.upload-pill .filename{
+  flex:1; padding: 0 20px; color:#9ca3af; font-weight:600;
+}
+.upload-pill input[type=file]{
+  position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;
+}
+.upload-pill:focus-within{ outline: 3px solid rgba(37,99,235,.12); outline-offset:2px; }
+
+/* Specific label typography (Mobile-No) */
+.Mobile-No{
+  font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 0.8;
+  letter-spacing: normal;
+  color: #000;
+}
+
+/* Segmented control (Gender) */
+.hrp-segment{
+  display:inline-flex; align-items:center; gap:6px; background:#f5f7f9; border:1px solid #e5e7eb; border-radius:413px; padding:6px; height:58px; width:100%;
+}
+.hrp-segment input[type=radio]{ position:absolute; left:-9999px; }
+.hrp-segment label{
+  user-select:none; cursor:pointer; border-radius:9999px; padding:10px 16px; font-weight:700; color:#111; background:#ffffff; border:1px solid #e5e7eb; box-shadow: inset 0 1px 0 rgba(255,255,255,.6);
+}
+.hrp-segment input[type=radio]:checked + label{
+  background:#0ea05d; color:#fff; border-color:#0ea05d;
+}
 
 .hrp-actions{display:flex;justify-content:flex-end;padding:10px 4px}
 .hrp-btn{border:0;border-radius:22px;padding:10px 18px;font-weight:800}
@@ -114,6 +290,85 @@ html, body { overflow-x: hidden; }
 .hrp-page{font-weight:800;color:#ef4444;text-decoration:none}
 .hrp-page.active{color:#111}
 .hrp-ellipsis{color:#6b7280}
+
+/* DataTables pagination in footer (rounded pills, no square shadow) */
+.hrp-card-footer #dtPagination .pagination{
+  margin: 0;
+  display: inline-flex;
+  gap: 6px;
+}
+.hrp-card-footer #dtPagination .pagination > li > a,
+.hrp-card-footer #dtPagination .pagination > li > span{
+  border-radius: 9999px !important;
+  border: 1px solid #e5e7eb !important;
+  background: #ffffff !important;
+  color: #111 !important;
+  padding: 4px 10px !important;
+  line-height: 1.2 !important;
+  box-shadow: none !important; /* remove square shadow */
+}
+.hrp-card-footer #dtPagination .pagination > .active > a,
+.hrp-card-footer #dtPagination .pagination > .active > span{
+  color: #111 !important;
+  background: #ffffff !important;
+  border-color: #1111 !important; /* subtle */
+  font-weight: 800;
+}
+.hrp-card-footer #dtPagination .pagination > li > a:hover{
+  background: #f9fafb !important;
+}
+.hrp-card-footer #dtPagination .pagination > li:first-child > a,
+.hrp-card-footer #dtPagination .pagination > li:last-child > a{
+  border-radius: 9999px !important; /* keep round for prev/next */
+}
+
+/* ===== Hiring list table polish ===== */
+.hrp-table{
+  border-collapse: separate; border-spacing: 0 0; width:100%;
+  font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+.hrp-table thead th{
+  font-weight: 700; color:#111; background:#fff; border-bottom:1px solid #ececec; padding:12px 12px;
+}
+.hrp-table tbody td{
+  padding:12px 12px; color:#414141; font-weight:500; font-size:16px;
+}
+.hrp-table tbody tr:nth-child(even){ background:#f8fafc; }
+.hrp-table tbody tr:hover{ background:#f1f5f9; }
+
+/* Action icon buttons */
+.hrp-icon-btn{ display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:8px; border:1px solid #e5e7eb; background:#ffffff; color:#111; text-decoration:none; font-size:14px; box-shadow:0 2px 6px rgba(0,0,0,.06); }
+.hrp-icon-btn:hover{ background:#f3f4f6; }
+.hrp-icon-btn.danger{ color:#b91c1c; border-color:#f3d4d4; }
+.hrp-icon-btn .ico{ line-height:1; }
+
+/* Compact colored action squares (edit/print/delete/convert) */
+.action-icons{ display:inline-flex; align-items:center; gap:8px; }
+.action-icon{ width:20px; height:20px; border-radius:4px; display:inline-flex; align-items:center; justify-content:center; line-height:0; box-shadow:0 1px 2px rgba(0,0,0,.08); padding:0; border:0; cursor:pointer; }
+.action-icon:focus{ outline:2px solid rgba(0,0,0,.15); outline-offset:2px; }
+.action-icon svg{ display:block }
+.action-icon.edit{ background:#013594; }
+.action-icon.print{ background:#267bf5; }
+.action-icon.delete{ background:#ff0000; }
+.action-icon.convert{ background:#14ae5c; }
+
+/* DataTables font normalization to Visby inside app window */
+.macos-theme .hrp-window .dataTables_wrapper,
+.macos-theme .hrp-window .dataTables_wrapper table,
+.macos-theme .hrp-window .dataTables_wrapper .dataTables_info,
+.macos-theme .hrp-window .dataTables_wrapper .dataTables_length label,
+.macos-theme .hrp-window .dataTables_wrapper .dataTables_filter input,
+.macos-theme .hrp-window .dataTables_wrapper .paginate_button{
+  font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+  font-weight: 600;
+  color:#111;
+}
+
+/* Search field with icon */
+#globalSearch{
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position: 12px center; background-size:18px 18px; padding-left:40px !important;
+}
 
 /* Responsive tweaks */
 @media (max-width: 1024px){

@@ -2,14 +2,101 @@
 namespace App\Http\Controllers\HR;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\HiringLead;
+use Illuminate\Support\Facades\Storage;
 
 class HiringController extends Controller
 {
-    public function index(){ return view('hr.hiring.index', ['page_title'=>'Hiring Lead List']); }
-    public function create(){ return view('hr.hiring.create', ['page_title'=>'Add New Hiring Lead']); }
-    public function store(Request $r){ return redirect()->route('hiring.index')->with('success','Saved'); }
-    public function show($id){ return view('hr.hiring.show',['page_title'=>'Hiring Lead']); }
-    public function edit($id){ return view('hr.hiring.edit',['page_title'=>'Edit Hiring Lead']); }
-    public function update(Request $r,$id){ return back()->with('success','Updated'); }
-    public function destroy($id){ return back()->with('success','Deleted'); }
+    public function index()
+    {
+        $leads = HiringLead::latest()->paginate(25);
+        return view('hr.hiring.index', [
+            'page_title' => 'Hiring Lead List',
+            'leads' => $leads,
+        ]);
+    }
+
+    public function create()
+    {
+        $nextCode = HiringLead::nextCode();
+        return view('hr.hiring.create', [
+            'page_title' => 'Add New Hiring Lead',
+            'nextCode' => $nextCode,
+        ]);
+    }
+
+    public function store(Request $r)
+    {
+        $data = $r->validate([
+            // unique_code will be generated server-side to avoid collisions
+            'person_name' => ['required','string','max:190'],
+            'mobile_no' => ['required','string','max:20'],
+            'address' => ['nullable','string','max:255'],
+            'position' => ['nullable','string','max:190'],
+            'is_experience' => ['required','boolean'],
+            'experience_count' => ['nullable','numeric','min:0','max:99.9'],
+            'experience_previous_company' => ['nullable','string','max:190'],
+            'previous_salary' => ['nullable','numeric','min:0'],
+            'gender' => ['nullable','in:male,female,other'],
+            'resume' => ['nullable','file','mimes:pdf,doc,docx','max:5120'],
+        ]);
+
+        if ($r->hasFile('resume')) {
+            $path = $r->file('resume')->store('resumes', 'public');
+            $data['resume_path'] = $path;
+        }
+
+        $data['is_experience'] = (bool)($data['is_experience'] ?? false);
+        $data['unique_code'] = HiringLead::nextCode();
+
+        HiringLead::create($data);
+
+        return redirect()->route('hiring.index')->with('success','Hiring lead created');
+    }
+
+    public function edit(HiringLead $hiring)
+    {
+        return view('hr.hiring.edit', [
+            'page_title' => 'Edit Hiring Lead',
+            'lead' => $hiring,
+        ]);
+    }
+
+    public function update(Request $r, HiringLead $hiring)
+    {
+        $data = $r->validate([
+            'person_name' => ['required','string','max:190'],
+            'mobile_no' => ['required','string','max:20'],
+            'address' => ['nullable','string','max:255'],
+            'position' => ['nullable','string','max:190'],
+            'is_experience' => ['required','boolean'],
+            'experience_count' => ['nullable','numeric','min:0','max:99.9'],
+            'experience_previous_company' => ['nullable','string','max:190'],
+            'previous_salary' => ['nullable','numeric','min:0'],
+            'gender' => ['nullable','in:male,female,other'],
+            'resume' => ['nullable','file','mimes:pdf,doc,docx','max:5120'],
+        ]);
+
+        if ($r->hasFile('resume')) {
+            if ($hiring->resume_path) {
+                Storage::disk('public')->delete($hiring->resume_path);
+            }
+            $data['resume_path'] = $r->file('resume')->store('resumes','public');
+        }
+
+        $data['is_experience'] = (bool)($data['is_experience'] ?? false);
+
+        $hiring->update($data);
+
+        return redirect()->route('hiring.index')->with('success','Hiring lead updated');
+    }
+
+    public function destroy(HiringLead $hiring)
+    {
+        if ($hiring->resume_path) {
+            Storage::disk('public')->delete($hiring->resume_path);
+        }
+        $hiring->delete();
+        return back()->with('success','Hiring lead deleted');
+    }
 }
