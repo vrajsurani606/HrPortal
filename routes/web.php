@@ -31,7 +31,11 @@ Route::get('/dashboard', function () {
 Route::middleware('auth')->group(function () {
     // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile/figma', function() {
+        return view('profile.figma-design');
+    })->name('profile.figma');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::patch('/profile/bank', [ProfileController::class, 'updateBank'])->name('profile.bank.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Employees (example module)
@@ -39,7 +43,7 @@ Route::middleware('auth')->group(function () {
 
     // HR Hiring Leads
     Route::resource('hiring', HiringController::class);
-
+    
     // Inquiries
     Route::resource('inquiries', InquiryController::class)->only(['index','create','store','show','edit','update','destroy']);
 
@@ -94,6 +98,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/section/{name}', function (string $name) {
         return view('section', ['name' => $name]);
     })->name('section');
+
+    // Typography test page
+    Route::get('/typography-test', function () {
+        return view('typography-test');
+    })->name('typography.test');
 });
 
 require __DIR__.'/auth.php';
