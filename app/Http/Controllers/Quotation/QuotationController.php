@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Quotation;
 
 use App\Http\Controllers\Controller;
+use App\Models\Inquiry;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -41,5 +42,11 @@ class QuotationController extends Controller
     public function destroy(int $id): RedirectResponse
     {
         return back()->with('success', 'Quotation deleted');
+    }
+
+    public function createFromInquiry(int $id): View
+    {
+        $inquiry = Inquiry::findOrFail($id);
+        return view('quotations.create', compact('inquiry'));
     }
 }
