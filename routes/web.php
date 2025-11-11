@@ -45,9 +45,11 @@ Route::middleware('auth')->group(function () {
     
     // Inquiries
     Route::resource('inquiries', InquiryController::class)->only(['index','create','store','show','edit','update','destroy']);
-
+    Route::get('inquiry/{id}/follow-up', [InquiryController::class, 'followUp'])->name('inquiry.follow-up');
+    Route::post('inquiry/{id}/follow-up', [InquiryController::class, 'storeFollowUp'])->name('inquiry.follow-up.store');
     // Quotations
     Route::resource('quotations', QuotationController::class);
+    Route::get('inquiry/{id}/quotation', [QuotationController::class, 'createFromInquiry'])->name('quotation.create-from-inquiry');
 
     // Companies
     Route::resource('companies', CompanyController::class);

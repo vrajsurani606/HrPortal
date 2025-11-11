@@ -3,7 +3,6 @@
 
 @section('content')
   <div class="hrp-card">
-    <div class="hrp-card-body">
       <div class="Rectangle-30 hrp-compact">
       <form method="POST" action="{{ route('hiring.store') }}" enctype="multipart/form-data" class="hrp-form grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5" id="hiringForm">
         @csrf
@@ -119,7 +118,6 @@
         </div>
       </form>
       </div>
-    </div>
 
   
     </div>

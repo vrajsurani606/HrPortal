@@ -352,8 +352,7 @@ html, body { overflow-x: hidden; }
 .hrp-user-btn{padding:6px 12px}
 
 /* Form card */
-.hrp-card{background:#ffffff;border-radius:16px;box-shadow:0 10px 24px rgba(0,0,0,.08);padding:12px;border:1px solid #f0f0f0}
-.hrp-card-body{padding:3px 2px 10px}
+.hrp-card{background:#ffffff;border:1px solid #f0f0f0}
 .hrp-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
 .hrp-col-3{grid-column:span 3}
 .hrp-col-4{grid-column:span 4}
@@ -368,8 +367,8 @@ html, body { overflow-x: hidden; }
 
 /* Figma container card (Rectangle-30) */
 .Rectangle-30{
-  width: 100%;
-  margin: 0 10px;
+  width: 99%;
+  margin: 14px -3px 20px 9px;
   padding: 45px 50px 25px 40px;
   border-radius: 43px;
   box-shadow: 0 4px 10px 0 rgba(0, 0, 0, 0.25);
@@ -451,14 +450,23 @@ html, body { overflow-x: hidden; }
 }
 
 /* Global form typography for inputs/selects/textarea inside app window */
-.macos-theme .hrp-window input.hrp-input,
-.macos-theme .hrp-window select.hrp-input,
-.macos-theme .hrp-window textarea.hrp-textarea{
+.macos-theme .hrp-window .hrp-form input.hrp-input,
+.macos-theme .hrp-window .hrp-form select.hrp-input,
+.macos-theme .hrp-window .hrp-form textarea.hrp-textarea{
   font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   font-size: 20px;
   font-weight: 500;
   color: #414141;
   line-height: 0.8;
+}
+/* Apply same typography to Rectangle-29 family used in forms (when hrp-input class is omitted) */
+.macos-theme .hrp-window .hrp-form .Rectangle-29,
+.macos-theme .hrp-window .hrp-form .Rectangle-29-select,
+.macos-theme .hrp-window .hrp-form .Rectangle-29-textarea{
+  font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-size: 16px !important;
+  font-weight: 600;
+  color: #111;
 }
 
 /* Create/Edit form typography refinements */
@@ -485,9 +493,33 @@ html, body { overflow-x: hidden; }
 
 /* Uniform vertical rhythm for fields (label + control) */
 .macos-theme .hrp-window .hrp-form > div{ display:flex; flex-direction:column; gap:8px; }
+/* Do not override grid wrappers inside forms */
+.macos-theme .hrp-window .hrp-form > div.grid,
+.macos-theme .hrp-window .hrp-form > div[class*="md:grid-cols"],
+.macos-theme .hrp-window .hrp-form > div[class*="grid-cols-"]{
+  display: grid !important;
+  flex-direction: initial;
+  gap: inherit;
+}
 .macos-theme .hrp-window .hrp-form .hrp-label{ margin:0 4px 4px; }
 .macos-theme .hrp-window .hrp-form .upload-pill{ margin-top:0; }
 .macos-theme .hrp-window .hrp-form .hrp-segment{ margin-top:0; }
+
+/* File upload pill styling */
+.upload-pill .upload-display:hover{
+  border-color:#d1d5db;
+}
+.upload-pill .upload-display:hover .choose{
+  background:#e5e7eb;
+}
+
+/* Rectangle-29 as textarea */
+.Rectangle-29-textarea{
+  min-height:58px;
+  resize:vertical;
+  padding-top:16px;
+  padding-bottom:16px;
+}
 
 /* Validation: error text and invalid control visuals */
 .macos-theme .hrp-window .hrp-form .hrp-error{
@@ -607,16 +639,40 @@ html, body { overflow-x: hidden; }
   margin: 8px 0 0;
 }
 
-/* Styled file input look (Rectangle-25) */
-.Rectangle-25{
-  width: 100%;
-  height: 60px;
-  margin: 20px 0 0;
-  padding: 17px 33px; /* left 33px as provided */
-  border-radius: 413px;
-  box-shadow: inset 0 2px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 0 0 #fff, inset 150px 0 0 0 rgba(0, 0, 0, 0.15);
-  background-color: #fff;
-  display:flex; align-items:center; gap:12px;
+/* Grid layout for forms */
+.grid {
+  display: grid;
+}
+.grid-cols-1 {
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+}
+.gap-4 {
+  gap: 1rem;
+}
+.gap-5 {
+  gap: 1.25rem;
+}
+@media (min-width: 768px) {
+  .md\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .md\:gap-5 {
+    gap: 1.25rem;
+  }
+  .md\:col-span-2 {
+    grid-column: span 2 / span 2;
+  }
+}
+
+/* Labels inside Rectangle-30 container */
+.Rectangle-30 .hrp-label{
+  font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  color: #000000;
+  line-height: 1.2;
+  margin: 0 0 8px 0;
+  display: block;
 }
 .Rectangle-25 input[type=file]{
   width: 100%;
@@ -1062,3 +1118,346 @@ body.sidebar-overlay.sidebar-open{ overflow:hidden }
 .pager-dots{ display:flex; align-items:center; gap:8px }
 .pager-dots .dot{ width:8px; height:8px; border-radius:50%; background:#e5e7eb }
 .pager-dots .dot.active{ background:#0f172a }
+
+/* Fix Rectangle-29 styling to ensure white background */
+.Rectangle-29, .Rectangle-29-select, .Rectangle-29-textarea {
+  background-color: #ffffff !important;
+  border: 1px solid #e8e8e8 !important;
+  border-radius: 413px !important;
+  box-shadow: inset 0 2px 3px rgba(0,0,0,.2), 0 1px 0 #fff !important;
+  margin: 8px 0 0 !important;
+}
+
+/* Inquiry submit button styling */
+.inquiry-submit-btn {
+  background: #10b981;
+  color: #fff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: 'Visby', 'Visby CF', 'VisbyCF', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  transition: all 0.2s ease;
+  width: 140px;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2);
+  display: inline-block;
+  text-align: center;
+}
+
+.inquiry-submit-btn:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Fix file upload styling */
+.upload-pill .upload-display {
+  background: #fff !important;
+  border: 1px solid #e8e8e8 !important;
+  border-radius: 413px !important;
+  box-shadow: inset 0 2px 3px rgba(0,0,0,.2), 0 1px 0 #fff !important;
+}
+/* Inquiry Index Page Styling */
+.inquiry-index-container {
+  padding: 0 !important;
+}
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Flush to header and sides, override inline */
+  margin: 0 !important;
+  padding: 10px 14px !important; /* match .hrp-header horizontal padding */
+  border-radius: 0 !important;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.filter-input, .filter-select {
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 15px;
+  font-size: 12px;
+  min-width: 100px;
+  height: 32px;
+  background: white;
+  color: #6b7280;
+}
+
+.filter-btn {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  height: 32px;
+  min-width: 32px;
+}
+
+.right-actions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.search-input {
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 15px;
+  font-size: 12px;
+  min-width: 150px;
+  height: 32px;
+  background: white;
+  position: relative;
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
+}
+
+.excel-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  height: 32px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.add-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+  height: 32px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.inquiry-table {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.inquiry-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inquiry-table th {
+  background: #f8f9fa;
+  padding: 12px 8px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+
+.inquiry-table td {
+  padding: 12px 8px;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Quotations: action column alignment and width */
+#quotationTable th:first-child,
+#quotationTable td:first-child{
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
+}
+#quotationTable td{ vertical-align: middle; }
+#quotationTable .action-cell{ display:flex; align-items:center; gap:6px; }
+#quotationTable .action-btn{ padding:0 !important; width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center; border:none; background:transparent; }
+#quotationTable .action-btn img{ width:18px; height:18px; display:block; }
+
+.action-cell {
+  display: flex;
+  gap: 4px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.action-btn:hover {
+  background: #f3f4f6;
+}
+
+.action-btn img {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.status-badge.confirmed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.scheduled {
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+.scope-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.no-data {
+  text-align: center;
+  padding: 40px;
+  color: #6b7280;
+}
+/* DataTables custom styling */
+.dataTables_wrapper {
+  font-size: 12px;
+}
+
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter,
+.dataTables_wrapper .dataTables_info,
+.dataTables_wrapper .dataTables_paginate {
+  font-size: 12px;
+  margin: 10px 0;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  padding: 4px 8px;
+  margin: 0 2px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  background: white;
+  font-size: 11px;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background: #f8f9fa;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.dataTables_scrollBody {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+}
+
+/* Custom scrollbar */
+.dataTables_scrollBody::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.dataTables_scrollBody::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Hide default DataTables search */
+.dataTables_filter {
+  display: none;
+}
+/* Search container with icon */
+.search-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  width: 16px;
+  height: 16px;
+  z-index: 1;
+  opacity: 0.6;
+}
+
+.search-container .search-input {
+  padding-left: 36px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 15px;
+  font-size: 12px;
+  min-width: 180px;
+  height: 32px;
+}
+
+/* Update DataTables search integration */
+.custom-search-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+/* Grid utilities (restored) */
+.grid { display: grid; }
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.gap-4 { gap: 1rem; }
+.gap-5 { gap: 1.25rem; }
+@media (min-width: 768px){
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .md\:grid-cols-5 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .md\:grid-cols-6 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .md\:grid-cols-8 { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .md\:gap-5 { gap: 1.25rem; }
+  .md\:col-span-1 { grid-column: span 1 / span 1; }
+  .md\:col-span-2 { grid-column: span 2 / span 2; }
+  .md\:col-span-3 { grid-column: span 3 / span 3; }
+  .md\:col-span-4 { grid-column: span 4 / span 4; }
+  .md\:col-span-5 { grid-column: span 5 / span 5; }
+  .md\:col-span-6 { grid-column: span 6 / span 6; }
+}
+
+/* Ensure selects fill available width in grids */
+.Rectangle-29-select{ width:100%; }
