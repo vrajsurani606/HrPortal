@@ -18,8 +18,7 @@
           <div>
             <label class="hrp-label">Pay Type :</label>
             <select name="pay_type" id="payType" class="Rectangle-29-select" required>
-              <option value="">Select Pay Type</option>
-              <option value="salary">Salary</option>
+              <option value="salary" selected>Salary</option>
               <option value="lightbill">Light Bill</option>
               <option value="tea_expense">Tea Expense</option>
               <option value="transportation">Transportation</option>
@@ -37,49 +36,23 @@
           </div>
         </div>
 
-        <!-- Row 2: Employee & Payment Info - 4 columns -->
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+        <!-- Row 2: Employee Info (Only for Salary) -->
+        <div id="employeeRow" style="display: grid; grid-template-columns: repeat(1, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
           <div>
             <label class="hrp-label">Employee :</label>
-            <select name="employee_id" class="Rectangle-29-select" required>
+            <select name="employee_id" class="Rectangle-29-select">
               <option value="">Select Employee</option>
               <option value="1">John Doe</option>
               <option value="2">Jane Smith</option>
               <option value="3">Mike Johnson</option>
             </select>
           </div>
-          <div>
-            <label class="hrp-label">Payment Mode :</label>
-            <select name="payment_mode" class="Rectangle-29-select" required>
-              <option value="">In Account</option>
-              <option value="bank_transfer">Bank Transfer</option>
-              <option value="cash">Cash</option>
-              <option value="cheque">Cheque</option>
-            </select>
-          </div>
-          <div>
-            <label class="hrp-label">Bank Name :</label>
-            <input type="text" name="bank_name" class="Rectangle-29" placeholder="Enter Bank Name" required>
-          </div>
-          <div></div>
-        </div>
-
-        <!-- Row 3: Bank Details - 2 columns -->
-        <div class="grid grid-cols-2 gap-4 mb-8">
-          <div>
-            <label class="hrp-label">Bank Account No:</label>
-            <input type="text" name="bank_account_no" class="Rectangle-29" placeholder="Enter Bank Account No" required>
-          </div>
-          <div>
-            <label class="hrp-label">Transaction No:</label>
-            <input type="text" name="transaction_no" class="Rectangle-29" placeholder="Enter Transaction No" required>
-          </div>
         </div>
       </div>
 
-      <!-- Vendor Fields (Hidden by default) -->
+      <!-- Vendor Fields (For lightbill, tea_expense, transportation) -->
       <div class="Rectangle-30 hrp-compact" id="vendorFields" style="margin-top: 2rem; display: none;">
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
           <div>
             <label class="hrp-label">Vendor Name:</label>
             <input type="text" name="vendor_name" class="Rectangle-29" placeholder="Enter Vendor Name">
@@ -92,22 +65,148 @@
             <label class="hrp-label">Vendor Gst No:</label>
             <input type="text" name="vendor_gst_no" class="Rectangle-29" placeholder="Enter GST No">
           </div>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
           <div>
             <label class="hrp-label">Vendor Pan No:</label>
             <input type="text" name="vendor_pan_no" class="Rectangle-29" placeholder="Enter PAN No">
           </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
           <div>
             <label class="hrp-label">Total Bill Amount:</label>
             <input type="number" name="total_bill_amount" class="Rectangle-29" placeholder="Enter Amount" step="0.01">
           </div>
-          <div></div>
+          <div>
+            <label class="hrp-label">Payment Mode:</label>
+            <select name="vendor_payment_mode" class="Rectangle-29-select">
+              <option value="">Select Mode</option>
+              <option value="bank_transfer">Bank Transfer</option>
+              <option value="cash">Cash</option>
+              <option value="cheque">Cheque</option>
+            </select>
+          </div>
+          <div>
+            <label class="hrp-label">Bank Name:</label>
+            <input type="text" name="vendor_bank_name" class="Rectangle-29" placeholder="Enter Bank Name">
+          </div>
+          <div>
+            <label class="hrp-label">Bank Account No:</label>
+            <input type="text" name="vendor_bank_account" class="Rectangle-29" placeholder="Enter Account No">
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <label class="hrp-label">Transaction No:</label>
+            <input type="text" name="vendor_transaction_no" class="Rectangle-29" placeholder="Enter Transaction No">
+          </div>
+          <div>
+            <label class="hrp-label">Bill Upload:</label>
+            <div class="upload-pill">
+              <div class="choose">Choose File</div>
+              <div class="filename">No File Chosen</div>
+              <input type="file" name="bill_upload" accept=".pdf,.jpg,.png,.doc,.docx">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Other Fields (For 'other' pay type) -->
+      <div class="Rectangle-30 hrp-compact" id="otherFields" style="margin-top: 2rem; display: none;">
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <label class="hrp-label">Name:</label>
+            <input type="text" name="other_name" class="Rectangle-29" placeholder="Enter Name">
+          </div>
+          <div>
+            <label class="hrp-label">Address:</label>
+            <input type="text" name="other_address" class="Rectangle-29" placeholder="Enter Address">
+          </div>
+          <div>
+            <label class="hrp-label">Phone:</label>
+            <input type="text" name="other_phone" class="Rectangle-29" placeholder="Enter Phone">
+          </div>
+          <div>
+            <label class="hrp-label">Company Name:</label>
+            <input type="text" name="other_company" class="Rectangle-29" placeholder="Enter Company Name">
+          </div>
+        </div>
+        
+        <!-- Items Table -->
+        <div style="margin-bottom: 1.5rem;">
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+              <button type="button" class="inquiry-submit-btn" id="addOtherItem" style="background: #28a745;">+ Add Item</button>
+            </div>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background: #f8f9fa;">
+                <th style="padding: 12px;">Description</th>
+                <th style="padding: 12px;">Quantity</th>
+                <th style="padding: 12px;">Price</th>
+                <th style="padding: 12px;">Total</th>
+                <th style="padding: 12px;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="otherItemsTable">
+              <tr class="other-item-row">
+                <td style="padding: 8px;">
+                  <input type="text" name="other_items[0][description]" class="Rectangle-29" placeholder="Enter Description" style="border: none; background: transparent; margin: 0;">
+                </td>
+                <td style="padding: 8px;">
+                  <input type="number" name="other_items[0][quantity]" class="Rectangle-29 other-qty" placeholder="1" style="border: none; background: transparent; margin: 0;">
+                </td>
+                <td style="padding: 8px;">
+                  <input type="number" name="other_items[0][price]" class="Rectangle-29 other-price" placeholder="0.00" step="0.01" style="border: none; background: transparent; margin: 0;">
+                </td>
+                <td style="padding: 8px;">
+                  <input type="number" name="other_items[0][total]" class="Rectangle-29 other-total" placeholder="0.00" readonly style="border: none; background: transparent; margin: 0;">
+                </td>
+                <td style="padding: 8px; text-align: center;">
+                  <button type="button" class="remove-other-item" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 30px; height: 30px;">×</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <label class="hrp-label">Total Bill Amount:</label>
+            <input type="number" name="other_total_bill" id="otherTotalBill" class="Rectangle-29" placeholder="0.00" readonly>
+          </div>
+          <div>
+            <label class="hrp-label">Payment Mode:</label>
+            <select name="other_payment_mode" class="Rectangle-29-select">
+              <option value="">Select Mode</option>
+              <option value="in_account">In Account</option>
+              <option value="cash">Cash</option>
+            </select>
+          </div>
+          <div>
+            <label class="hrp-label">Bank Name:</label>
+            <input type="text" name="other_bank_name" class="Rectangle-29" placeholder="Enter Bank Name">
+          </div>
+          <div>
+            <label class="hrp-label">Bank Account No:</label>
+            <input type="text" name="other_bank_account" class="Rectangle-29" placeholder="Enter Account No">
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <label class="hrp-label">Transaction No:</label>
+            <input type="text" name="other_transaction_no" class="Rectangle-29" placeholder="Enter Transaction No">
+          </div>
+          <div>
+            <label class="hrp-label">Bill Upload:</label>
+            <div class="upload-pill">
+              <div class="choose">Choose File</div>
+              <div class="filename">No File Chosen</div>
+              <input type="file" name="other_bill_upload" accept=".pdf,.jpg,.png,.doc,.docx">
+            </div>
+          </div>
         </div>
       </div>
 
       <!-- Second Container: Attendance & Leave Info -->
-      <div class="Rectangle-30 hrp-compact" id="salaryFields" style="margin-top: 2rem;">
+      <div class="Rectangle-30 hrp-compact" id="salaryFields" style="margin-top: 2rem; display: block;">
         <!-- Row 1: Working Days - 4 columns -->
         <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
           <div>
@@ -315,11 +414,16 @@
             </div>
           </div>
           <div>
-          <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
-              <button type="button" class="inquiry-submit-btn" id="addItemBtn" style="background: #28a745;">+ Add Payroll</button>
+            <div>
+            </div>
           </div>
         </div>
       </div>
+      <div> 
+         <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+              <button type="button" class="inquiry-submit-btn" id="addItemBtn" style="background: #28a745;">+ Add Payroll</button>
+          </div>
+        </div>
     </form>
   </div>
 
@@ -328,18 +432,92 @@
       // Handle Pay Type Change
       const payTypeSelect = document.getElementById('payType');
       const vendorFields = document.getElementById('vendorFields');
+      const otherFields = document.getElementById('otherFields');
       const salaryFields = document.getElementById('salaryFields');
+      const employeeRow = document.getElementById('employeeRow');
       
       payTypeSelect.addEventListener('change', function() {
         if (this.value === 'salary') {
           vendorFields.style.display = 'none';
+          otherFields.style.display = 'none';
           salaryFields.style.display = 'block';
-        } else if (this.value === 'lightbill' || this.value === 'tea_expense' || this.value === 'transportation' || this.value === 'other') {
+          employeeRow.style.display = 'grid';
+        } else if (this.value === 'lightbill' || this.value === 'tea_expense' || this.value === 'transportation') {
           vendorFields.style.display = 'block';
+          otherFields.style.display = 'none';
           salaryFields.style.display = 'none';
+          employeeRow.style.display = 'none';
+        } else if (this.value === 'other') {
+          vendorFields.style.display = 'none';
+          otherFields.style.display = 'block';
+          salaryFields.style.display = 'none';
+          employeeRow.style.display = 'none';
         } else {
           vendorFields.style.display = 'none';
+          otherFields.style.display = 'none';
           salaryFields.style.display = 'none';
+          employeeRow.style.display = 'none';
+        }
+      });
+      
+      // Other Items Calculations
+      function calculateOtherItemTotal(row) {
+        const qty = parseFloat(row.querySelector('.other-qty').value) || 0;
+        const price = parseFloat(row.querySelector('.other-price').value) || 0;
+        const total = qty * price;
+        row.querySelector('.other-total').value = total.toFixed(2);
+        calculateOtherTotalBill();
+      }
+      
+      function calculateOtherTotalBill() {
+        let total = 0;
+        document.querySelectorAll('.other-total').forEach(input => {
+          total += parseFloat(input.value) || 0;
+        });
+        document.getElementById('otherTotalBill').value = total.toFixed(2);
+      }
+      
+      // Add Other Item
+      document.getElementById('addOtherItem').addEventListener('click', function() {
+        const table = document.getElementById('otherItemsTable');
+        const index = table.querySelectorAll('.other-item-row').length;
+        const newRow = document.createElement('tr');
+        newRow.className = 'other-item-row';
+        newRow.innerHTML = `
+          <td style="padding: 8px;">
+            <input type="text" name="other_items[${index}][description]" class="Rectangle-29" placeholder="Enter Description" style="border: none; background: transparent; margin: 0;">
+          </td>
+          <td style="padding: 8px;">
+            <input type="number" name="other_items[${index}][quantity]" class="Rectangle-29 other-qty" placeholder="1" style="border: none; background: transparent; margin: 0;">
+          </td>
+          <td style="padding: 8px;">
+            <input type="number" name="other_items[${index}][price]" class="Rectangle-29 other-price" placeholder="0.00" step="0.01" style="border: none; background: transparent; margin: 0;">
+          </td>
+          <td style="padding: 8px;">
+            <input type="number" name="other_items[${index}][total]" class="Rectangle-29 other-total" placeholder="0.00" readonly style="border: none; background: transparent; margin: 0;">
+          </td>
+          <td style="padding: 8px; text-align: center;">
+            <button type="button" class="remove-other-item" style="background: #dc3545; color: white; border: none; border-radius: 50%; width: 30px; height: 30px;">×</button>
+          </td>
+        `;
+        table.appendChild(newRow);
+      });
+      
+      // Remove Other Item
+      document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-other-item')) {
+          const rows = document.querySelectorAll('.other-item-row');
+          if (rows.length > 1) {
+            e.target.closest('.other-item-row').remove();
+            calculateOtherTotalBill();
+          }
+        }
+      });
+      
+      // Other Items Input Events
+      document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('other-qty') || e.target.classList.contains('other-price')) {
+          calculateOtherItemTotal(e.target.closest('.other-item-row'));
         }
       });
       // Calculate Total Income
@@ -391,7 +569,9 @@
         document.querySelector(`input[name="${field}"]`).addEventListener('input', calculateDeductionTotal);
       });
 
-      document.querySelector('select[name="leave_deduction"]').addEventListener('change', calculateDeductionTotal);
+      if (document.querySelector('select[name="leave_deduction"]')) {
+        document.querySelector('select[name="leave_deduction"]').addEventListener('change', calculateDeductionTotal);
+      }
     });
   </script>
 @endsection
