@@ -5,50 +5,50 @@
   <!-- Tabs Section -->
   <div>
     <!-- Employee Profile Header -->
-    <div style="padding:20px 32px;background:white">
-      <div style="display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap;width:100%">
+    <div style="padding:24px 40px;background:white">
+      <div style="display:flex;align-items:center;gap:20px;justify-content:space-between;flex-wrap:wrap;width:100%">
         <!-- Employee ID -->
         <div style="flex-shrink:0">
-          <div style="font-size:10px;color:#64748b;font-weight:500;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin-bottom:2px">Employee ID</div>
-          <div style="font-size:12px;color:#1e293b;font-weight:700;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">#Chitri_0024</div>
+          <div style="font-size:12px;color:#64748b;font-weight:500;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin-bottom:2px">Employee ID</div>
+          <div style="font-size:16px;color:#1e293b;font-weight:700;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">#Chitri_0024</div>
         </div>
         
         <!-- Divider -->
-        <div style="width:1px;height:40px;background:#e5e7eb"></div>
+        <div style="width:1px;height:36px;background:#e5e7eb"></div>
         
         <!-- Profile Info -->
         <div style="display:flex;align-items:center;gap:8px">
-          <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;background:#fbbf24;flex-shrink:0">
+          <div style="width:56px;height:56px;border-radius:50%;overflow:hidden;background:#fbbf24;flex-shrink:0">
             <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face" style="width:100%;height:100%;object-fit:cover" alt="Dipesh Vasoya">
           </div>
           <div>
-            <h2 style="font-size:20px;font-weight:700;color:#1e293b;margin:0 0 1px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">Dipesh Vasoya</h2>
-            <p style="color:#64748b;margin:0;font-size:11px;font-weight:500;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">UI/UX Designer</p>
+            <h2 style="font-size:24px;font-weight:700;color:#1e293b;margin:0 0 1px 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">Dipesh Vasoya</h2>
+            <p style="color:#64748b;margin:0;font-size:13px;font-weight:500;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">UI/UX Designer</p>
           </div>
         </div>
         
         <!-- Divider -->
-        <div style="width:1px;height:40px;background:#e5e7eb"></div>
+        <div style="width:1px;height:36px;background:#e5e7eb"></div>
         
         <!-- Active Badge -->
-        <div style="display:flex;align-items:center;gap:4px;background:#dcfce7;color:#16a34a;font-weight:600;font-size:10px;padding:3px 8px;border-radius:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;flex-shrink:0">
-          <div style="width:5px;height:5px;background:#16a34a;border-radius:50%"></div>
+        <div style="display:flex;align-items:center;gap:16px;background:#158f00;color:#ffffff;font-weight:700;font-size:14px;padding:6px 14px;border-radius:9999px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;flex-shrink:0">
+          <div style="width:8px;height:8px;background:#ffffff;border-radius:50%"></div>
           Active
         </div>
         
         <!-- Divider -->
-        <div style="width:1px;height:40px;background:#e5e7eb"></div>
+        <div style="width:1px;height:36px;background:#e5e7eb"></div>
         
         <!-- Contact Info -->
-        <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0">
-          <div style="display:flex;align-items:center;gap:4px;color:#64748b;font-size:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+        <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
+          <div style="display:flex;align-items:center;gap:6px;color:#000000;font-size:14px;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
               <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
             </svg>
             +917359442073
           </div>
-          <div style="display:flex;align-items:center;gap:4px;color:#64748b;font-size:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+          <div style="display:flex;align-items:center;gap:6px;color:#000000;font-size:14px;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
               <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" />
             </svg>
             dipeshvasoya22@gmail.com
@@ -56,12 +56,12 @@
         </div>
         
         <!-- Divider -->
-        <div style="width:1px;height:40px;background:#e5e7eb"></div>
+        <div style="width:1px;height:36px;background:#e5e7eb"></div>
         
         <!-- Company Join Date -->
         <div style="flex-shrink:0">
-          <div style="font-size:10px;color:#64748b;font-weight:500;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin-bottom:2px">Company Join Date :</div>
-          <div style="font-size:12px;color:#1e293b;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">23 / 12 / 2024</div>
+          <div style="font-size:14px;color:#000000;font-weight:600;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin-bottom:2px">Company Join Date:</div>
+          <div style="font-size:16px;color:#000000;font-weight:700;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">23 / 12 / 2024</div>
         </div>
       </div>
     </div>
@@ -113,7 +113,7 @@
         <!-- Right Column - Form -->
         <div style="flex:1">
           <div class="hrp-compact">
-            <form style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+            <form style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px 24px;align-items:start">
               <!-- Full Name -->
               <div>
                 <label class="hrp-label">Full Name</label>
@@ -125,13 +125,13 @@
                 <label class="hrp-label">Gender :</label>
                 <div style="display:flex;gap:20px;align-items:center;margin-top:8px">
                   <label
-                    style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+                    style="display:flex;align-items:center;gap:16px;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
                     <input type="radio" name="gender" value="male" checked style="margin:0;accent-color:#374151">
                     <span style="color:#374151;font-weight:500">Male</span>
                     <div style="width:8px;height:8px;background:#374151;border-radius:50%;margin-left:4px"></div>
                   </label>
                   <label
-                    style="display:flex;align-items:center;gap:8px;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+                    style="display:flex;align-items:center;gap:16px;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
                     <input type="radio" name="gender" value="female" style="margin:0;accent-color:#9ca3af">
                     <span style="color:#9ca3af;font-weight:500">Female</span>
                   </label>
@@ -183,16 +183,18 @@
                 <input type="text" placeholder="XXXXX0000X" class="hrp-input Rectangle-29">
               </div>
 
-              <!-- Highest Qualification -->
-              <div>
-                <label class="hrp-label">Highest Qualification</label>
-                <input type="text" placeholder="Enter your Highest Qualification" class="hrp-input Rectangle-29">
-              </div>
-
-              <!-- Year of Passing -->
-              <div>
-                <label class="hrp-label">Year of Passing</label>
-                <input type="text" placeholder="Passing Year" class="hrp-input Rectangle-29">
+              <!-- Highest Qualification + Year of Passing (same row, two columns) -->
+              <div style="grid-column:1/-1">
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px 24px">
+                  <div>
+                    <label class="hrp-label">Highest Qualification</label>
+                    <input type="text" placeholder="Enter your Highest Qualification" class="hrp-input Rectangle-29">
+                  </div>
+                  <div>
+                    <label class="hrp-label">Year of Passing</label>
+                    <input type="text" placeholder="Passing Year" class="hrp-input Rectangle-29">
+                  </div>
+                </div>
               </div>
 
               <!-- Previous Company Name -->
@@ -214,7 +216,7 @@
               </div>
 
               <!-- Reason for Leaving -->
-              <div>
+              <div style="grid-column:span 2">
                 <label class="hrp-label">Reason for Leaving</label>
                 <textarea placeholder="Enter Reason for Leaving" class="Rectangle-29-textarea"></textarea>
               </div>
@@ -234,63 +236,63 @@
 
     <!-- Payroll Tab Content -->
     <div id="payroll" class="tab-content" style="display:none;background:white;border-radius:0;box-shadow:none;border:0;padding:0;margin:0">
-      <div class="striped-surface" style="overflow-x:hidden;padding:0">
-        <table class="flat-table" style="width:100%;border-collapse:collapse;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+      <div class="JV-datatble JV-datatble--zoom striped-surface striped-surface--full table-wrap pad-none">
+        <table>
           <thead>
-            <tr style="background:#f8f9fa;border-bottom:1px solid #e5e7eb">
-              <th style="padding:8px 10px;text-align:center;font-weight:900;color:#000000;font-size:20px">Action</th>
-              <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:20px;border-right:1px solid #e5e7eb">Serial No</th>
-              <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:20px;border-right:1px solid #e5e7eb">Unique No</th>
-              <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:20px;border-right:1px solid #e5e7eb">Salary Month</th>
-              <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:20px;border-right:1px solid #e5e7eb">Format Type</th>
-              <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:20px;border-right:1px solid #e5e7eb">Payment Date</th>
-              <th style="padding:16px 12px;text-align:left;font-weight:600;color:#374151;font-size:20px">Payment Amount</th>
+            <tr>
+              <th>Action</th>
+              <th>Serial No</th>
+              <th>Unique No</th>
+              <th>Salary Month</th>
+              <th>Format Type</th>
+              <th>Payment Date</th>
+              <th>Payment Amount</th>
             </tr>
           </thead>
           <tbody>
-            <tr style="border-bottom:1px solid #f3f4f6">
-              <td style="padding:8px 10px;text-align:center">
-                <img src="{{ asset('action_icon/print.svg') }}" alt="Print" style="width:50px;height:20px;display:inline-block" />
+            <tr>
+              <td>
+                <img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon" />
               </td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">1</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">CMS/LEAD/0022</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">OCT - 2025</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">Salary</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">30-10-2025</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px">₹ 11,000</td>
+              <td>1</td>
+              <td>CMS/LEAD/0022</td>
+              <td>OCT - 2025</td>
+              <td>Salary</td>
+              <td>30-10-2025</td>
+              <td>₹ 11,000</td>
             </tr>
-            <tr style="border-bottom:1px solid #f3f4f6">
-               <td style="padding:8px 10px;text-align:center">
-                <img src="{{ asset('action_icon/print.svg') }}" alt="Print" style="width:50px;height:20px;display:inline-block" />
+            <tr>
+              <td>
+                <img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon" />
               </td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">2</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">CMS/LEAD/0023</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">Salary (OCT-25)</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">Salary</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">14-10-2025</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px">₹ 15,000</td>
+              <td>2</td>
+              <td>CMS/LEAD/0023</td>
+              <td>Salary (OCT-25)</td>
+              <td>Salary</td>
+              <td>14-10-2025</td>
+              <td>₹ 15,000</td>
             </tr>
-            <tr style="border-bottom:1px solid #f3f4f6">
-              <td style="padding:8px 10px;text-align:center">
-                <img src="{{ asset('action_icon/print.svg') }}" alt="Print" style="width:50px;height:20px;display:inline-block" />
+            <tr>
+              <td>
+                <img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon" />
               </td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">3</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">CMS/LEAD/0024</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">Other</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">Salary</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">29-09-2025</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px">₹ 20,000</td>
+              <td>3</td>
+              <td>CMS/LEAD/0024</td>
+              <td>Other</td>
+              <td>Salary</td>
+              <td>29-09-2025</td>
+              <td>₹ 20,000</td>
             </tr>
-            <tr style="border-bottom:1px solid #f3f4f6">
-              <td style="padding:8px 10px;text-align:center">
-                <img src="{{ asset('action_icon/print.svg') }}" alt="Print" style="width:50px;height:20px;display:inline-block" />
+            <tr>
+              <td>
+                <img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon" />
               </td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">4</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">CMS/LEAD/0025</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">Salary (JUN-25)</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">Salary</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px;border-right:1px solid #e5e7eb">28-08-2025</td>
-              <td style="padding:16px 12px;color:#374151;font-weight:600;font-size:20px">₹ 12,000</td>
+              <td>4</td>
+              <td>CMS/LEAD/0025</td>
+              <td>Salary (JUN-25)</td>
+              <td>Salary</td>
+              <td>28-08-2025</td>
+              <td>₹ 12,000</td>
             </tr>
           </tbody>
         </table>
@@ -340,71 +342,71 @@
       </div>
       
       <!-- Attendance Table -->
-      <div class="striped-surface" style="overflow-x:hidden;padding:0 32px 8px">
-        <table class="flat-table" style="width:100%;border-collapse:collapse;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
+      <div class="striped-surface table-wrap pad-attn">
+        <table class="flat-table">
           <thead>
-            <tr style="background:#f8f9fa;border-bottom:1px solid #e5e7eb">
-              <th style="padding:16px 12px;text-align:center;font-weight:600;color:#374151;font-size:20px;border-right:1px solid #e5e7eb">Day</th>
-              <th style="padding:16px 12px;text-align:center;font-weight:600;color:#374151;font-size:20px;border-right:1px solid #e5e7eb">Date</th>
-              <th style="padding:16px 12px;text-align:center;font-weight:600;color:#374151;font-size:20px;border-right:1px solid #e5e7eb">Check IN & OUT</th>
-              <th style="padding:16px 12px;text-align:center;font-weight:600;color:#374151;font-size:20px;border-right:1px solid #e5e7eb">Overtime</th>
-              <th style="padding:16px 12px;text-align:center;font-weight:600;color:#374151;font-size:20px">Status</th>
+            <tr>
+              <th>Day</th>
+              <th>Date</th>
+              <th>Check IN & OUT</th>
+              <th>Overtime</th>
+              <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            <tr style="border-bottom:1px solid #f3f4f6">
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">Monday</td>
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">27 Oct, 2025</td>
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">
-                <span style="color:#f97316;font-weight:600">09:36 AM</span> - <span style="color:#ef4444;font-weight:600">06:25 PM</span>
+            <tr>
+              <td>Monday</td>
+              <td>27 Oct, 2025</td>
+              <td>
+                <span>09:36 AM</span> - <span>06:25 PM</span>
               </td>
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">0h 19m</td>
-              <td style="padding:16px 12px;text-align:center">
-                <span style="background:#dcfce7;color:#059669;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600">Present</span>
-              </td>
-            </tr>
-            <tr style="border-bottom:1px solid #f3f4f6">
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">Tuesday</td>
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">28 Oct, 2025</td>
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">
-                <span style="color:#f97316;font-weight:600">09:40 AM</span> - <span style="color:#ef4444;font-weight:600">06:15 PM</span>
-              </td>
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">--</td>
-              <td style="padding:16px 12px;text-align:center">
-                <span style="background:#fed7aa;color:#ea580c;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600">Half Day</span>
+              <td>0h 19m</td>
+              <td>
+                <span class="status-pill status-present">Present</span>
               </td>
             </tr>
-            <tr style="border-bottom:1px solid #f3f4f6">
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">Wednesday</td>
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">29 Oct, 2025</td>
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">
-                <span style="color:#f97316;font-weight:600">09:55 AM</span> - <span style="color:#10b981;font-weight:600">06:40 PM</span>
+            <tr>
+              <td>Tuesday</td>
+              <td>28 Oct, 2025</td>
+              <td>
+                <span>09:40 AM</span> - <span>06:15 PM</span>
               </td>
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">0h 15m</td>
-              <td style="padding:16px 12px;text-align:center">
-                <span style="background:#dcfce7;color:#059669;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600">Present</span>
-              </td>
-            </tr>
-            <tr style="border-bottom:1px solid #f3f4f6">
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">Thursday</td>
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">30 Oct, 2025</td>
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">
-                <span style="color:#10b981;font-weight:600">09:17 AM</span> - <span style="color:#10b981;font-weight:600">07:20 PM</span>
-              </td>
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">1h 33m</td>
-              <td style="padding:16px 12px;text-align:center">
-                <span style="background:#dcfce7;color:#059669;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600">Present</span>
+              <td>--</td>
+              <td>
+                <span class="status-pill status-half">Half Day</span>
               </td>
             </tr>
-            <tr style="border-bottom:1px solid #f3f4f6">
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">Friday</td>
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">31 Oct, 2025</td>
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">
-                <span style="color:#f97316;font-weight:600">09:36 AM</span> - <span style="color:#ef4444;font-weight:600">06:25 PM</span>
+            <tr>
+              <td>Wednesday</td>
+              <td>29 Oct, 2025</td>
+              <td>
+                <span>09:55 AM</span> - <span>06:40 PM</span>
               </td>
-              <td style="padding:16px 12px;text-align:center;color:#374151;font-weight:500;font-size:20px;border-right:1px solid #e5e7eb">0h 19m</td>
-              <td style="padding:16px 12px;text-align:center">
-                <span style="background:#dcfce7;color:#059669;padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600">Present</span>
+              <td>0h 15m</td>
+              <td>
+                <span class="status-pill status-present">Present</span>
+              </td>
+            </tr>
+            <tr>
+              <td>Thursday</td>
+              <td>30 Oct, 2025</td>
+              <td>
+                <span>09:17 AM</span> - <span>07:20 PM</span>
+              </td>
+              <td>1h 33m</td>
+              <td>
+                <span class="status-pill status-present">Present</span>
+              </td>
+            </tr>
+            <tr>
+              <td>Friday</td>
+              <td>31 Oct, 2025</td>
+              <td>
+                <span>09:36 AM</span> - <span>06:25 PM</span>
+              </td>
+              <td>0h 19m</td>
+              <td>
+                <span class="status-pill status-present">Present</span>
               </td>
             </tr>
           </tbody>
@@ -421,7 +423,7 @@
           </svg>
           <input type="text" placeholder="Type to search..." style="width:100%;padding:12px 16px 12px 48px;border:1px solid #e5e7eb;border-radius:8px;font-size:20px;background:#f9fafb;color:#374151;outline:none">
         </div>
-        <button style="background:#1f2937;color:white;padding:12px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;margin-left:16px">
+        <button style="background:#1f2937;color:white;padding:12px 20px;border:none;border-radius:8px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:16px;margin-left:16px">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
             <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
           </svg>
@@ -534,6 +536,24 @@
     </div>
   </div>
 
+  @section('footer_pagination')
+  @if(isset($payrolls) && method_exists($payrolls,'links'))
+      <form method="GET" class="hrp-entries-form" style="display:inline-flex;align-items:center;gap:6px;margin-right:10px">
+        <span>Entries</span>
+        <select name="per_page" onchange="this.form.submit()" style="border:1px solid #E5E5E5;border-radius:6px;padding:2px 8px;height:26px">
+          @php($currentPerPage = (int) request()->get('per_page', 10))
+          @foreach([10,25,50,100] as $size)
+            <option value="{{ $size }}" {{ $currentPerPage === $size ? 'selected' : '' }}>{{ $size }}</option>
+          @endforeach
+        </select>
+        @foreach(request()->except(['per_page','page']) as $key => $val)
+          <input type="hidden" name="{{ $key }}" value="{{ $val }}" />
+        @endforeach
+      </form>
+      {{ $payrolls->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv') }}
+  @endif
+@endsection
+
     <style>
       /* Import system fonts */
       @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -554,68 +574,7 @@
       .tabbar .tab-sep{width:1px;height:24px;background:#e5e7eb}
       .tabbar .tab-btn.active .tab-ico{border-color:#000000ff;color:#000000ff}
 
-      /* Flat table to match screenshot (joined to tab bar) */
-      .flat-table{ width:100%; border-collapse:collapse; table-layout:auto; font-family: 'Visby','Visby CF','VisbyCF',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif }
-      .flat-table thead th{
-        background:#ffffff;
-        color:#000000 !important;
-        font-weight:900;
-        font-size:22px;
-        letter-spacing:.2px;
-        text-align:center !important;
-        padding:14px 16px !important;
-        border:0 !important; border-right:0 !important;
-        border-bottom:1px solid #e5e7eb !important; /* header-only border */
-        vertical-align:middle;
-        position:relative;
-      }
-      .flat-table thead tr{ border:0 !important; background:#ffffff !important }
-      /* thin vertical pipes between header titles */
-      .flat-table thead th+th::before{
-        content:"";
-        position:absolute; left:0; top:50%; transform:translateY(-50%);
-        width:1px; height:18px; background:#d1d5db;
-      }
-      .flat-table tbody td{
-        color:#000000 !important;
-        font-weight:500;
-        font-size:20px;
-        padding:8px 10px !important;
-        border:0 !important;
-        text-align:center !important;
-        vertical-align:middle;
-      }
-      .flat-table tbody tr{ border:0 !important }
-      .flat-table tbody tr:nth-child(odd){ background:#ffffff }
-      .flat-table tbody tr:nth-child(even){ background:#F5F5F5 }
-      .flat-table thead th, .flat-table tbody td{ height:56px; line-height:1.3 }
-
-      /* Widen text-heavy columns but allow wrapping to avoid scroll */
-      .flat-table thead th:nth-child(3), .flat-table tbody td:nth-child(3){ min-width: 140px; white-space: normal; word-break: break-word }
-      .flat-table thead th:nth-child(4), .flat-table tbody td:nth-child(4){ min-width: 140px; white-space: normal; word-break: break-word }
-      .flat-table thead th:nth-child(7), .flat-table tbody td:nth-child(7){ min-width: 120px; white-space: normal; word-break: break-word }
-    
-
-      /* Force center align for all headers and cells */
-      .flat-table thead th, .flat-table tbody td{ text-align:center !important }
-
-      /* Extra-tight spacing between Serial No (2) and Unique No (3) */
-      .flat-table thead th:nth-child(2), .flat-table tbody td:nth-child(2),
-      .flat-table thead th:nth-child(3), .flat-table tbody td:nth-child(3){
-        padding-left: 6px !important;
-        padding-right: 6px !important;
-      }
-
-      /* Always show table effect even without rows */
-      .striped-surface{
-        background-image: repeating-linear-gradient(
-          to bottom,
-          #ffffff 0, #ffffff 52px,
-          #F5F5F5 52px, #F5F5F5 104px
-        );
-        background-color:#ffffff;
-        min-height: auto;
-      }
+      /* Table styles are defined globally in public/new_theme/css/datatable.css */
 
      
 
