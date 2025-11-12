@@ -5,26 +5,31 @@
   <div class="hrp-card">
     
     <div class="hrp-card-body">
-      <div class="flex flex-wrap items-center gap-3 mb-3 filters-compact hiring-filters">
-        <input type="text" class="hrp-input Rectangle-29" style="max-width:220px" placeholder="mm/dd/yyyy" inputmode="numeric">
-        <input type="text" class="hrp-input Rectangle-29" style="max-width:220px" placeholder="mm/dd/yyyy" inputmode="numeric">
-        <select class="hrp-input Rectangle-29 Rectangle-29-select" style="max-width:220px">
-          <option value="">Select Gender</option>
+      <div class="jv-filter">
+        <input type="date" class="filter-pill" placeholder="From : dd/mm/yyyy">
+        <input type="date" class="filter-pill" placeholder="To : dd/mm/yyyy">
+        <select class="filter-pill" required>
+          <option value="" disabled selected>Select Gender</option>
           <option value="male">Male</option>
           <option value="female">Female</option>
           <option value="other">Other</option>
         </select>
-        <select class="hrp-input Rectangle-29 Rectangle-29-select" style="max-width:220px">
-          <option value="">Select Experience</option>
+        <select class="filter-pill" required>
+          <option value="" disabled selected>Select Experience</option>
           <option value="fresher">Fresher</option>
           <option value=">0">0+</option>
           <option value=">1">1+</option>
           <option value=">2">2+</option>
           <option value=">3">3+</option>
         </select>
-        <div class="ml-auto flex items-center gap-3" style="margin-left:auto">
-          <input id="globalSearch" class="hrp-input Rectangle-29" style="width:420px; max-width:420px" placeholder="Search here...">
-          <a href="{{ route('hiring.create') }}" class="hrp-btn hrp-btn-primary" style="border-radius:9999px;padding:10px 22px;font-weight:800">+ Add</a>
+        <button type="button" class="filter-search" aria-label="Search">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+          </svg>
+        </button>
+        <div class="filter-right">
+          <input id="globalSearch" class="filter-pill" placeholder="Search here...">
+          <a href="{{ route('hiring.create') }}" class="pill-btn pill-success">+ Add</a>
         </div>
       </div>
         <div class="JV-datatble JV-datatble--zoom striped-surface striped-surface--full table-wrap pad-none">
