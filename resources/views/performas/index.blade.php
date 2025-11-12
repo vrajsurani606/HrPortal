@@ -41,6 +41,7 @@
         <td>
           <div class="action-icons">
             <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+            <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
             <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
           </div>
         </td>
@@ -57,6 +58,7 @@
         <td>
           <div class="action-icons">
             <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+            <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
             <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
           </div>
         </td>
@@ -73,6 +75,7 @@
         <td>
           <div class="action-icons">
             <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+            <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
             <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
           </div>
         </td>
@@ -89,6 +92,7 @@
         <td>
           <div class="action-icons">
             <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+            <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
             <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
           </div>
         </td>

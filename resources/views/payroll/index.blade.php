@@ -40,21 +40,15 @@
             <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
           </svg>
         </button>
-        <a href="{{ route('payroll.create') }}" class="add-btn" style="background: #ef4444; color: white; padding: 8px 16px; border-radius: 20px; text-decoration: none; display: flex; align-items: center; gap: 5px;">
-          <svg width="16" height="16" fill="white" viewBox="0 0 24 24">
-            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-          </svg>
+        <a href="#" title="Export Excel" style="display:flex; align-items:center; justify-content:center; width:40px; height:40px;">
+          <img src="{{ asset('action_icon/payroll_excel.svg') }}" alt="Excel" width="32" height="32">
         </a>
-        <button class="excel-btn" style="background: #10b981; color: white; padding: 8px 16px; border-radius: 20px; border: none; display: flex; align-items: center; gap: 5px;">
-          <svg width="16" height="16" fill="white" viewBox="0 0 24 24">
-            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
-          </svg>
-        </button>
-        <button class="excel-btn" style="background: #ef4444; color: white; padding: 8px 16px; border-radius: 20px; border: none; display: flex; align-items: center; gap: 5px;">
-          <svg width="16" height="16" fill="white" viewBox="0 0 24 24">
-            <path d="M17,12H7V10H17V12M15,16H9V14H15V16M17,8H7V6H17V8M19,3H5C3.89,3 3,3.89 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5C21,3.89 20.1,3 19,3Z"/>
-          </svg>
-        </button>
+        <a href="#" title="Download PDF" style="display:flex; align-items:center; justify-content:center; width:40px; height:40px;">
+          <img src="{{ asset('action_icon/payroll_pdf.svg') }}" alt="PDF" width="32" height="32">
+        </a>
+        <a href="#" title="Print" style="display:flex; align-items:center; justify-content:center; width:40px; height:40px;">
+          <img src="{{ asset('action_icon/payroll_print.svg') }}" alt="Print" width="32" height="32">
+        </a>
       </div>
     </div>
   </div>
@@ -78,6 +72,7 @@
           <td>
             <div class="action-icons">
               <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+              <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
               <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
             </div>
           </td>
@@ -92,6 +87,7 @@
           <td>
             <div class="action-icons">
               <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+              <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
               <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
             </div>
           </td>
@@ -106,6 +102,7 @@
           <td>
             <div class="action-icons">
               <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+              <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
               <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
             </div>
           </td>
@@ -120,6 +117,7 @@
           <td>
             <div class="action-icons">
               <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
+              <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
               <img class="action-icon" src="{{ asset('action_icon/print.svg') }}" alt="Print">
             </div>
           </td>
