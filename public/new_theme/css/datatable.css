@@ -102,6 +102,7 @@
   text-align: center;
   padding: 10px 12px;
   vertical-align: middle;
+  position: relative;
 }
 .JV-datatble tbody td{
   font-size: 12px;
@@ -111,6 +112,31 @@
   text-align: center;
   padding: 10px 12px;
   vertical-align: middle;
+}
+
+/* Thin vertical separator between header titles */
+.JV-datatble thead th+th::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 18px;
+  background: #d1d5db;
+}
+
+/* Flat table header separators */
+.flat-table thead th{ position: relative }
+.flat-table thead th+th::before{
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 18px;
+  background: #d1d5db;
 }
 .JV-datatble th,
 .JV-datatble td{ white-space: normal; word-break: break-word }
