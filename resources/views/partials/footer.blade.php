@@ -19,6 +19,6 @@
     @endif
   </div>
   @hasSection('footer_pagination')
-  <div class="hrp-pagination">@yield('footer_pagination')</div>
+    <div class="hrp-pagination">@yield('footer_pagination')</div>
   @endif
 </div>
