@@ -2,54 +2,45 @@
 @section('page_title', 'Payroll')
 @section('content')
 <div class="hrp-content">
-  <!-- Filter Row -->
-  <div class="filter-row" style="background: #f8f9fa; padding: 15px; border-radius: 25px; margin-bottom: 20px;">
-    <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
-      <div>
-        <input type="date" class="filter-input" placeholder="From : dd/mm/yyyy" style="min-width: 150px;">
-      </div>
-      <div>
-        <input type="date" class="filter-input" placeholder="To : dd/mm/yyyy" style="min-width: 150px;">
-      </div>
-      <div>
-        <select class="filter-select" style="min-width: 130px;">
-          <option value="">Payment Mode</option>
-          <option value="bank_transfer">Bank Transfer</option>
-          <option value="cash">Cash</option>
-          <option value="cheque">Cheque</option>
-        </select>
-      </div>
-      <div>
-        <select class="filter-select" style="min-width: 130px;">
-          <option value="">Payment Type</option>
-          <option value="salary">Salary</option>
-          <option value="lightbill">Light Bill</option>
-          <option value="tea_expense">Tea Expense</option>
-          <option value="transportation">Transportation</option>
-          <option value="other">Other</option>
-        </select>
-      </div>
-      <div class="right-actions" style="margin-left: auto; display: flex; gap: 10px;">
-        <button class="filter-btn" style="background: #6b7280; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-          <svg width="16" height="16" fill="white" viewBox="0 0 24 24">
-            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-          </svg>
-        </button>
-        <button class="filter-btn" style="background: #6b7280; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
-          <svg width="16" height="16" fill="white" viewBox="0 0 24 24">
-            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-          </svg>
-        </button>
-        <a href="#" title="Export Excel" style="display:flex; align-items:center; justify-content:center; width:40px; height:40px;">
-          <img src="{{ asset('action_icon/payroll_excel.svg') }}" alt="Excel" width="32" height="32">
-        </a>
-        <a href="#" title="Download PDF" style="display:flex; align-items:center; justify-content:center; width:40px; height:40px;">
-          <img src="{{ asset('action_icon/payroll_pdf.svg') }}" alt="PDF" width="32" height="32">
-        </a>
-        <a href="#" title="Print" style="display:flex; align-items:center; justify-content:center; width:40px; height:40px;">
-          <img src="{{ asset('action_icon/payroll_print.svg') }}" alt="Print" width="32" height="32">
-        </a>
-      </div>
+  <!-- Filter Row (Hiring-style) -->
+  <div class="jv-filter">
+    <input type="date" class="filter-pill" placeholder="From : dd/mm/yyyy">
+    <input type="date" class="filter-pill" placeholder="To : dd/mm/yyyy">
+    <select class="filter-pill" required>
+      <option value="" disabled selected>Payment Mode</option>
+      <option value="bank_transfer">Bank Transfer</option>
+      <option value="cash">Cash</option>
+      <option value="cheque">Cheque</option>
+    </select>
+    <select class="filter-pill" required>
+      <option value="" disabled selected>Payment Type</option>
+      <option value="salary">Salary</option>
+      <option value="lightbill">Light Bill</option>
+      <option value="tea_expense">Tea Expense</option>
+      <option value="transportation">Transportation</option>
+      <option value="other">Other</option>
+    </select>
+    <button type="button" class="filter-search" aria-label="Search">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+      </svg>
+    </button>
+    <button type="button" class="filter-search" aria-label="Refresh">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+      </svg>
+    </button>
+    <div class="filter-right">
+      <input class="filter-pill" placeholder="Search here...">
+      <a href="#" title="Export Excel">
+        <img src="{{ asset('action_icon/payroll_excel.svg') }}" alt="Excel" width="32" height="32">
+      </a>
+      <a href="#" title="Download PDF">
+        <img src="{{ asset('action_icon/payroll_pdf.svg') }}" alt="PDF" width="32" height="32">
+      </a>
+      <a href="#" title="Print">
+        <img src="{{ asset('action_icon/payroll_print.svg') }}" alt="Print" width="32" height="32">
+      </a>
     </div>
   </div>
 

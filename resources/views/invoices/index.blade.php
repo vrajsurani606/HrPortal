@@ -6,21 +6,20 @@
 @section('content')
 <div class="hrp-content">
   <!-- Filter Row -->
-  <div class="filter-row">
-    <input type="text" class="filter-input" placeholder="Bill Name">
-    <input type="text" class="filter-input" placeholder="Proforma No.">
-    <input type="text" class="filter-input" placeholder="Mobile No.">
-    <input type="date" class="filter-input" placeholder="From : dd/mm/yyyy">
-    <input type="date" class="filter-input" placeholder="To : dd/mm/yyyy">
-    <div class="right-actions">
-      <button class="filter-btn">
-        <svg width="16" height="16" fill="white" viewBox="0 0 24 24">
-          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-        </svg>
-      </button>
-      <input type="text" class="search-input" placeholder="Search here..">
-      <button class="excel-btn">Excel</button>
-      <a href="#" class="add-btn">+ Add</a>
+  <div class="jv-filter">
+    <input type="text" class="filter-pill" placeholder="Bill Name">
+    <input type="text" class="filter-pill" placeholder="Proforma No.">
+    <input type="text" class="filter-pill" placeholder="Mobile No.">
+    <input type="date" class="filter-pill" placeholder="From : dd/mm/yyyy">
+    <input type="date" class="filter-pill" placeholder="To : dd/mm/yyyy">
+    <button type="button" class="filter-search" aria-label="Search">
+      <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+      </svg>
+    </button>
+    <div class="filter-right">
+      <input class="filter-pill" placeholder="Search here...">
+      <a href="#" class="pill-btn pill-success">+ Add</a>
     </div>
   </div>
 

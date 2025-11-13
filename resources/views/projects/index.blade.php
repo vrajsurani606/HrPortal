@@ -31,24 +31,23 @@
         </svg>
         <span class="badge">3</span>
       </div>
+      <button class="create-stage-btn" onclick="openStageModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+          <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Create
+      </button>
     </div>
   </div>
 
   <!-- Kanban Board -->
   <div class="kanban-board">
-    <!-- Upcoming Column -->
-    <div class="kanban-column upcoming">
+    @foreach($stages as $stage)
+    <div class="kanban-column" style="background: {{ $stage->color }}" data-stage-id="{{ $stage->id }}">
       <div class="column-header">
         <div class="column-title">
-          <div class="column-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/>
-              <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
-            </svg>
-          </div>
-          <span>Upcoming</span>
+          <span>{{ $stage->name }}</span>
         </div>
         <button class="add-card-btn">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
@@ -57,11 +56,14 @@
           </svg>
         </button>
       </div>
-      <div class="kanban-cards">
-        <div class="kanban-card">
+      <div class="kanban-cards" data-stage-id="{{ $stage->id }}">
+        @foreach($stage->projects as $project)
+        <div class="kanban-card" draggable="true" data-project-id="{{ $project->id }}">
           <div class="card-header">
-            <h3>MVTY Dham Web</h3>
-            <span class="card-date">17/12/25</span>
+            <h3>{{ $project->name }}</h3>
+            @if($project->due_date)
+            <span class="card-date">{{ $project->due_date->format('d/m/y') }}</span>
+            @endif
           </div>
           <div class="card-meta">
             <div class="card-stats">
@@ -78,7 +80,7 @@
                   <line x1="12" y1="2" x2="12" y2="14" stroke="currentColor" stroke-width="2"/>
                 </svg>
               </span>
-              <span class="task-count">0/4</span>
+              <span class="task-count">{{ $project->completed_tasks }}/{{ $project->total_tasks }}</span>
             </div>
             <div class="card-avatars">
               <div class="avatar" style="background: #4F46E5;">M</div>
@@ -87,305 +89,183 @@
             </div>
           </div>
         </div>
+        @endforeach
       </div>
     </div>
+    @endforeach
+  </div>
 
-    <!-- In Processing Column -->
-    <div class="kanban-column processing">
-      <div class="column-header">
-        <div class="column-title">
-          <div class="column-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" stroke-width="2" fill="none"/>
-            </svg>
-          </div>
-          <span>In Processing</span>
-        </div>
-        <button class="add-card-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
+  <!-- Create Stage Modal -->
+  <div id="stageModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Create New Stage</h3>
+        <button onclick="closeStageModal()" class="close-btn">&times;</button>
       </div>
-      <div class="kanban-cards">
-        <div class="kanban-card">
-          <div class="card-header">
-            <h3>MVTY Dham Web</h3>
+      <form id="stageForm">
+        @csrf
+        <div class="form-group">
+          <label for="stageName">Stage Name</label>
+          <input type="text" id="stageName" name="name" class="form-input" placeholder="Enter stage name" required>
+        </div>
+        <div class="form-group">
+          <label for="stageColor">Choose Stage Color</label>
+          <div class="color-input-wrapper">
+            <div class="color-preview" id="colorPreview" style="background-color: #6b7280;" onclick="document.getElementById('stageColor').click()"></div>
+            <input type="color" id="stageColor" name="color" class="color-input" value="#6b7280" required>
+            <input type="text" id="colorText" class="color-text" value="#6B7280" readonly>
           </div>
-          <div class="card-meta">
-            <div class="card-stats">
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
-                </svg>
-              </span>
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <polyline points="9,11 12,14 15,11" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <line x1="12" y1="2" x2="12" y2="14" stroke="currentColor" stroke-width="2"/>
-                </svg>
-              </span>
-              <span class="task-count">0/4</span>
-            </div>
-            <div class="card-avatars">
-              <div class="avatar" style="background: #4F46E5;">M</div>
-              <div class="avatar" style="background: #059669;">D</div>
-              <div class="avatar" style="background: #DC2626;">P</div>
-            </div>
+          <div class="color-presets">
+            <div class="color-preset" style="background: linear-gradient(135deg, #d3b5df, #c084fc);" onclick="setColor('#d3b5df')" title="Purple"></div>
+            <div class="color-preset" style="background: linear-gradient(135deg, #ebc58f, #f59e0b);" onclick="setColor('#ebc58f')" title="Orange"></div>
+            <div class="color-preset" style="background: linear-gradient(135deg, #b9f3fc, #3b82f6);" onclick="setColor('#b9f3fc')" title="Blue"></div>
+            <div class="color-preset" style="background: linear-gradient(135deg, #abd1a5, #10b981);" onclick="setColor('#abd1a5')" title="Green"></div>
+            <div class="color-preset" style="background: linear-gradient(135deg, #fca5a5, #ef4444);" onclick="setColor('#fca5a5')" title="Red"></div>
+            <div class="color-preset" style="background: linear-gradient(135deg, #fde68a, #f59e0b);" onclick="setColor('#fde68a')" title="Yellow"></div>
+            <div class="color-preset" style="background: linear-gradient(135deg, #c7d2fe, #6366f1);" onclick="setColor('#c7d2fe')" title="Indigo"></div>
+            <div class="color-preset" style="background: linear-gradient(135deg, #fed7d7, #f87171);" onclick="setColor('#fed7d7')" title="Pink"></div>
           </div>
         </div>
-        
-        <div class="kanban-card">
-          <div class="card-header">
-            <h3>NABL Software</h3>
-          </div>
-          <div class="card-meta">
-            <div class="card-stats">
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
-                </svg>
-              </span>
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <polyline points="9,11 12,14 15,11" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <line x1="12" y1="2" x2="12" y2="14" stroke="currentColor" stroke-width="2"/>
-                </svg>
-              </span>
-              <span class="task-count">5/22</span>
-            </div>
-            <div class="card-avatars">
-              <div class="avatar" style="background: #4F46E5;">M</div>
-              <div class="avatar" style="background: #059669;">D</div>
-              <div class="avatar" style="background: #DC2626;">P</div>
-            </div>
-          </div>
+        <div class="form-actions">
+          <button type="button" onclick="closeStageModal()" class="btn-cancel">Cancel</button>
+          <button type="submit" class="btn-create">Create Stage</button>
         </div>
-        
-        <div class="kanban-card">
-          <div class="card-header">
-            <h3>Social Media POST</h3>
-          </div>
-          <div class="card-meta">
-            <div class="card-stats">
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
-                </svg>
-              </span>
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <polyline points="9,11 12,14 15,11" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <line x1="12" y1="2" x2="12" y2="14" stroke="currentColor" stroke-width="2"/>
-                </svg>
-              </span>
-              <span class="task-count">5/22</span>
-            </div>
-            <div class="card-avatars">
-              <div class="avatar" style="background: #4F46E5;">M</div>
-              <div class="avatar" style="background: #059669;">D</div>
-              <div class="avatar" style="background: #DC2626;">P</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="kanban-card">
-          <div class="card-header">
-            <h3>Social Media POST</h3>
-          </div>
-          <div class="card-meta">
-            <div class="card-stats">
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
-                </svg>
-              </span>
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <polyline points="9,11 12,14 15,11" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <line x1="12" y1="2" x2="12" y2="14" stroke="currentColor" stroke-width="2"/>
-                </svg>
-              </span>
-              <span class="task-count">5/22</span>
-            </div>
-            <div class="card-avatars">
-              <div class="avatar" style="background: #4F46E5;">M</div>
-              <div class="avatar" style="background: #059669;">D</div>
-              <div class="avatar" style="background: #DC2626;">P</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- In Review Column -->
-    <div class="kanban-column review">
-      <div class="column-header">
-        <div class="column-title">
-          <div class="column-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M9 11l3 3L22 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <span>In Review</span>
-        </div>
-        <button class="add-card-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
-      </div>
-      <div class="kanban-cards">
-        <div class="kanban-card">
-          <div class="card-header">
-            <h3>MVTY Dham Web</h3>
-          </div>
-          <div class="card-meta">
-            <div class="card-stats">
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
-                </svg>
-              </span>
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <polyline points="9,11 12,14 15,11" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <line x1="12" y1="2" x2="12" y2="14" stroke="currentColor" stroke-width="2"/>
-                </svg>
-              </span>
-              <span class="task-count">0/4</span>
-            </div>
-            <div class="card-avatars">
-              <div class="avatar" style="background: #4F46E5;">M</div>
-              <div class="avatar" style="background: #059669;">D</div>
-              <div class="avatar" style="background: #DC2626;">P</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="kanban-card">
-          <div class="card-header">
-            <h3>Chitri Software</h3>
-          </div>
-          <div class="card-meta">
-            <div class="card-stats">
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
-                </svg>
-              </span>
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <polyline points="9,11 12,14 15,11" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <line x1="12" y1="2" x2="12" y2="14" stroke="currentColor" stroke-width="2"/>
-                </svg>
-              </span>
-              <span class="task-count">5/22</span>
-            </div>
-            <div class="card-avatars">
-              <div class="avatar" style="background: #4F46E5;">M</div>
-              <div class="avatar" style="background: #059669;">D</div>
-              <div class="avatar" style="background: #DC2626;">P</div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="kanban-card">
-          <div class="card-header">
-            <h3>Om Her Bhole App</h3>
-          </div>
-          <div class="card-meta">
-            <div class="card-stats">
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
-                </svg>
-              </span>
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <polyline points="9,11 12,14 15,11" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <line x1="12" y1="2" x2="12" y2="14" stroke="currentColor" stroke-width="2"/>
-                </svg>
-              </span>
-              <span class="task-count">12/17</span>
-            </div>
-            <div class="card-avatars">
-              <div class="avatar" style="background: #4F46E5;">M</div>
-              <div class="avatar" style="background: #059669;">D</div>
-              <div class="avatar" style="background: #DC2626;">P</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Completed Column -->
-    <div class="kanban-column completed">
-      <div class="column-header">
-        <div class="column-title">
-          <div class="column-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-              <polyline points="22,4 12,14.01 9,11.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <span>Completed</span>
-        </div>
-        <button class="add-card-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          </svg>
-        </button>
-      </div>
-      <div class="kanban-cards">
-        <div class="kanban-card">
-          <div class="card-header">
-            <h3>MVTY Dham App</h3>
-          </div>
-          <div class="card-meta">
-            <div class="card-stats">
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
-                </svg>
-              </span>
-              <span class="stat-item">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 11H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7a2 2 0 0 0-2-2h-4" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <polyline points="9,11 12,14 15,11" stroke="currentColor" stroke-width="2" fill="none"/>
-                  <line x1="12" y1="2" x2="12" y2="14" stroke="currentColor" stroke-width="2"/>
-                </svg>
-              </span>
-              <span class="task-count">4/4</span>
-            </div>
-            <div class="card-avatars">
-              <div class="avatar" style="background: #4F46E5;">M</div>
-              <div class="avatar" style="background: #059669;">D</div>
-              <div class="avatar" style="background: #DC2626;">P</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      </form>
     </div>
   </div>
 </div>
+
+@push('scripts')
+<script>
+let draggedElement = null;
+
+// Drag and Drop functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.kanban-card');
+    const columns = document.querySelectorAll('.kanban-cards');
+
+    cards.forEach(card => {
+        card.addEventListener('dragstart', function(e) {
+            draggedElement = this;
+            this.style.opacity = '0.5';
+        });
+
+        card.addEventListener('dragend', function(e) {
+            this.style.opacity = '1';
+            draggedElement = null;
+        });
+    });
+
+    columns.forEach(column => {
+        column.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.style.backgroundColor = 'rgba(255,255,255,0.1)';
+        });
+
+        column.addEventListener('dragleave', function(e) {
+            this.style.backgroundColor = '';
+        });
+
+        column.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.style.backgroundColor = '';
+            
+            if (draggedElement) {
+                const projectId = draggedElement.dataset.projectId;
+                const newStageId = this.dataset.stageId;
+                
+                // Move element visually
+                this.appendChild(draggedElement);
+                
+                // Update backend
+                updateProjectStage(projectId, newStageId);
+            }
+        });
+    });
+
+    // Color picker functionality
+    const colorInput = document.getElementById('stageColor');
+    const colorPreview = document.getElementById('colorPreview');
+    const colorText = document.getElementById('colorText');
+
+    if (colorInput && colorPreview && colorText) {
+        colorInput.addEventListener('input', function() {
+            const color = this.value;
+            colorPreview.style.backgroundColor = color;
+            colorText.value = color.toUpperCase();
+        });
+    }
+});
+
+function updateProjectStage(projectId, stageId) {
+    fetch(`/projects/${projectId}/stage`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({ stage_id: stageId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            console.error('Failed to update project stage');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+// Color preset function
+function setColor(color) {
+    const colorInput = document.getElementById('stageColor');
+    const colorPreview = document.getElementById('colorPreview');
+    const colorText = document.getElementById('colorText');
+    
+    colorInput.value = color;
+    colorPreview.style.backgroundColor = color;
+    colorText.value = color.toUpperCase();
+}
+
+// Modal functions
+function openStageModal() {
+    document.getElementById('stageModal').style.display = 'flex';
+    // Reset form
+    document.getElementById('stageName').value = '';
+    setColor('#6b7280');
+}
+
+function closeStageModal() {
+    document.getElementById('stageModal').style.display = 'none';
+}
+
+// Stage creation
+document.getElementById('stageForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('{{ route("project-stages.store") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        closeStageModal();
+        location.reload();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error creating stage. Please try again.');
+    });
+});
+</script>
+@endpush
 @endsection

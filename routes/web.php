@@ -56,6 +56,8 @@ Route::middleware('auth')->group(function () {
 
     // Projects
     Route::resource('projects', ProjectController::class);
+    Route::post('project-stages', [ProjectController::class, 'storeStage'])->name('project-stages.store');
+    Route::patch('projects/{project}/stage', [ProjectController::class, 'updateProjectStage'])->name('projects.update-stage');
 
     // Performa & Invoices
     Route::resource('performas', PerformaController::class); // performas.index, performas.create
