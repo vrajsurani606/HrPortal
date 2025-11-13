@@ -48,5 +48,12 @@ class TicketController extends Controller
     public function show($id){ return view('section',['name'=>'ticket-show']); }
     public function edit($id){ return view('section',['name'=>'ticket-edit']); }
     public function update(Request $r,$id){ return back()->with('success','Ticket updated'); }
-    public function destroy($id){ return back()->with('success','Ticket deleted'); }
+    public function destroy(Ticket $ticket, Request $request)
+    {
+        $ticket->delete();
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+        return back()->with('success','Ticket deleted');
+    }
 }

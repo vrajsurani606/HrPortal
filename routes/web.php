@@ -76,6 +76,16 @@ Route::middleware('auth')->group(function () {
 
     // Events
     Route::resource('events', EventController::class);
+    Route::post('events/{event}/images', [EventController::class, 'uploadImages'])->name('events.upload-images');
+    Route::delete('event-images/{image}', [EventController::class, 'deleteImage'])->name('events.images.destroy');
+    // New media endpoints (images + videos)
+    Route::post('events/{event}/media', [EventController::class, 'uploadMedia'])->name('events.upload-media');
+    Route::delete('event-videos/{video}', [EventController::class, 'deleteVideo'])->name('events.videos.destroy');
+    // Stream/download media to avoid web server 403
+    Route::get('event-images/{image}/open', [EventController::class, 'openImage'])->name('events.images.open');
+    Route::get('event-images/{image}/download', [EventController::class, 'downloadImage'])->name('events.images.download');
+    Route::get('event-videos/{video}/open', [EventController::class, 'openVideo'])->name('events.videos.open');
+    Route::get('event-videos/{video}/download', [EventController::class, 'downloadVideo'])->name('events.videos.download');
 
     // Roles & Permissions (disabled from routes)
     // Route::resource('roles', RoleController::class);

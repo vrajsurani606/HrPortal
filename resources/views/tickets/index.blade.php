@@ -4,14 +4,14 @@
 @section('content')
 <div class="hrp-content">
   <div class="jv-filter">
-    <select class="filter-pill" name="company" form="ticketFilters">
-      <option value="" selected>Select Company</option>
+    <select class="filter-pill" name="company" form="ticketFilters" required>
+      <option value="" disabled selected>Select Company</option>
       @foreach($companies as $company)
         <option value="{{ $company }}" {{ request('company')===$company ? 'selected' : '' }}>{{ $company }}</option>
       @endforeach
     </select>
-    <select class="filter-pill" name="ticket_type" form="ticketFilters">
-      <option value="" selected>Select Ticket Type</option>
+    <select class="filter-pill" name="ticket_type" form="ticketFilters" required>
+      <option value="" disabled selected>Select Ticket Type</option>
       @foreach($types as $type)
         <option value="{{ $type }}" {{ request('ticket_type')===$type ? 'selected' : '' }}>{{ $type }}</option>
       @endforeach
@@ -25,7 +25,7 @@
       <input id="globalSearch" name="q" class="filter-pill" placeholder="Search here..." form="ticketFilters" value="{{ request('q') }}">
       <a href="#" class="pill-btn pill-success">Excel</a>
     </div>
-    <form id="ticketFilters" method="GET"></form>
+    <form id="ticketFilters" method="GET" novalidate></form>
   </div>
 
   <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
@@ -47,7 +47,13 @@
           <tr>
             <td>
               <a href="#" title="View" aria-label="View"><img src="{{ asset('action_icon/view.svg') }}" alt="View" class="action-icon"></a>
-              <a href="#" title="Delete" aria-label="Delete"><img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon"></a>
+              <form action="{{ route('tickets.destroy', $t) }}" method="POST" style="display:inline;" data-ajax>
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="js-confirm-delete" title="Delete" aria-label="Delete" data-ajax data-success="Ticket deleted">
+                  <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon">
+                </button>
+              </form>
             </td>
             <td>{{ ($tickets->currentPage()-1) * $tickets->perPage() + $i + 1 }}</td>
             <td>{{ ucfirst($t->status) }}</td>

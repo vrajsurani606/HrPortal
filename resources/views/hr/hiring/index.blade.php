@@ -58,11 +58,11 @@
                 <a href="{{ route('hiring.edit', $lead) }}" title="Edit" aria-label="Edit">
                   <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon">
                 </a>
-                @if(\Illuminate\Support\Facades\Route::has('hiring.print'))
+                {{-- @if(\Illuminate\Support\Facades\Route::has('hiring.print')) --}}
                   <a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'details']) }}" title="Print Details" target="_blank" aria-label="Print Details">
                     <img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon">
                   </a>
-                @endif
+                {{-- @endif --}}
                 <form method="POST" action="{{ route('hiring.destroy', $lead) }}" onsubmit="return confirm('Delete this lead?')" style="display:inline">
                   @csrf @method('DELETE')
                   <button type="submit" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">

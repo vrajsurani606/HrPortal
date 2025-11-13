@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Ticket;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 
 class TicketController extends Controller
 {
@@ -39,5 +41,14 @@ class TicketController extends Controller
             'companies' => $companies,
             'types' => $types,
         ]);
+    }
+
+    public function destroy(Ticket $ticket): RedirectResponse|JsonResponse
+    {
+        $ticket->delete();
+        if (request()->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+        return back()->with('success', 'Ticket deleted successfully');
     }
 }
