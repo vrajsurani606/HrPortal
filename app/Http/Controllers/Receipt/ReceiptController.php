@@ -6,8 +6,8 @@ use Illuminate\Http\Request;
 class ReceiptController extends Controller
 {
     public function index(){ 
-        $receipts = Receipt::latest()->get();
-        return view('receipts.index', compact('receipts')); 
+        // $receipts = Receipt::latest()->get();
+        return view('receipts.index'); 
     }
     
     public function create(){ 

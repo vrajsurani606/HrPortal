@@ -73,7 +73,7 @@
 
       @php($ico='rule.svg')
       @php($p=public_path('side_icon/'.$ico))
-      <li class="hrp-menu-item {{ request()->routeIs('rules.index') ? 'active' : '' }}"><a href="{{ route('rules.index') }}"><i>@if(file_exists($p))<img src="{{ asset('side_icon/'.$ico) }}" alt="Rules">@else <span class="fa fa-book"></span>@endif</i> <span>Rules & Regulations</span></a></li>
+      <li class="hrp-menu-item {{ request()->routeIs('rules.index') ? 'active' : '' }}"><a href="{{ route('rules.index') }}" target="_blank" rel="noopener"><i>@if(file_exists($p))<img src="{{ asset('side_icon/'.$ico) }}" alt="Rules">@else <span class="fa fa-book"></span>@endif</i> <span>Rules & Regulations</span></a></li>
 
       @php($ico='settings.svg')
       @php($p=public_path('side_icon/'.$ico))

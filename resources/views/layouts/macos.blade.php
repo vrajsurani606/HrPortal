@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>HR Portal</title>
  <link rel="icon" type="image/png" href="{{ asset('logo.png') }}">
   
@@ -65,7 +66,7 @@
         <a class="dock-item" data-section="ticket" href="{{ route('tickets.index') }}" title="Ticket"><img src="{{ asset('Doc_icon/Ticket Support System.png') }}" alt="Ticket" /></a>
         <a class="dock-item" data-section="attendance-mgmt" href="{{ route('attendance.report') }}" title="Attendance Mgmt."><img src="{{ asset('Doc_icon/Attendance Management.png') }}" alt="Attendance Mgmt." /></a>
         <a class="dock-item" data-section="events-mgmt" href="{{ route('events.index') }}" title="Events Mgmt."><img src="{{ asset('Doc_icon/Event Management..png') }}" alt="Events Mgmt." /></a>
-        <a class="dock-item" data-section="rules-regulations" href="{{ route('rules.index') }}" title="Rules & Regulations"><img src="{{ asset('Doc_icon/Rules & Regulations.png') }}" alt="Rules & Regulations" /></a>
+        <a class="dock-item" data-section="rules-regulations" href="{{ route('rules.index') }}" title="Rules & Regulations" target="_blank" rel="noopener"><img src="{{ asset('Doc_icon/Rules & Regulations.png') }}" alt="Rules & Regulations" /></a>
     </div>
 
 </div>
@@ -83,22 +84,83 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @include('partials.flash')
+<style>
+  .swal2-popup.hrp-swal-lg { max-width: 48rem !important; padding: 2.25rem 2rem !important; }
+  .swal2-popup.hrp-swal-lg .swal2-title { font-size: 1.5rem !important; }
+  .swal2-popup.hrp-swal-lg .swal2-html-container { font-size: 1.05rem !important; }
+  .swal2-popup.hrp-swal-lg .swal2-actions .swal2-styled { font-size: 0.95rem !important; padding: 0.65rem 1.25rem !important; }
+  @media (max-width: 480px) { .swal2-popup.hrp-swal-lg { width: 95% !important; max-width: none !important; } }
+  /* keep buttons accessible contrast */
+  .swal2-popup.hrp-swal-lg .swal2-confirm { background-color: #d33 !important; }
+  .swal2-popup.hrp-swal-lg .swal2-cancel { background-color: #6b7280 !important; }
+  .swal2-popup.hrp-swal-lg .swal2-cancel { color:#fff !important; }
+  .swal2-popup.hrp-swal-lg .swal2-styled:focus { box-shadow: 0 0 0 3px rgba(59,130,246,0.45) !important; }
+  .swal2-backdrop-show { backdrop-filter: blur(1px); }
+</style>
 <script>
   document.addEventListener('click', function(e){
     const btn = e.target.closest('.js-confirm-delete');
     if(!btn) return;
     e.preventDefault();
     const form = btn.closest('form');
+    const title = btn.getAttribute('data-title') || 'Are you sure?';
+    const text = btn.getAttribute('data-text') || 'This action cannot be undone.';
+    const confirmText = btn.getAttribute('data-confirm') || 'Yes, delete it!';
+    const cancelText = btn.getAttribute('data-cancel') || null; // let Swal use provided or default
+    const icon = btn.getAttribute('data-icon') || 'warning';
     Swal.fire({
-      title: 'Are you sure?',
-      text: 'This action cannot be undone.',
-      icon: 'warning',
+      title: title,
+      text: text,
+      icon: icon,
       showCancelButton: true,
+      reverseButtons: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Yes, delete it!'
+      confirmButtonText: confirmText,
+      cancelButtonText: cancelText || 'Cancel',
+      width: '44rem',
+      customClass: { popup: 'hrp-swal-lg' }
     }).then((result) => {
-      if (result.isConfirmed) form.submit();
+      if (!result.isConfirmed) return;
+      const wantsAjax = btn.hasAttribute('data-ajax') || (form && form.hasAttribute('data-ajax'));
+      if (!wantsAjax) { form.submit(); return; }
+      // AJAX delete without page refresh
+      try {
+        const tokenInput = form && form.querySelector('input[name="_token"]');
+        const csrf = tokenInput ? tokenInput.value : (document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '');
+        btn.disabled = true;
+        function removeTarget(){
+          var sel = btn.getAttribute('data-remove');
+          var node = sel ? btn.closest(sel) : btn.closest('tr');
+          if(node) node.remove();
+        }
+        function tryDeleteWith(method, opts){
+          return fetch(form.action, Object.assign({ method: method, credentials:'same-origin' }, opts));
+        }
+        tryDeleteWith('DELETE', {
+          method: 'DELETE',
+          headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+        }).then(function(resp){
+          if(resp.status === 405){
+            // Retry as POST + _method override for environments where DELETE is blocked
+            return tryDeleteWith('POST', {
+              headers: { 'X-CSRF-TOKEN': csrf, 'Accept':'application/json', 'Content-Type':'application/x-www-form-urlencoded' },
+              body: new URLSearchParams({ _method: 'DELETE' })
+            });
+          }
+          return resp;
+        }).then(function(resp){
+          if(!(resp.status >= 200 && resp.status < 400)) throw new Error(String(resp.status));
+          return resp.json().catch(function(){ return {}; });
+        }).then(function(){
+          removeTarget();
+          if(window.toastr) toastr.success(btn.getAttribute('data-success') || 'Deleted successfully');
+        }).catch(function(err){
+          var msg = 'Failed to delete';
+          if(err && err.message){ msg += ' ('+err.message+')'; }
+          if(window.toastr) toastr.error(msg);
+        }).finally(function(){ btn.disabled = false; });
+      } catch(e){ form.submit(); }
     });
   });
   // Basic Toastr defaults
