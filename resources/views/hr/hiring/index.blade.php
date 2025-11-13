@@ -58,18 +58,16 @@
                 <a href="{{ route('hiring.edit', $lead) }}" title="Edit" aria-label="Edit">
                   <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" class="action-icon">
                 </a>
-                @if(\Illuminate\Support\Facades\Route::has('hiring.print'))
-                  <a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'details']) }}" title="Print Details" target="_blank" aria-label="Print Details">
-                    <img src="{{ asset('action_icon/print.svg') }}" alt="Print" class="action-icon">
+                  <a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'offerletter']) }}" title="Print Offer Letter" target="_blank" aria-label="Print Offer Letter">
+                    <img src="{{ asset('action_icon/print.svg') }}" alt="Print Offer Letter" class="action-icon">
                   </a>
-                @endif
-                <form method="POST" action="{{ route('hiring.destroy', $lead) }}" onsubmit="return confirm('Delete this lead?')" style="display:inline">
+                <form method="POST" action="{{ route('hiring.destroy', $lead) }}" class="delete-form" style="display:inline">
                   @csrf @method('DELETE')
-                  <button type="submit" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
+                  <button type="button" onclick="confirmDeleteLead(this)" title="Delete" aria-label="Delete" style="background:transparent;border:0;padding:0;line-height:0;cursor:pointer">
                     <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon">
                   </button>
                 </form>
-                <a href="#" title="Convert to Employee" aria-label="Convert to Employee">
+                <a href="#" class="convert-btn" data-id="{{ $lead->id }}" data-name="{{ $lead->person_name }}" data-action="{{ route('hiring.convert', $lead->id) }}" title="Convert to Employee" aria-label="Convert to Employee">
                   <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert" class="action-icon">
                 </a>
               </td>
@@ -99,7 +97,7 @@
               <td class="capitalize">{{ $lead->gender }}</td>
               <td>
                 @if($lead->resume_path)
-                  <a class="hrp-link" href="{{ asset('storage/'.$lead->resume_path) }}" target="_blank">View</a>
+                  <a class="hrp-link" href="{{ route('hiring.resume', $lead->id) }}" target="_blank">View</a>
                 @else
                   —
                 @endif
@@ -115,6 +113,104 @@
     </div>
   </div>
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  // SweetAlert delete confirmation for hiring leads
+  function confirmDeleteLead(button) {
+    Swal.fire({
+      title: 'Delete this lead?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      width: '400px',
+      padding: '1.5rem',
+      customClass: {
+        popup: 'perfect-swal-popup'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        button.closest('form').submit();
+      }
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const csrf = '{{ csrf_token() }}';
+    document.querySelectorAll('.convert-btn').forEach(function(el){
+      el.addEventListener('click', function(e){
+        e.preventDefault();
+        const name = this.getAttribute('data-name') || 'this lead';
+        const action = this.getAttribute('data-action');
+        Swal.fire({
+          title: 'Convert to Employee?',
+          text: `Do you want to convert ${name} to Employee?`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#10b981',
+          cancelButtonColor: '#6b7280',
+          confirmButtonText: 'Yes, Convert',
+          cancelButtonText: 'Cancel',
+          width: '400px',
+          padding: '1.5rem',
+          customClass: {
+            popup: 'perfect-swal-popup'
+          }
+        }).then((result) => {
+          if(result.isConfirmed){
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = action;
+            const token = document.createElement('input');
+            token.type = 'hidden'; token.name = '_token'; token.value = csrf; form.appendChild(token);
+            document.body.appendChild(form);
+            form.submit();
+          }
+        });
+      });
+    });
+  });
+</script>
+
+<style>
+  .perfect-swal-popup {
+    font-size: 15px !important;
+  }
+  
+  .perfect-swal-popup .swal2-title {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  .perfect-swal-popup .swal2-content {
+    font-size: 15px !important;
+    margin-bottom: 1.5rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  .perfect-swal-popup .swal2-actions {
+    gap: 0.75rem !important;
+    margin-top: 1rem !important;
+  }
+  
+  .perfect-swal-popup .swal2-confirm,
+  .perfect-swal-popup .swal2-cancel {
+    font-size: 14px !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+  }
+  
+  .perfect-swal-popup .swal2-icon {
+    margin: 0.5rem auto 1rem !important;
+  }
+</style>
+@endpush
 
 @section('breadcrumb')
   <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>

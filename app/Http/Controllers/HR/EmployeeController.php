@@ -107,10 +107,10 @@ class EmployeeController extends Controller
             });
 
             $employees = new LengthAwarePaginator(
-                $demo,
+                $demo->take(12),
                 $demo->count(),
                 12,
-                1,
+                request()->get('page', 1),
                 ['path' => request()->url(), 'query' => request()->query()]
             );
         }

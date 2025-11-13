@@ -2,16 +2,8 @@
 @section('page_title', $page_title)
 
 @section('content')
-  <div class="hrp-card">
-    <div class="hrp-card-body">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="hrp-page-title">Employee List</h2>
-        @can('employees.create')
-          <a href="{{ route('employees.create') }}" class="hrp-btn hrp-btn-primary" style="border-radius:9999px;padding:10px 20px;font-weight:800">+ Add</a>
-        @endcan
-      </div>
-
-      <div class="grid" style="display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:20px">
+  <div class="employee-container">
+    <div class="employee-grid">
         @php
           $staticImages = [
             'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
@@ -19,102 +11,201 @@
             'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
             'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face',
             'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face',
-            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face'
+              'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face'
           ];
         @endphp
         
         @forelse($employees as $emp)
-          <div class="emp-card" style="background:#fff;border:1px solid #e5e7eb;border-radius:20px;box-shadow:0 2px 8px rgba(0,0,0,.08);padding:20px;display:flex;flex-direction:column;gap:16px;position:relative">
-            <!-- Top Row: Badge and 3 Dots -->
-            <div style="display:flex;align-items:flex-start;justify-content:space-between">
-              @php($isModel = $emp instanceof \App\Models\Employee)
-              @if($emp->experience_type ?? false)
-                <span style="background:#f8d7da;color:#721c24;font-weight:600;font-size:12px;padding:6px 12px;border-radius:12px;">{{ $emp->experience_type }}</span>
-              @else
-                <span style="background:#f8d7da;color:#721c24;font-weight:600;font-size:12px;padding:6px 12px;border-radius:12px;">Full - Time</span>
+          <div class="emp-card">
+            <!-- Top Row: Badge and Actions -->
+            <div class="card-header">
+              @php(
+                $isModel = $emp instanceof \App\Models\Employee
+              )
+              @php(
+                $etype = strtolower(trim($emp->experience_type ?? ''))
+              )
+              @php(
+                $badge = [
+                  'bg' => '#f3f4f6',
+                  'fg' => '#374151',
+                  'text' => $emp->experience_type ?: 'Full - Time',
+                ]
+              )
+              @php(
+                $map = [
+                  'experienced' => ['#fce7f3', '#be185d'], // pink
+                  'fresher' => ['#dcfce7', '#166534'],     // green
+                  'trainee' => ['#dbeafe', '#1d4ed8'],     // blue
+                  'intern' => ['#e0e7ff', '#3730a3'],      // indigo
+                  'contract' => ['#fee2e2', '#b91c1c'],    // red
+                ]
+              )
+              @if(isset($map[$etype]))
+                @php($badge['bg'] = $map[$etype][0])
+                @php($badge['fg'] = $map[$etype][1])
               @endif
+              <span class="emp-badge" style="background: {{ $badge['bg'] }}; color: {{ $badge['fg'] }}">{{ $badge['text'] }}</span>
               
-              <div class="dropdown" style="position:relative">
-                <button class="dropdown-toggle" onclick="toggleDropdown({{ $loop->index }})" style="width:32px;height:32px;border-radius:50%;background:#f1f3f4;border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6b7280;font-size:16px" title="More options">⋮</button>
-                <div id="dropdown-{{ $loop->index }}" class="dropdown-menu" style="display:none;position:absolute;top:100%;right:0;background:white;border:1px solid #e5e7eb;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:1000;min-width:120px;padding:4px 0;margin-top:4px">
+              <div class="dropdown">
+                <button class="dropdown-toggle" onclick="toggleDropdown({{ $loop->index }})" title="More options">⋮</button>
+                <div id="dropdown-{{ $loop->index }}" class="dropdown-menu">
                   @if($isModel)
-                    <a href="{{ route('employees.edit', $emp) }}" style="display:flex;align-items:center;gap:8px;padding:8px 12px;color:#374151;text-decoration:none;font-size:14px;font-weight:500" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
-                      <span style="font-size:16px">✏️</span> Edit
+                    <a href="{{ route('employees.edit', $emp) }}">
+                      <img src="{{ asset('action_icon/edit.svg') }}" width="16" height="16"> Edit
                     </a>
-                    <form method="POST" action="{{ route('employees.destroy', $emp) }}" onsubmit="return confirm('Delete employee?')" style="margin:0">
+                    <form method="POST" action="{{ route('employees.destroy', $emp) }}" class="delete-form">
                       @csrf @method('DELETE')
-                      <button type="submit" style="width:100%;display:flex;align-items:center;gap:8px;padding:8px 12px;color:#ef4444;background:transparent;border:0;text-align:left;font-size:14px;font-weight:500;cursor:pointer" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">
-                        <span style="font-size:16px">🗑️</span> Delete
+                      <button type="button" class="delete-btn" onclick="confirmDelete(this)">
+                        <img src="{{ asset('action_icon/delete.svg') }}" width="16" height="16"> Delete
                       </button>
                     </form>
+                    <a href="#">
+                      <img src="{{ asset('action_icon/view.svg') }}" width="16" height="16"> View
+                    </a>
+                    <a href="#">
+                      <img src="{{ asset('action_icon/print.svg') }}" width="16" height="16"> Letter
+                    </a>
+                    <a href="{{ route('employees.edit', $emp) }}">
+                      <img src="{{ asset('action_icon/pluse.svg') }}" width="16" height="16"> Add Dig. Card
+                    </a>
                   @else
-                    <span style="display:flex;align-items:center;gap:8px;padding:8px 12px;color:#9ca3af;font-size:14px;font-weight:500">
-                      <span style="font-size:16px">✏️</span> Edit (Demo)
-                    </span>
-                    <span style="display:flex;align-items:center;gap:8px;padding:8px 12px;color:#9ca3af;font-size:14px;font-weight:500">
-                      <span style="font-size:16px">🗑️</span> Delete (Demo)
-                    </span>
+                    <span><img src="{{ asset('action_icon/edit.svg') }}" width="16" height="16"> Edit</span>
+                    <span><img src="{{ asset('action_icon/delete.svg') }}" width="16" height="16"> Delete</span>
+                    <span><img src="{{ asset('action_icon/view.svg') }}" width="16" height="16"> View</span>
+                    <span><img src="{{ asset('action_icon/print.svg') }}" width="16" height="16"> Letter</span>
+                    <span><img src="{{ asset('action_icon/pluse.svg') }}" width="16" height="16"> Add Dig. Card</span>
                   @endif
                 </div>
               </div>
             </div>
+            
+            <!-- Section Separator -->
+            <div class="section-separator"></div>
 
             <!-- Profile Section -->
-            <div style="display:flex;align-items:center;gap:16px">
-              <div style="width:60px;height:60px;border-radius:50%;overflow:hidden;background:#f3f4f6;flex:0 0 60px">
+            <div class="profile-section">
+              <div class="profile-image">
                 @php($imageIndex = $loop->index % count($staticImages))
                 @if(isset($emp->photo_path) && $emp->photo_path)
-                  <img src="{{ asset('storage/'.$emp->photo_path) }}" alt="{{ $emp->name }}" style="width:60px;height:60px;object-fit:cover;display:block">
+                  <img src="{{ asset('storage/'.$emp->photo_path) }}" alt="{{ $emp->name }}">
                 @else
-                  <img src="{{ $staticImages[$imageIndex] }}" alt="{{ $emp->name }}" style="width:60px;height:60px;object-fit:cover;display:block">
+                  <img src="{{ $staticImages[$imageIndex] }}" alt="{{ $emp->name }}">
                 @endif
               </div>
-              <div style="min-width:0;flex:1">
-                <h3 style="font-weight:700;color:#2d3748;font-size:18px;line-height:1.3;margin:0 0 4px 0">{{ $emp->name }}</h3>
-                <p style="color:#718096;font-weight:400;font-size:14px;line-height:1.3;margin:0;word-break:break-all">{{ $emp->email }}</p>
+              <div class="profile-info">
+                <h3 class="profile-name">{{ $emp->name }}</h3>
+                <p class="profile-email">{{ $emp->email }}</p>
               </div>
             </div>
 
-            <!-- Tags Section -->
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-              <div style="display:flex;align-items:center;gap:6px;background:#f7fafc;padding:6px 12px;border-radius:12px">
-                <div style="width:8px;height:8px;background:#e53e3e;border-radius:50%"></div>
-                <span style="color:#2d3748;font-weight:500;font-size:13px">Designer</span>
+            <!-- Role Section -->
+            <div class="role-section">
+              <div class="role-badge">
+                <div class="role-dot"></div>
+                <span class="role-title">{{ $emp->position ?? 'Designer' }}</span>
               </div>
-              <span style="color:#718096;font-weight:500;font-size:13px">{{ $emp->position ?? 'Sr. UI/UX Designer' }}</span>
+              <span class="role-description">{{ $emp->position ?? 'Sr. UI/UX Designer' }}</span>
             </div>
 
             <!-- Bottom Info -->
-            <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-top:8px">
-              <div>
-                <div style="color:#718096;font-size:13px;font-weight:500;margin-bottom:2px">Payroll</div>
-                <div style="color:#718096;font-size:13px;font-weight:500">Join Date</div>
+            <div class="bottom-info">
+              <div class="info-labels">
+                <div>Payroll</div>
+                <div>Join Date</div>
               </div>
-              <div style="text-align:right">
-                <div style="color:#2d3748;font-size:13px;font-weight:600;margin-bottom:2px">{{ $emp->code ?? 'ABDPF1835R' }} | {{ isset($emp->current_offer_amount) ? number_format($emp->current_offer_amount,0) : '27,000' }}</div>
-                <div style="color:#2d3748;font-size:13px;font-weight:600">{{ isset($emp->joining_date) ? $emp->joining_date->format('d M,Y') : '23 Feb,2025' }}</div>
+              <div class="info-values">
+                <div>{{ $emp->code ?? 'ABDPF1835R' }} | ₹{{ isset($emp->current_offer_amount) ? number_format($emp->current_offer_amount,0) : '27,000' }}</div>
+                <div>{{ isset($emp->joining_date) ? $emp->joining_date->format('d M,Y') : '23 Feb,2025' }}</div>
               </div>
             </div>
           </div>
         @empty
-          <div class="text-center" style="color:#6b7280;font-weight:700">No employees found</div>
+          <div class="empty-state">No employees found</div>
         @endforelse
-      </div>
-
     </div>
+    
+    <!-- Pagination -->
+    @if($employees->hasPages())
+      <div class="pagination-wrapper">
+        {{ $employees->links() }}
+      </div>
+    @endif
   </div>
 @endsection
 
 @push('styles')
+<link rel="stylesheet" href="{{ asset('css/employee-grid.css') }}">
 <style>
-  @media (max-width: 1200px){ .grid{ grid-template-columns: repeat(2, minmax(0,1fr)) !important; } }
-  @media (max-width: 768px){ .grid{ grid-template-columns: repeat(1, minmax(0,1fr)) !important; } }
-  .dropdown-menu { transition: all 0.2s ease; }
-  .dropdown-menu.show { display: block !important; }
+  .pagination-wrapper {
+    margin-top: 32px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .pagination-wrapper .pagination {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .pagination-wrapper .pagination a,
+  .pagination-wrapper .pagination span {
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    color: #374151;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .pagination-wrapper .pagination a:hover {
+    background: #f3f4f6;
+  }
+  
+  .pagination-wrapper .pagination .active span {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+  }
+  
+  .large-swal-popup {
+    font-size: 15px !important;
+  }
+  
+  .large-swal-popup .swal2-title {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    margin-bottom: 1rem !important;
+  }
+  
+  .large-swal-popup .swal2-content {
+    font-size: 15px !important;
+    margin-bottom: 1.5rem !important;
+    line-height: 1.4 !important;
+  }
+  
+  .large-swal-popup .swal2-actions {
+    gap: 0.75rem !important;
+    margin-top: 1rem !important;
+  }
+  
+  .large-swal-popup .swal2-confirm,
+  .large-swal-popup .swal2-cancel {
+    font-size: 14px !important;
+    padding: 8px 16px !important;
+    border-radius: 6px !important;
+  }
+  
+  .large-swal-popup .swal2-icon {
+    margin: 0.5rem auto 1rem !important;
+  }
 </style>
 @endpush
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 function toggleDropdown(index) {
   // Close all other dropdowns
@@ -137,5 +228,28 @@ document.addEventListener('click', function(event) {
     });
   }
 });
+
+// SweetAlert delete confirmation
+function confirmDelete(button) {
+  Swal.fire({
+    title: 'Delete this employee?',
+    text: "You won't be able to revert this!",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#ef4444',
+    cancelButtonColor: '#6b7280',
+    confirmButtonText: 'Yes, delete it!',
+    cancelButtonText: 'Cancel',
+    width: '400px',
+    padding: '1.5rem',
+    customClass: {
+      popup: 'large-swal-popup'
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      button.closest('form').submit();
+    }
+  });
+}
 </script>
 @endpush

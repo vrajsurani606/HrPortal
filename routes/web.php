@@ -42,6 +42,14 @@ Route::middleware('auth')->group(function () {
 
     // HR Hiring Leads
     Route::resource('hiring', HiringController::class);
+    Route::get('hiring/{id}/print', [HiringController::class, 'print'])->name('hiring.print');
+    Route::get('hiring/{id}/resume', [HiringController::class, 'resume'])->name('hiring.resume');
+    Route::post('hiring/{id}/convert', [HiringController::class, 'convert'])->name('hiring.convert');
+    // Offer Letter routes
+    Route::get('hiring/{id}/offer/create', [HiringController::class, 'offerCreate'])->name('hiring.offer.create');
+    Route::post('hiring/{id}/offer', [HiringController::class, 'offerStore'])->name('hiring.offer.store');
+    Route::get('hiring/{id}/offer/edit', [HiringController::class, 'offerEdit'])->name('hiring.offer.edit');
+    Route::put('hiring/{id}/offer', [HiringController::class, 'offerUpdate'])->name('hiring.offer.update');
     
     // Inquiries
     Route::resource('inquiries', InquiryController::class)->only(['index','create','store','show','edit','update','destroy']);

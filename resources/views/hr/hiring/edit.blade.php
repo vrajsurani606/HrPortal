@@ -67,7 +67,7 @@
           </div>
           @error('resume')<p class="hrp-error">{{ $message }}</p>@enderror
           @if($lead->resume_path)
-            <div class="text-sm" style="margin-top:6px">Current: <a class="hrp-link" href="{{ asset('storage/'.$lead->resume_path) }}" target="_blank">View</a></div>
+            <div class="text-sm" style="margin-top:6px">Current: <a class="hrp-link" href="{{ route('hiring.resume', $lead->id) }}" target="_blank">View</a></div>
           @endif
         </div>
         <div>
@@ -84,13 +84,19 @@
           <div class="hrp-actions" style="gap:8px">
             <a href="{{ route('hiring.index') }}" class="hrp-btn" style="background:#e5e7eb">Cancel</a>
             <button class="hrp-btn hrp-btn-primary">Update Hiring Lead</button>
+            @php($hasOffer = $lead->offerLetter)
+            @if($hasOffer)
+              <a href="{{ route('hiring.offer.edit', $lead->id) }}" class="hrp-btn">Edit Offer Letter</a>
+              <a href="{{ route('hiring.print', ['id' => $lead->id, 'type' => 'offerletter']) }}" target="_blank" class="hrp-btn">Print Offer Letter</a>
+            @else
+              <a href="{{ route('hiring.offer.create', $lead->id) }}" class="hrp-btn">Create Offer Letter</a>
+            @endif
           </div>
         </div>
       </form>
       </div>
     </div>
   </div>
-  <div class="hrp-breadcrumb"><div class="crumb"><a href="{{ route('dashboard') }}">Dashboard</a>  ›  <a href="{{ route('hiring.index') }}">Hiring Lead Master</a>  ›  Edit</div></div>
   @push('scripts')
   <script>
     (function(){

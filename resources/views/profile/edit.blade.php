@@ -123,18 +123,19 @@
               <!-- Gender -->
               <div>
                 <label class="hrp-label">Gender :</label>
-                <div style="display:flex;gap:20px;align-items:center;margin-top:8px">
-                  <label
-                    style="display:flex;align-items:center;gap:16px;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
-                    <input type="radio" name="gender" value="male" checked style="margin:0;accent-color:#374151">
-                    <span style="color:#374151;font-weight:500">Male</span>
-                    <div style="width:8px;height:8px;background:#374151;border-radius:50%;margin-left:4px"></div>
-                  </label>
-                  <label
-                    style="display:flex;align-items:center;gap:16px;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif">
-                    <input type="radio" name="gender" value="female" style="margin:0;accent-color:#9ca3af">
-                    <span style="color:#9ca3af;font-weight:500">Female</span>
-                  </label>
+                <div style="margin-top:8px; display:flex; align-items:center; justify-content:center;">
+                  <div class="gender-toggle Rectangle-29">
+                    <label class="gender-option">
+                      <input class="gender-radio" type="radio" name="gender" value="male" checked>
+                      <span class="gender-text">Male</span>
+                      <span class="gender-dot"></span>
+                    </label>
+                    <label class="gender-option">
+                      <input class="gender-radio" type="radio" name="gender" value="female">
+                      <span class="gender-text">Female</span>
+                      <span class="gender-dot"></span>
+                    </label>
+                  </div>
                 </div>
               </div>
 
@@ -180,15 +181,17 @@
               <!-- PAN Number -->
               <div>
                 <label class="hrp-label">PAN Number :</label>
-                <input type="text" placeholder="XXXXX0000X" class="hrp-input Rectangle-29">
+                <input type="text" placeholder="XXXXX0000X" class="hrp-input Rectangle-29" style="text-transform: uppercase;">
               </div>
 
-              <!-- Highest Qualification + Year of Passing (same row, two columns) -->
+              <!-- Highest Qualification (long) + Previous Designation stacked left, Year of Passing short right -->
               <div style="grid-column:1/-1">
-                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:20px 24px">
+                <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px 24px;align-items:start">
                   <div>
                     <label class="hrp-label">Highest Qualification</label>
-                    <input type="text" placeholder="Enter your Highest Qualification" class="hrp-input Rectangle-29">
+                    <input type="text" placeholder="Enter your Highest Qualification" class="hrp-input Rectangle-29" style="margin-bottom:14px">
+                    <label class="hrp-label">Previous Designation</label>
+                    <input type="text" placeholder="Enter your Last Designation" class="hrp-input Rectangle-29">
                   </div>
                   <div>
                     <label class="hrp-label">Year of Passing</label>
@@ -203,22 +206,16 @@
                 <input type="text" placeholder="Enter your Last Company Name" class="hrp-input Rectangle-29">
               </div>
 
-              <!-- Previous Designation -->
-              <div>
-                <label class="hrp-label">Previous Designation :</label>
-                <input type="text" placeholder="Enter your Last Designation" class="hrp-input Rectangle-29">
-              </div>
-
-              <!-- Duration -->
-              <div>
-                <label class="hrp-label">Duration :</label>
-                <input type="text" placeholder="Add Time Duration" class="hrp-input Rectangle-29">
-              </div>
-
-              <!-- Reason for Leaving -->
-              <div style="grid-column:span 2">
-                <label class="hrp-label">Reason for Leaving</label>
-                <textarea placeholder="Enter Reason for Leaving" class="Rectangle-29-textarea"></textarea>
+              <!-- Duration + Reason for Leaving on same row -->
+              <div style="grid-column:1/-1; display:grid; grid-template-columns:1fr 2fr; gap:20px 24px; align-items:start">
+                <div>
+                  <label class="hrp-label">Duration :</label>
+                  <input type="text" placeholder="Add Time Duration" class="hrp-input Rectangle-29">
+                </div>
+                <div>
+                  <label class="hrp-label">Reason for Leaving</label>
+                  <textarea placeholder="Enter Reason for Leaving" class="Rectangle-29-textarea"></textarea>
+                </div>
               </div>
 
               <!-- Save Button -->

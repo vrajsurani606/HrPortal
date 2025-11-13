@@ -43,4 +43,9 @@ class HiringLead extends Model
         }
         return $prefix . str_pad((string)$nextNumber, 4, '0', STR_PAD_LEFT);
     }
+
+    public function offerLetter()
+    {
+        return $this->hasOne(OfferLetter::class, 'hiring_lead_id');
+    }
 }
