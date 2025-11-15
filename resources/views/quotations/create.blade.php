@@ -3,7 +3,7 @@
 @section('content')
   <div class="hrp-card">
   <div class="Rectangle-30 hrp-compact">
-    <form method="POST" action="{{ route('quotations.store') }}"
+    <form id="quotationForm" method="POST" action="{{ route('quotations.store') }}"
       class="hrp-form grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
       @csrf
       <input type="hidden" name="inquiry_id" value="{{ $inquiry->id ?? 1 }}">
@@ -22,21 +22,27 @@
         <input type="date" class="Rectangle-29" name="quotation_date" value="{{ date('Y-m-d') }}">
       </div>
 
-      <!-- Row 2: four fields in 1 row with responsive spans (3/3/1/1) -->
-      <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-8 gap-4 md:gap-5">
-        <div class="md:col-span-3">
+      <!-- Row 2: Which Customer / Select Customer -->
+      <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+        <div class="md:col-span-1">
           <label class="hrp-label">Which Customer:</label>
-          <select class="Rectangle-29-select" name="customer_type">
-            <option>New Customer</option>
-            <option>Existing Customer</option>
+          <select class="Rectangle-29-select" name="customer_type" id="customer_type">
+            <option value="new">New Customer</option>
+            <option value="existing">Existing Customer</option>
           </select>
         </div>
-        <div class="md:col-span-3">
+        <div class="md:col-span-1">
           <label class="hrp-label">Select Customer:</label>
-          <select class="Rectangle-29-select" name="customer_id">
-            <option>Select Customer</option>
+          <select class="Rectangle-29-select" name="customer_id" id="customer_id">
+            <option value="">Select Customer</option>
+            @if(isset($inquiry))
+              <option value="{{ $inquiry->id }}" selected>{{ $inquiry->company_name }}</option>
+            @endif
           </select>
         </div>
+      </div>
+      <!-- Row 3: GST / PAN in one row -->
+      <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div class="md:col-span-1">
           <label class="hrp-label">GST No:</label>
           <input class="Rectangle-29" name="gst_no" placeholder="Enter GST No">
@@ -46,8 +52,8 @@
           <input class="Rectangle-29" name="pan_no" placeholder="Enter PAN No">
         </div>
       </div>
-      <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
-        <div class="md:col-span-2">
+      <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+        <div class="md:col-span-1">
           <label class="hrp-label">Company Name:</label>
           <input class="Rectangle-29" name="company_name" value="{{ $inquiry->company_name ?? '' }}" placeholder="Enter company name">
         </div>
@@ -63,18 +69,40 @@
       </div>
 
       <!-- Row 4 -->
-      <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
-        <div class="md:col-span-2">
+      <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+        <div class="md:col-span-1">
           <label class="hrp-label">Nature Of Work:</label>
           <input class="Rectangle-29" name="nature_of_work" placeholder="Enter Nature">
         </div>
         <div class="md:col-span-1">
           <label class="hrp-label">City:</label>
           <select class="Rectangle-29-select" name="city">
-            <option>Select City</option>
+            <option value="">Select City</option>
             <option>Ahmedabad</option>
+            <option>Surat</option>
+            <option>Vadodara</option>
+            <option>Rajkot</option>
+            <option>Bhavnagar</option>
+            <option>Jamnagar</option>
+            <option>Gandhinagar</option>
             <option>Mumbai</option>
+            <option>Pune</option>
+            <option>Nashik</option>
             <option>Delhi</option>
+            <option>Noida</option>
+            <option>Gurugram</option>
+            <option>Bengaluru</option>
+            <option>Chennai</option>
+            <option>Hyderabad</option>
+            <option>Kolkata</option>
+            <option>Jaipur</option>
+            <option>Indore</option>
+            <option>Bhopal</option>
+            <option>Lucknow</option>
+            <option>Patna</option>
+            <option>Chandigarh</option>
+            <option>Coimbatore</option>
+            <option>Vadodara</option>
           </select>
         </div>
       </div>
@@ -550,7 +578,11 @@
           <tr>
             <td style="padding: 12px; border-bottom: 1px solid #eee;"><select class="Rectangle-29-select"
                 name="services_2[description][]" style="border: none; background: transparent;">
-                <option>Select Service</option>
+                <option value="">Select Service</option>
+                <option value="ADVANCE">ADVANCE</option>
+                <option value="ON INSTALLATION">ON INSTALLATION</option>
+                <option value="COMPLETION">COMPLETION</option>
+                <option value="RETENTION">RETENTION</option>
               </select></td>
             <td style="padding: 12px; border-bottom: 1px solid #eee;"><input class="Rectangle-29"
                 type="number" min="0" step="1" name="services_2[quantity][]" placeholder="Enter Quantity" style="border: none; background: transparent;">
@@ -626,11 +658,50 @@
     </div>
   </div>
   <div style="display:flex;justify-content:end;margin-top:40px;">
-    <button type="submit" class="inquiry-submit-btn" style="padding: 15px 40px; font-size: 16px; width: fit-content; ">Add
+    <button type="button" onclick="document.getElementById('quotationForm').submit();" class="inquiry-submit-btn" style="padding: 15px 40px; font-size: 16px; width: fit-content; ">Add
       Quotation</button>
   </div>
 
-@endsection
+  @push('scripts')
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var typeSelect = document.getElementById('customer_type');
+      var customerSelect = document.getElementById('customer_id');
+      var companyNameInput = document.querySelector('input[name="company_name"]');
+      var companyEmailInput = document.querySelector('input[name="company_email"]');
+      if (!typeSelect || !customerSelect) return;
+
+      function updateCustomerSelect() {
+        var val = typeSelect.value;
+        if (val === 'new') {
+          customerSelect.value = '';
+          customerSelect.disabled = true;
+          if (companyNameInput) {
+            companyNameInput.value = '';
+          }
+          if (companyEmailInput) {
+            companyEmailInput.value = '';
+          }
+        } else {
+          customerSelect.disabled = false;
+          @if(isset($inquiry))
+          if (companyNameInput) {
+            companyNameInput.value = @json($inquiry->company_name);
+          }
+          if (companyEmailInput) {
+            companyEmailInput.value = @json($inquiry->email);
+          }
+          @endif
+        }
+      }
+
+      typeSelect.addEventListener('change', updateCustomerSelect);
+      updateCustomerSelect();
+    });
+  </script>
+  @endpush
+
+  @endsection
 
 @section('breadcrumb')
   <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>

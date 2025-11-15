@@ -1,66 +1,99 @@
 <x-guest-layout>
-    <div class="min-h-screen bg-gradient-to-br from-rose-50 via-white to-amber-50 flex items-center justify-center py-8 px-4">
-        <div class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div class="hidden lg:flex rounded-2xl bg-white/70 ring-1 ring-gray-200 p-8 relative overflow-hidden">
-                <div class="m-auto max-w-sm text-center">
-                    <div class="mx-auto mb-6 h-14 w-14 rounded-2xl bg-emerald-100 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="h-7 w-7 text-emerald-600"><path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10.01 10.01 0 0 0 12 2m-1 15l-5-5l1.41-1.41L11 13.17l5.59-5.59L18 9z"/></svg>
-                    </div>
-                    <h2 class="text-2xl font-extrabold tracking-tight text-gray-900">Create your account</h2>
-                    <p class="mt-2 text-gray-600">Sign up to access projects, HR tools and more.</p>
-                    <ul class="mt-6 text-left space-y-3 text-gray-700">
-                        <li class="flex items-start gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-emerald-500"></span> Fast onboarding</li>
-                        <li class="flex items-start gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-rose-500"></span> Secure password rules</li>
-                        <li class="flex items-start gap-3"><span class="mt-1 h-2 w-2 rounded-full bg-amber-500"></span> Email verification ready</li>
-                    </ul>
+    <div class="min-h-screen bg-white dark:bg-slate-900">
+        <div class="min-h-screen grid grid-cols-1 lg:grid-cols-2">
+            <div class="hidden lg:flex items-center justify-center p-8 bg-white dark:bg-slate-800">
+                <div class="w-full h-full max-w-4xl max-h-[90vh] flex items-center justify-center">
+                    <lottie-player
+                    src="{{ asset('public/lottie/register-animation.json') }}"
+                    background="transparent"
+                    speed="1"
+                    loop
+                    autoplay
+                    style="width:100%;height:100%;max-height:90vh;"
+                    ></lottie-player>
                 </div>
-            </div>
+            </div>  
 
-            <div class="bg-white/90 backdrop-blur rounded-2xl ring-1 ring-gray-200 p-6 sm:p-8">
-                <div class="mb-6">
-                    <h1 class="text-2xl font-black text-gray-900">Register</h1>
-                    <p class="text-sm text-gray-600">Fill your details to create an account.</p>
+            <div class="flex items-center justify-center p-6 md:p-12 bg-slate-50 dark:bg-slate-900">
+                <div class="w-full max-w-md">
+                    <div class="text-center lg:text-left mb-6">
+                        <h1 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Create a new account</h1>
+                        <p class="text-slate-600 dark:text-slate-400">Fill your details to get started with HR Portal.</p>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-6 md:p-8 border border-slate-200 dark:border-slate-700">
+                        <form method="POST" action="{{ route('register') }}" class="space-y-5">
+                            @csrf
+
+                            <div>
+                                <x-input-label for="name" :value="__('Name')" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" />
+                                <x-text-input
+                                    id="name"
+                                    class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-slate-900 dark:text-white rounded-lg px-4 py-3 outline-none focus-visible:ring-[3px] focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 transition"
+                                    type="text"
+                                    name="name"
+                                    :value="old('name')"
+                                    required
+                                    autofocus
+                                    autocomplete="name"
+                                />
+                                <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="email" :value="__('Email')" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" />
+                                <x-text-input
+                                    id="email"
+                                    class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-slate-900 dark:text-white rounded-lg px-4 py-3 outline-none focus-visible:ring-[3px] focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 transition"
+                                    type="email"
+                                    name="email"
+                                    :value="old('email')"
+                                    required
+                                    autocomplete="username"
+                                />
+                                <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="password" :value="__('Password')" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" />
+                                <x-text-input
+                                    id="password"
+                                    class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-slate-900 dark:text-white rounded-lg px-4 py-3 outline-none focus-visible:ring-[3px] focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 transition"
+                                    type="password"
+                                    name="password"
+                                    required
+                                    autocomplete="new-password"
+                                />
+                                <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="password_confirmation" :value="__('Confirm Password')" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1" />
+                                <x-text-input
+                                    id="password_confirmation"
+                                    class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-slate-900 dark:text-white rounded-lg px-4 py-3 outline-none focus-visible:ring-[3px] focus-visible:ring-emerald-500/30 focus-visible:border-emerald-500 transition"
+                                    type="password"
+                                    name="password_confirmation"
+                                    required
+                                    autocomplete="new-password"
+                                />
+                                <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+                            </div>
+
+                            <button type="submit" class="w-full h-11 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-md hover:shadow-lg transition">
+                                {{ __('Register') }}
+                            </button>
+
+                            <p class="text-center text-sm text-gray-600 dark:text-gray-400">
+                                {{ __('Already registered?') }}
+                                <a href="{{ route('login') }}" class="text-emerald-600 hover:underline font-medium">{{ __('Sign in') }}</a>
+                            </p>
+                        </form>
+                    </div>
                 </div>
-
-                <form method="POST" action="{{ route('register') }}" class="space-y-5">
-                    @csrf
-
-                    <div>
-                        <x-input-label for="name" :value="__('Name')" />
-                        <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
-                        <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                    </div>
-
-                    <div>
-                        <x-input-label for="email" :value="__('Email')" />
-                        <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autocomplete="username" />
-                        <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                    </div>
-
-                    <div>
-                        <x-input-label for="password" :value="__('Password')" />
-                        <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-                        <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                    </div>
-
-                    <div>
-                        <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-                        <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
-                        <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-                    </div>
-
-                    <div class="pt-2">
-                        <x-primary-button class="w-full justify-center bg-emerald-600 hover:bg-emerald-700 focus:ring-emerald-500">
-                            {{ __('Register') }}
-                        </x-primary-button>
-                    </div>
-
-                    <div class="text-center text-sm text-gray-600">
-                        {{ __('Already registered?') }}
-                        <a href="{{ route('login') }}" class="font-semibold text-emerald-600 hover:text-emerald-700">{{ __('Sign in') }}</a>
-                    </div>
-                </form>
             </div>
         </div>
     </div>
+    
 </x-guest-layout>
+

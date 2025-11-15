@@ -30,4 +30,9 @@ class Inquiry extends Model
     protected $casts = [
         'inquiry_date' => 'date',
     ];
+
+    public function followUps()
+    {
+        return $this->hasMany(\App\Models\InquiryFollowUp::class);
+    }
 }
