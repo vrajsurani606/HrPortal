@@ -96,9 +96,11 @@ Route::middleware('auth')->group(function () {
     Route::put('hiring/{id}/offer', [HiringController::class, 'offerUpdate'])->name('hiring.offer.update');
     
     // Inquiries
+    Route::get('inquiries-export', [InquiryController::class, 'export'])->name('inquiries.export');
     Route::resource('inquiries', InquiryController::class)->only(['index','create','store','show','edit','update','destroy']);
     Route::get('inquiry/{id}/follow-up', [InquiryController::class, 'followUp'])->name('inquiry.follow-up');
     Route::post('inquiry/{id}/follow-up', [InquiryController::class, 'storeFollowUp'])->name('inquiry.follow-up.store');
+    Route::post('inquiry-followups/{followUp}/confirm', [InquiryController::class, 'confirmFollowUp'])->name('inquiry.follow-up.confirm');
     // Quotations
     Route::resource('quotations', QuotationController::class);
     Route::get('inquiry/{id}/quotation', [QuotationController::class, 'createFromInquiry'])->name('quotation.create-from-inquiry');

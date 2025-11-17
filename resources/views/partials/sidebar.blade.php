@@ -23,8 +23,8 @@
       @php($ico='inquirymanagment.svg')
       @php($p=public_path('side_icon/'.$ico))
       <li class="hrp-menu-item {{ request()->routeIs('inquiries.*') ? 'active-parent open' : '' }}" data-group="inquiry"><a href="#" role="button"><i>@if(file_exists($p))<img src="{{ asset('side_icon/'.$ico) }}" alt="Inquiry">@else <span class="fa fa-envelope-open"></span>@endif</i> <span>Inquiry Management</span></a></li>
-      <li class="hrp-menu-item hrp-sub {{ request()->routeIs('inquiries.create') ? 'active' : '' }}" data-group="inquiry"><a href="{{ route('inquiries.create') }}"><span>Add New Hiring Lead</span></a></li>
-      <li class="hrp-menu-item hrp-sub {{ request()->routeIs('inquiries.index') && !request('action') ? 'active' : '' }}" data-group="inquiry"><a href="{{ route('inquiries.index') }}"><span>List of Hiring Lead</span></a></li>
+      <li class="hrp-menu-item hrp-sub {{ request()->routeIs('inquiries.create') ? 'active' : '' }}" data-group="inquiry"><a href="{{ route('inquiries.create') }}"><span>Add New Inquiry</span></a></li>
+      <li class="hrp-menu-item hrp-sub {{ request()->routeIs('inquiries.index') && !request('action') ? 'active' : '' }}" data-group="inquiry"><a href="{{ route('inquiries.index') }}"><span>List of Inquiry</span></a></li>
 
       @php($ico='quatation.svg')
       @php($p=public_path('side_icon/'.$ico))

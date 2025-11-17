@@ -1,6 +1,6 @@
 @extends('layouts.macos')
 
-@section('page_title','Add New Inquiry')
+@section('page_title','Edit Inquiry')
 
 @section('content')
 <style>
@@ -11,16 +11,15 @@
 </style>
 <div class="Rectangle-30 hrp-compact">
 
-
-  <form id="inquiryForm" method="POST" action="{{ route('inquiries.store') }}" enctype="multipart/form-data" class="hrp-form grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+  <form id="inquiryForm" method="POST" action="{{ route('inquiries.update', $inquiry->id) }}" enctype="multipart/form-data" class="hrp-form grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
     @csrf
+    @method('PUT')
 
     <!-- Row 1: Unique Code and Inquiry Date -->
     <div>
       <label class="hrp-label">Unique Code:</label>
-      <div class="Rectangle-29" style="display:flex;align-items:center;justify-content:space-between;background:#f3f4f6;">
-        <span>{{ $nextCode ?? 'CMS/INQ/0001' }}</span>
-      </div>
+      <input class="hrp-input Rectangle-29" name="unique_code" value="{{ old('unique_code', $inquiry->unique_code) }}" readonly />
+      @error('unique_code')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
     <div>
       <label class="hrp-label">Inquiry Date (dd/mm/yy) :</label>
@@ -28,7 +27,7 @@
         type="date"
         class="hrp-input Rectangle-29"
         name="inquiry_date"
-        value="{{ old('inquiry_date', now()->format('Y-m-d')) }}"
+        value="{{ old('inquiry_date', optional($inquiry->inquiry_date)->format('Y-m-d')) }}"
         readonly
       />
       @error('inquiry_date')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -37,47 +36,48 @@
     <!-- Row 2: Company Name and Company Address -->
     <div>
       <label class="hrp-label">Company Name :</label>
-      <input class="hrp-input Rectangle-29" name="company_name" value="{{ old('company_name') }}" placeholder="Enter your company name" />
+      <input class="hrp-input Rectangle-29" name="company_name" value="{{ old('company_name', $inquiry->company_name) }}" placeholder="Enter your company name" />
       @error('company_name')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
     <div>
       <label class="hrp-label">Company Address:</label>
-      <textarea class="hrp-textarea Rectangle-29 Rectangle-29-textarea" name="company_address" placeholder="Enter Your Address" style="height:58px;resize:none;">{{ old('company_address') }}</textarea>
+      <textarea class="hrp-textarea Rectangle-29 Rectangle-29-textarea" name="company_address" placeholder="Enter Your Address" style="height:58px;resize:none;">{{ old('company_address', $inquiry->company_address) }}</textarea>
       @error('company_address')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
 
     <!-- Row 3: Industry Type and Email -->
     <div>
       <label class="hrp-label">Industry Type :</label>
+      @php
+        $industries = [
+          'Information Technology',
+          'Business Process Outsourcing (BPO)',
+          'Manufacturing',
+          'Automobile',
+          'Textiles & Apparel',
+          'Pharmaceuticals & Healthcare',
+          'Banking, Financial Services & Insurance (BFSI)',
+          'Retail & E-commerce',
+          'Telecommunications',
+          'Real Estate & Construction',
+          'Education & Training',
+          'Hospitality & Tourism',
+          'Logistics & Transportation',
+          'Agriculture & Agritech',
+          'Media & Entertainment',
+        ];
+      @endphp
       <select class="Rectangle-29 Rectangle-29-select" name="industry_type">
         <option value="">Select Industry Type</option>
-        @php
-          $industries = [
-            'Information Technology',
-            'Business Process Outsourcing (BPO)',
-            'Manufacturing',
-            'Automobile',
-            'Textiles & Apparel',
-            'Pharmaceuticals & Healthcare',
-            'Banking, Financial Services & Insurance (BFSI)',
-            'Retail & E-commerce',
-            'Telecommunications',
-            'Real Estate & Construction',
-            'Education & Training',
-            'Hospitality & Tourism',
-            'Logistics & Transportation',
-            'Agriculture & Agritech',
-            'Media & Entertainment',
-          ];
-        @endphp
         @foreach($industries as $industry)
-          <option value="{{ $industry }}" {{ old('industry_type') == $industry ? 'selected' : '' }}>{{ $industry }}</option>
+          <option value="{{ $industry }}" {{ old('industry_type', $inquiry->industry_type) == $industry ? 'selected' : '' }}>{{ $industry }}</option>
         @endforeach
       </select>
+      @error('industry_type')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
     <div>
       <label class="hrp-label">Email :</label>
-      <input class="hrp-input Rectangle-29" type="email" name="email" value="{{ old('email') }}" placeholder="Enter Company Email" />
+      <input class="hrp-input Rectangle-29" type="email" name="email" value="{{ old('email', $inquiry->email) }}" placeholder="Enter Company Email" />
       @error('email')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
 
@@ -91,7 +91,7 @@
         inputmode="numeric"
         pattern="\d{10}"
         maxlength="10"
-        value="{{ old('company_phone') }}"
+        value="{{ old('company_phone', $inquiry->company_phone) }}"
         placeholder="Enter 10 digit mobile number"
       />
       @error('company_phone')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -108,7 +108,7 @@
       <select class="Rectangle-29 Rectangle-29-select" name="city">
         <option value="">Select City</option>
         @foreach($cities as $city)
-          <option value="{{ $city }}" {{ old('city') == $city ? 'selected' : '' }}>{{ $city }}</option>
+          <option value="{{ $city }}" {{ old('city', $inquiry->city) == $city ? 'selected' : '' }}>{{ $city }}</option>
         @endforeach
       </select>
       @error('city')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -131,7 +131,7 @@
       <select class="Rectangle-29 Rectangle-29-select" name="state">
         <option value="">Select State</option>
         @foreach($states as $state)
-          <option value="{{ $state }}" {{ old('state') == $state ? 'selected' : '' }}>{{ $state }}</option>
+          <option value="{{ $state }}" {{ old('state', $inquiry->state) == $state ? 'selected' : '' }}>{{ $state }}</option>
         @endforeach
       </select>
       @error('state')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -145,7 +145,7 @@
         inputmode="numeric"
         pattern="\d{10}"
         maxlength="10"
-        value="{{ old('contact_mobile') }}"
+        value="{{ old('contact_mobile', $inquiry->contact_mobile) }}"
         placeholder="Enter 10 digit mobile number"
       />
       @error('contact_mobile')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -154,26 +154,26 @@
     <!-- Row 6: Contact Person Name and Scope Link -->
     <div>
       <label class="hrp-label">Contact Person Name:</label>
-      <input class="hrp-input Rectangle-29" name="contact_name" value="{{ old('contact_name') }}" placeholder="Enter Contact Person Name" />
+      <input class="hrp-input Rectangle-29" name="contact_name" value="{{ old('contact_name', $inquiry->contact_name) }}" placeholder="Enter Contact Person Name" />
       @error('contact_name')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
     <div>
       <label class="hrp-label">Scope Link:</label>
-      <input class="hrp-input Rectangle-29" name="scope_link" value="{{ old('scope_link') }}" placeholder="Enter Scope Link" />
+      <input class="hrp-input Rectangle-29" name="scope_link" value="{{ old('scope_link', $inquiry->scope_link) }}" placeholder="Enter Scope Link" />
       @error('scope_link')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
 
     <!-- Row 7: Contact Person Position and Quotation Upload -->
     <div>
       <label class="hrp-label">Contact Person Position:</label>
-      <input class="hrp-input Rectangle-29" name="contact_position" value="{{ old('contact_position') }}" placeholder="Enter Contact Person Position" />
+      <input class="hrp-input Rectangle-29" name="contact_position" value="{{ old('contact_position', $inquiry->contact_position) }}" placeholder="Enter Contact Person Position" />
       @error('contact_position')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
     <div>
       <label class="hrp-label">Quotation Upload:</label>
       <div class="upload-pill Rectangle-29">
         <div class="choose">Choose File</div>
-        <div class="filename">No File Chosen</div>
+        <div class="filename">{{ $inquiry->quotation_file ? basename($inquiry->quotation_file) : 'No File Chosen' }}</div>
         <input type="file" id="quotation_file" name="quotation_file">
       </div>
       @error('quotation_file')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -184,14 +184,15 @@
       <label class="hrp-label">Quotation Sent:</label>
       <select class="Rectangle-29-select" name="quotation_sent">
         <option value="">Select Option</option>
-        <option value="Yes" {{ old('quotation_sent') === 'Yes' ? 'selected' : '' }}>Yes</option>
-        <option value="No" {{ old('quotation_sent') === 'No' ? 'selected' : '' }}>No</option>
+        <option value="Yes" {{ old('quotation_sent', $inquiry->quotation_sent) === 'Yes' ? 'selected' : '' }}>Yes</option>
+        <option value="No" {{ old('quotation_sent', $inquiry->quotation_sent) === 'No' ? 'selected' : '' }}>No</option>
       </select>
+      @error('quotation_sent')<small class="hrp-error">{{ $message }}</small>@enderror
     </div>
 
     <div class="md:col-span-2">
       <div style="display:flex;justify-content:flex-end;margin-top:30px;">
-        <button type="submit" class="inquiry-submit-btn" id="submitBtn">Add Inquiry</button>
+        <button type="submit" class="hrp-btn hrp-btn-primary">Update Inquiry</button>
       </div>
     </div>
   </form>
@@ -203,7 +204,7 @@
   <span class="hrp-bc-sep">›</span>
   <a href="{{ route('inquiries.index') }}" style="font-weight:800;color:#0f0f0f;text-decoration:none">Inquiry Management</a>
   <span class="hrp-bc-sep">›</span>
-  <span class="hrp-bc-current">Add New Inquiry</span>
+  <span class="hrp-bc-current">Edit Inquiry</span>
 @endsection
 
 @push('scripts')
@@ -222,13 +223,30 @@ document.addEventListener('DOMContentLoaded', function() {
         filenameSpan.textContent = this.files[0].name;
         filenameSpan.style.color = '#374151';
       } else {
-        filenameSpan.textContent = 'No file Chosen';
+        filenameSpan.textContent = '{{ $inquiry->quotation_file ? basename($inquiry->quotation_file) : 'No File Chosen' }}';
         filenameSpan.style.color = '#9ca3af';
       }
     });
   }
-  
-  // HTML5 validation on submit (same pattern as hiring/create)
+
+  // Enforce digit-only input for mobile fields (typing and paste)
+  function attachDigitOnly(input) {
+    if (!input) return;
+    input.addEventListener('keypress', function (e) {
+      const char = String.fromCharCode(e.which || e.keyCode);
+      if (!/\d/.test(char)) {
+        e.preventDefault();
+      }
+    });
+    input.addEventListener('input', function () {
+      this.value = this.value.replace(/\D+/g, '').slice(0, 10);
+    });
+  }
+
+  attachDigitOnly(companyPhoneInput);
+  attachDigitOnly(contactMobileInput);
+
+  // HTML5 validation-style check: just prevent submit if invalid and show browser messages
   if (form) {
     form.addEventListener('submit', function(e) {
       if (!form.checkValidity()) {

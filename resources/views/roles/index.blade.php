@@ -3,28 +3,19 @@
 
 @section('content')
   <div class="hrp-card">
-    <div class="hrp-compact">
-
-      @if(session('error'))
-        <div class="hrp-alert hrp-alert-danger">{{ session('error') }}</div>
-      @endif
-
+    <div class="hrp-card-body">
       <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
         <div class="jv-filter">
           <div class="filter-right">
             <form method="GET" action="{{ route('roles.index') }}" class="filter-row">
               <input type="text" name="q" value="{{ $q ?? '' }}" placeholder="Search roles..." class="filter-pill">
-              <select name="per_page" class="filter-pill" onchange="this.form.submit()">
-                @foreach([10,25,50,100] as $n)
-                  <option value="{{ $n }}" {{ (isset($perPage) && (int)$perPage === $n) ? 'selected' : '' }}>{{ $n }} / page</option>
-                @endforeach
-              </select>
               <button type="submit" class="filter-search" aria-label="Search">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                   <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" />
                   <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" />
                 </svg>
               </button>
+              <a href="{{ route('roles.index') }}" class="pill-btn pill-secondary">Reset</a>
               @can('Roles Management.create role')
                 <a href="{{ route('roles.create') }}" class="pill-btn pill-success">+ Add</a>
               @endcan
@@ -82,10 +73,7 @@
       <div class="pagination-wrapper">
         {{ $roles->links() }}
       </div>
-    </div>
   </div>
-<style>
+</div>
 
-  .macos-theme .hrp-window .hrp-compact{ padding:0 10px; }
-</style>
 @endsection

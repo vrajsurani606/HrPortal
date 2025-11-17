@@ -1,37 +1,46 @@
 @section('footer_pagination')
-  @include('partials.footer')
+  @if(isset($inquiries) && method_exists($inquiries,'links'))
+  <form method="GET" class="hrp-entries-form">
+    <span>Entries</span>
+    @php($currentPerPage = (int) request()->get('per_page', 10))
+    <select name="per_page" onchange="this.form.submit()">
+      @foreach([10,25,50,100] as $size)
+      <option value="{{ $size }}" {{ $currentPerPage === $size ? 'selected' : '' }}>{{ $size }}</option>
+      @endforeach
+    </select>
+    @foreach(request()->except(['per_page','page']) as $k => $v)
+    <input type="hidden" name="{{ $k }}" value="{{ $v }}">
+    @endforeach
+  </form>
+  {{ $inquiries->appends(request()->except('page'))->onEachSide(1)->links('vendor.pagination.jv') }}
+  @endif
 @endsection
 @extends('layouts.macos')
-@section('page_title', 'Inquiries')
+@section('page_title', 'Inquiry List')
 @section('content')
 <div class="inquiry-index-container">
   <!-- JV Filter -->
-  <div class="jv-filter">
-    <input type="date" id="start_date" class="filter-pill" placeholder="From: dd/mm/yyyy">
-    <input type="date" id="end_date" class="filter-pill" placeholder="To: dd/mm/yyyy">
-    <select id="gender_filter" class="filter-pill" required>
-      <option value="" disabled selected>Select Gender</option>
-      <option value="male">Male</option>
-      <option value="female">Female</option>
-      <option value="other">Other</option>
-    </select>
-    <select id="experience_filter" class="filter-pill" required>
-      <option value="" disabled selected>Select Experience</option>
-      <option value="0-1">0-1 Years</option>
-      <option value="1-3">1-3 Years</option>
-      <option value="3+">3+ Years</option>
-    </select>
-    <button type="button" class="filter-search" id="filter_btn" aria-label="Search">
+  <form method="GET" action="{{ route('inquiries.index') }}" class="jv-filter">
+    <input type="date" id="start_date" name="from_date" class="filter-pill" placeholder="From: dd/mm/yyyy" value="{{ request('from_date') }}">
+    <input type="date" id="end_date" name="to_date" class="filter-pill" placeholder="To: dd/mm/yyyy" value="{{ request('to_date') }}">
+    <button type="submit" class="filter-search" id="filter_btn" aria-label="Search">
       <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
         <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
       </svg>
     </button>
     <div class="filter-right">
-      <input type="text" class="filter-pill" placeholder="Search here..." id="custom_search">
-      <a href="#" class="pill-btn pill-success" id="excel_btn">Excel</a>
+      <input type="text" class="filter-pill" placeholder="Search here..." id="custom_search" name="search" value="{{ request('search') }}">
+      <a href="{{ route('inquiries.export', request()->only(['from_date','to_date','search'])) }}" class="pill-btn pill-success" id="excel_btn">Excel</a>
       <a href="{{ route('inquiries.create') }}" class="pill-btn pill-success">+ Add</a>
     </div>
+  </form>
+
+  @if(!empty($todayScheduledInquiryIds))
+  <div style="margin-bottom:8px;font-size:12px;color:#374151;display:flex;align-items:center;gap:8px;">
+    <span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#fff7ed;border:1px solid #fed7aa;"></span>
+    <span>Rows highlighted indicate <strong>Scheduled Demo Today</strong>.</span>
   </div>
+  @endif
 
   <!-- JV Table -->
   <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
@@ -40,7 +49,6 @@
         <tr>
           <th>Action</th>
           <th>Serial No.</th>
-          <th>Is Confirm</th>
           <th>Code</th>
           <th>Inq. Date</th>
           <th>Comp. Name</th>
@@ -49,43 +57,13 @@
           <th>Person Name</th>
           <th>Person Position</th>
           <th>Industry Type</th>
+          <th>Next Follow Up</th>
           <th>Scope</th>
-          <th>Next Date</th>
-          <th>Demo Status</th>
-          <th>Demo Date & Time</th>
+          <th>Quotation</th>
         </tr>
       </thead>
-      <tbody>
-        @forelse($inquiries as $index => $inquiry)
-        <tr>
-          <td>
-            <div class="action-icons">
-              <img class="action-icon" src="{{ asset('action_icon/edit.svg') }}" alt="Edit">
-              <img class="action-icon" src="{{ asset('action_icon/delete.svg') }}" alt="Delete">
-              <img class="action-icon" src="{{ asset('action_icon/follow-up.svg') }}" alt="Follow Up">
-              <img class="action-icon" src="{{ asset('action_icon/make-quatation.svg') }}" alt="Make Quotation">
-            </div>
-          </td>
-          <td>{{ $index + 1 }}</td>
-          <td><span class="status-badge confirmed">Confirmed</span></td>
-          <td>{{ $inquiry->unique_code }}</td>
-          <td>{{ $inquiry->inquiry_date->format('d-m-Y') }}</td>
-          <td>{{ $inquiry->company_name }}</td>
-          <td>{{ $inquiry->company_phone }}</td>
-          <td>{{ Str::limit($inquiry->company_address, 30) }}</td>
-          <td>{{ $inquiry->contact_name }}</td>
-          <td>{{ $inquiry->contact_position }}</td>
-          <td>{{ $inquiry->industry_type }}</td>
-          <td><a href="{{ $inquiry->scope_link }}" class="scope-link">View</a></td>
-          <td>{{ $inquiry->created_at->addDays(7)->format('d-m-Y') }}</td>
-          <td><span class="status-badge scheduled">Scheduled</span></td>
-          <td>{{ $inquiry->created_at->addDays(3)->format('d/m/Y') }}</td>
-        </tr>
-        @empty
-        <tr>
-          <td colspan="15" class="no-data">No inquiries found</td>
-        </tr>
-        @endforelse
+      <tbody id="inquiries-table-body">
+        @include('inquiries.partials.table_rows', ['inquiries' => $inquiries])
       </tbody>
     </table>
   </div>
@@ -95,8 +73,70 @@
 @section('breadcrumb')
   <a class="hrp-bc-home" href="{{ route('dashboard') }}">Dashboard</a>
   <span class="hrp-bc-sep">›</span>
-  <span class="hrp-bc-current">Inquiries</span>
+  <a href="{{ route('inquiries.index') }}" style="font-weight:800;color:#0f0f0f;text-decoration:none">Inquiry Management</a>
+  <span class="hrp-bc-sep">›</span>
+  <span class="hrp-bc-current">Inquiry List</span>
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  // SweetAlert delete confirmation for inquiries
+  function confirmDeleteInquiry(button) {
+    Swal.fire({
+      title: 'Delete this inquiry?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete it!',
+      cancelButtonText: 'Cancel',
+      width: '400px',
+      padding: '1.5rem',
+      customClass: {
+        popup: 'perfect-swal-popup'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        button.closest('form').submit();
+      }
+    });
+  }
+
+  // AJAX live filter for Inquiry List (JV-style)
+  document.addEventListener('DOMContentLoaded', function() {
+    var form = document.querySelector('.jv-filter');
+    var tbody = document.getElementById('inquiries-table-body');
+    if (!form || !tbody) return;
+
+    function fetchInquiries() {
+      var params = new URLSearchParams(new FormData(form));
+      var url = form.getAttribute('action') + '?' + params.toString();
+
+      fetch(url, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+      })
+      .then(function(res) { return res.text(); })
+      .then(function(html) {
+        tbody.innerHTML = html;
+      })
+      .catch(function(e) {
+        console.error('Filter error', e);
+      });
+    }
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      fetchInquiries();
+    });
+
+    var searchInput = document.getElementById('custom_search');
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        fetchInquiries();
+      });
+    }
+  });
+</script>
 @endpush
