@@ -297,4 +297,126 @@ class DigitalCardController extends Controller
             return back()->withInput()->withErrors(['error' => 'Failed to update digital card. Please try again.']);
         }
     }
+
+    public function destroy(Employee $employee)
+    {
+        try {
+            $digitalCard = $employee->digitalCard;
+            if (!$digitalCard) {
+                return redirect()->route('employees.index')
+                    ->with('error', 'Digital card not found.');
+            }
+
+            $digitalCard->delete();
+
+            return redirect()->route('employees.index')
+                ->with('success', 'Digital card deleted successfully!');
+        } catch (\Exception $e) {
+            \Log::error('Digital Card Delete Error: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Failed to delete digital card. Please try again.']);
+        }
+    }
+
+    public function quickEdit(Request $request, Employee $employee)
+    {
+        $digitalCard = $employee->digitalCard;
+        if (!$digitalCard) {
+            return response()->json(['error' => 'Digital card not found'], 404);
+        }
+
+        $field = $request->input('field');
+        $value = $request->input('value');
+
+        // Validate allowed fields for quick edit
+        $allowedFields = [
+            'full_name', 'current_position', 'company_name', 'email', 'phone',
+            'location', 'summary', 'skills', 'hobbies', 'linkedin', 'github',
+            'twitter', 'instagram', 'facebook', 'portfolio'
+        ];
+
+        if (!in_array($field, $allowedFields)) {
+            return response()->json(['error' => 'Field not allowed for quick edit'], 400);
+        }
+
+        try {
+            $digitalCard->update([$field => $value]);
+            return response()->json(['success' => true, 'message' => 'Field updated successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to update field'], 500);
+        }
+    }employee)
+                    ->with('error', 'Digital card not found.');
+            }
+
+            // Get all form data
+            $data = $request->all();
+            
+            // Fix field name mapping
+            if (isset($data['years_experience'])) {
+                $data['years_of_experience'] = $data['years_experience'];
+                unset($data['years_experience']);
+            }
+            
+            // Handle file uploads
+            if ($request->hasFile('resume')) {
+                $data['resume_path'] = $request->file('resume')->store('digital-cards/resumes', 'public');
+            }
+
+            if ($request->hasFile('gallery')) {
+                $galleryFiles = [];
+                foreach ($request->file('gallery') as $file) {
+                    $galleryFiles[] = $file->store('digital-cards/gallery', 'public');
+                }
+                $data['gallery'] = $galleryFiles;
+            }
+            
+            // Process array fields
+            $arrayFields = ['roles', 'education', 'certifications', 'achievements', 'projects', 'languages'];
+            foreach ($arrayFields as $field) {
+                if (isset($data[$field]) && is_array($data[$field])) {
+                    // Filter out empty entries
+                    $filtered = array_filter($data[$field], function($item) {
+                        if (is_array($item)) {
+                            return !empty(array_filter($item, function($v) { return !empty($v); }));
+                        }
+                        return !empty($item);
+                    });
+                    $data[$field] = array_values($filtered); // Re-index array
+                }
+            }
+            
+            // Map field names for backward compatibility
+            if (isset($data['roles'])) {
+                $data['previous_roles'] = $data['roles'];
+                unset($data['roles']);
+            }
+            
+            // Remove unwanted fields
+            unset($data['resume'], $data['_token'], $data['_method']);
+            
+            // Clean empty values but keep arrays
+            $cleanData = [];
+            foreach ($data as $key => $value) {
+                if ($value !== null && $value !== '' && !($value === [] && !in_array($key, $arrayFields))) {
+                    $cleanData[$key] = $value;
+                }
+            }
+            
+            // Debug: Log the data being updated
+            \Log::info('Digital Card Data to Update:', $cleanData);
+            
+            // Update digital card
+            $digitalCard->update($cleanData);
+            
+            // Debug: Log success
+            \Log::info('Digital Card Updated Successfully', ['id' => $digitalCard->id]);
+
+            return redirect()->route('employees.digital-card.show', $employee)
+                ->with('success', 'Digital card updated successfully!');
+            
+        } catch (\Exception $e) {
+            \Log::error('Digital Card Update Error: ' . $e->getMessage());
+            return back()->withInput()->withErrors(['error' => 'Failed to update digital card. Please try again.']);
+        }
+    }
 }

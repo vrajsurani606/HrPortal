@@ -82,6 +82,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/digital-card', [\App\Http\Controllers\HR\DigitalCardController::class, 'show'])->name('employees.digital-card.show');
         Route::get('/digital-card/edit', [\App\Http\Controllers\HR\DigitalCardController::class, 'edit'])->name('employees.digital-card.edit');
         Route::put('/digital-card', [\App\Http\Controllers\HR\DigitalCardController::class, 'update'])->name('employees.digital-card.update');
+        Route::delete('/digital-card', [\App\Http\Controllers\HR\DigitalCardController::class, 'destroy'])->name('employees.digital-card.destroy');
+        Route::post('/digital-card/quick-edit', [\App\Http\Controllers\HR\DigitalCardController::class, 'quickEdit'])->name('employees.digital-card.quick-edit');
     });
     Route::get('employees/letters/generate-number', [EmployeeController::class, 'generateLetterNumber'])->name('employees.letters.generate-number');
     Route::get('employees/letters/generate-reference', [EmployeeController::class, 'generateLetterNumber'])->name('employees.letters.generate-reference');
