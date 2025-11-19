@@ -125,6 +125,7 @@ class QuotationController extends Controller
 
     public function store(Request $request): RedirectResponse
     {   
+        //dd($request->all());
         // Filter out empty service rows
         $services1 = [
             'description' => [],
