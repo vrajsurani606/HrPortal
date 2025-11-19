@@ -11,17 +11,17 @@
     @endif
 </div>
 
-<div class="subject">Subject: Confidentiality Agreement</div>
+<div class="subject">Subject: Impartiality Declaration</div>
 
 <div class="body">
     <p>Dear <b>{{ $employee->name }}</b>,</p>
     
-    <p>This agreement is to confirm that as a <b>{{ $employee->designation }}</b> at 
-    <b>{{ $company_name }}</b>, you are required to maintain strict confidentiality 
-    regarding all company information, data, and intellectual property you may access 
-    during your employment. Disclosure of any such information to unauthorized persons 
-    is strictly prohibited.</p>
- @php
+    <p>This declaration is to confirm your commitment to impartiality in all your professional 
+    duties as <b>{{ $employee->designation }}</b> at <b>{{ $company_name }}</b>. 
+    You are expected to perform your responsibilities without any bias or conflict of interest, 
+    and to uphold the highest standards of integrity.</p>
+    
+  @php
     $cleanNotes = trim(strip_tags($letter->notes));
 @endphp
 
@@ -32,7 +32,7 @@
 @endif
 
     
-    <p>Kindly sign and return a copy of this letter as your acceptance of the confidentiality terms.</p>
+    <p>Please sign and return a copy of this letter to acknowledge your acceptance of these terms.</p>
 </div>
 
 <div class="signature">
@@ -40,6 +40,6 @@
     <div class="sign">
     <img src="{{ asset('letters/signature.png') }}" alt="Signature">
     </div>
-    <div class="name">{{ $signatory_name ?? 'HR Department' }}</div>
+    <div class="name">{{ $signatory_name ?? 'HR Manager' }}</div>
     <div class="company">{{ $company_name }}</div>
 </div>
