@@ -3,21 +3,51 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\Employee;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AttendanceController extends Controller
 {
+    public function index()
+    {
+        $today = now()->toDateString();
+        $employee = Employee::where('user_id', Auth::id())->first();
+        $attendance = $employee
+            ? Attendance::where('employee_id', $employee->id)->whereDate('date', $today)->first()
+            : null;
+
+        return view('attendance.index', [
+            'attendance' => $attendance,
+            'employee' => $employee,
+        ]);
+    }
+
+    public function checkPage()
+    {
+        $today = now()->toDateString();
+        $employee = Employee::where('user_id', Auth::id())->first();
+        $attendance = $employee
+            ? Attendance::where('employee_id', $employee->id)->whereDate('date', $today)->first()
+            : null;
+
+        return view('attendance.check', [
+            'attendance' => $attendance,
+            'today' => $today,
+            'employee' => $employee,
+        ]);
+    }
     /**
      * Check if user has already checked in today
      */
     public function checkStatus()
     {
         $today = now()->format('Y-m-d');
-        $attendance = Attendance::where('user_id', auth()->id())
-            ->whereDate('date', $today)
-            ->first();
+        $employee = Employee::where('user_id', auth()->id())->first();
+        $attendance = $employee
+            ? Attendance::where('employee_id', $employee->id)->whereDate('date', $today)->first()
+            : null;
 
         return response()->json([
             'has_checked_in' => $attendance && $attendance->check_in !== null,
@@ -34,33 +64,48 @@ class AttendanceController extends Controller
     {
         $today = now()->format('Y-m-d');
         
-        // Check if already checked in today
-        $existing = Attendance::where('user_id', auth()->id())
+        // Resolve current employee
+        $employee = Employee::where('user_id', auth()->id())->first();
+        
+        // Check if already checked in today for this employee
+        $existing = $employee ? Attendance::where('employee_id', $employee->id)
             ->whereDate('date', $today)
-            ->first();
+            ->first() : null;
 
         if ($existing && $existing->check_in) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You have already checked in today.'
-            ], 400);
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You have already checked in today.'
+                ], 400);
+            }
+            return back()->with('error', 'You have already checked in today.');
+        }
+
+        if (!$employee) {
+            return $request->expectsJson()
+                ? response()->json(['success' => false, 'message' => 'Employee profile not found'], 400)
+                : back()->with('error', 'Employee profile not found');
         }
 
         $attendance = $existing ?? new Attendance();
-        $attendance->user_id = auth()->id();
+        $attendance->employee_id = $employee->id;
         $attendance->date = $today;
         $attendance->check_in = now();
         $attendance->status = 'present';
-        $attendance->ip_address = $request->ip();
-        $attendance->user_agent = $request->userAgent();
-        $attendance->location = $this->getLocation($request->ip());
+        $attendance->check_in_ip = $request->ip();
+        try { $attendance->check_in_location = $this->getLocation($request->ip()); } catch (\Throwable $e) { $attendance->check_in_location = 'Location not available'; }
         $attendance->save();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Successfully checked in at ' . now()->format('h:i A'),
-            'attendance' => $attendance
-        ]);
+        // If the client is AJAX (API), return JSON; otherwise redirect with flash
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Successfully checked in at ' . now()->format('h:i A'),
+                'attendance' => $attendance
+            ]);
+        }
+        return back()->with('success', 'Successfully checked in at ' . now()->format('h:i A'));
     }
 
     /**
@@ -69,38 +114,48 @@ class AttendanceController extends Controller
     public function checkOut(Request $request)
     {
         $today = now()->format('Y-m-d');
-        $attendance = Attendance::where('user_id', auth()->id())
+        $employee = Employee::where('user_id', auth()->id())->first();
+        $attendance = $employee ? Attendance::where('employee_id', $employee->id)
             ->whereDate('date', $today)
-            ->first();
+            ->first() : null;
 
         if (!$attendance) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You need to check in first.'
-            ], 400);
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You need to check in first.'
+                ], 400);
+            }
+            return back()->with('error', 'You need to check in first.');
         }
 
         if ($attendance->check_out) {
-            return response()->json([
-                'success' => false,
-                'message' => 'You have already checked out today.'
-            ], 400);
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You have already checked out today.'
+                ], 400);
+            }
+            return back()->with('error', 'You have already checked out today.');
         }
 
-        $checkIn = Carbon::parse($attendance->check_in);
         $checkOut = now();
-        $totalSeconds = $checkIn->diffInSeconds($checkOut);
-
         $attendance->check_out = $checkOut;
-        $attendance->total_seconds = $totalSeconds;
+        // compute and store formatted total working hours
+        $attendance->total_working_hours = $attendance->calculateWorkingHours();
+        $attendance->check_out_ip = $request->ip();
+        try { $attendance->check_out_location = $this->getLocation($request->ip()); } catch (\Throwable $e) { $attendance->check_out_location = 'Location not available'; }
         $attendance->save();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Successfully checked out at ' . $checkOut->format('h:i A'),
-            'total_hours' => $this->formatSeconds($totalSeconds),
-            'attendance' => $attendance
-        ]);
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Successfully checked out at ' . $checkOut->format('h:i A'),
+                'total_hours' => $attendance->total_working_hours,
+                'attendance' => $attendance
+            ]);
+        }
+        return back()->with('success', 'Successfully checked out at ' . $checkOut->format('h:i A'));
     }
 
     /**
@@ -108,14 +163,19 @@ class AttendanceController extends Controller
      */
     public function history()
     {
-        $attendance = Attendance::where('user_id', auth()->id())
+        $employee = Employee::where('user_id', auth()->id())->first();
+        $attendance = Attendance::when($employee, fn($q) => $q->where('employee_id', $employee->id))
             ->orderBy('date', 'desc')
             ->paginate(30);
 
-        return response()->json([
-            'success' => true,
-            'data' => $attendance
-        ]);
+        // If requested via API, return JSON; else load a simple view (optional)
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $attendance
+            ]);
+        }
+        return view('attendance.history', ['attendances' => $attendance]);
     }
 
     /**

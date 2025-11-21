@@ -21,6 +21,7 @@ return new class extends Migration {
             $table->decimal('previous_salary', 12, 2)->nullable();
             $table->string('resume_path')->nullable();
             $table->enum('gender', ['male','female','other'])->nullable();
+            $table->string('status')->default('active');
             $table->timestamps();
             });
         }

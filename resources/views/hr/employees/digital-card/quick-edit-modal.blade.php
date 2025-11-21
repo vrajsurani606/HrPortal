@@ -1,113 +1,137 @@
 <!-- Quick Edit Modal -->
-<div id="quickEditModal" class="modal fade" tabindex="-1" role="dialog" style="display: none;">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content" style="border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-            <div class="modal-header" style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border-radius: 12px 12px 0 0;">
-                <h5 class="modal-title" style="font-weight: 600;">
-                    <i class="fas fa-edit"></i> Quick Edit Digital Card
+<div class="modal fade" id="quickEditModal" tabindex="-1" aria-labelledby="quickEditModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px;">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.2);">
+                <h5 class="modal-title" id="quickEditModalLabel" style="font-weight: 700; color: #1f2937;">
+                    <i class="fas fa-bolt" style="color: #3b82f6; margin-right: 8px;"></i>
+                    Quick Edit Digital Card
                 </h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white; opacity: 0.8;">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body" style="padding: 30px;">
+            <div class="modal-body">
                 <form id="quickEditForm">
                     @csrf
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Full Name</label>
-                                <input type="text" name="full_name" class="form-control" style="border-radius: 8px; border: 2px solid #e5e7eb; padding: 12px;">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Current Position</label>
-                                <input type="text" name="current_position" class="form-control" style="border-radius: 8px; border: 2px solid #e5e7eb; padding: 12px;">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Company Name</label>
-                                <input type="text" name="company_name" class="form-control" style="border-radius: 8px; border: 2px solid #e5e7eb; padding: 12px;">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Email</label>
-                                <input type="email" name="email" class="form-control" style="border-radius: 8px; border: 2px solid #e5e7eb; padding: 12px;">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Phone</label>
-                                <input type="text" name="phone" class="form-control" style="border-radius: 8px; border: 2px solid #e5e7eb; padding: 12px;">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Location</label>
-                                <input type="text" name="location" class="form-control" style="border-radius: 8px; border: 2px solid #e5e7eb; padding: 12px;">
-                            </div>
-                        </div>
+                    <div class="row g-3">
+                        <!-- Basic Information -->
                         <div class="col-12">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Professional Summary</label>
-                                <textarea name="summary" rows="3" class="form-control" style="border-radius: 8px; border: 2px solid #e5e7eb; padding: 12px;"></textarea>
-                            </div>
+                            <h6 style="font-weight: 600; color: #374151; margin-bottom: 15px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">
+                                <i class="fas fa-user" style="color: #3b82f6; margin-right: 8px;"></i>
+                                Basic Information
+                            </h6>
                         </div>
+                        
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Skills (comma separated)</label>
-                                <textarea name="skills" rows="2" class="form-control" style="border-radius: 8px; border: 2px solid #e5e7eb; padding: 12px;"></textarea>
-                            </div>
+                            <label class="form-label" style="font-weight: 600; color: #374151;">Full Name</label>
+                            <input type="text" class="form-control" name="full_name" id="quick_full_name" 
+                                   style="border-radius: 10px; border: 1px solid #d1d5db; padding: 12px;">
                         </div>
+                        
                         <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="font-weight-bold">Hobbies (comma separated)</label>
-                                <textarea name="hobbies" rows="2" class="form-control" style="border-radius: 8px; border: 2px solid #e5e7eb; padding: 12px;"></textarea>
-                            </div>
+                            <label class="form-label" style="font-weight: 600; color: #374151;">Current Position</label>
+                            <input type="text" class="form-control" name="current_position" id="quick_current_position"
+                                   style="border-radius: 10px; border: 1px solid #d1d5db; padding: 12px;">
                         </div>
-                    </div>
-                    
-                    <div class="social-links-section" style="margin-top: 20px;">
-                        <h6 style="font-weight: 600; color: #374151; margin-bottom: 15px;">
-                            <i class="fas fa-share-alt"></i> Social Links
-                        </h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="font-weight-bold">LinkedIn</label>
-                                    <input type="url" name="linkedin" class="form-control" style="border-radius: 8px; border: 2px solid #e5e7eb; padding: 12px;">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="font-weight-bold">GitHub</label>
-                                    <input type="url" name="github" class="form-control" style="border-radius: 8px; border: 2px solid #e5e7eb; padding: 12px;">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="font-weight-bold">Portfolio</label>
-                                    <input type="url" name="portfolio" class="form-control" style="border-radius: 8px; border: 2px solid #e5e7eb; padding: 12px;">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="font-weight-bold">Twitter</label>
-                                    <input type="url" name="twitter" class="form-control" style="border-radius: 8px; border: 2px solid #e5e7eb; padding: 12px;">
-                                </div>
-                            </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label" style="font-weight: 600; color: #374151;">Company Name</label>
+                            <input type="text" class="form-control" name="company_name" id="quick_company_name"
+                                   style="border-radius: 10px; border: 1px solid #d1d5db; padding: 12px;">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label" style="font-weight: 600; color: #374151;">Location</label>
+                            <input type="text" class="form-control" name="location" id="quick_location"
+                                   style="border-radius: 10px; border: 1px solid #d1d5db; padding: 12px;">
+                        </div>
+
+                        <!-- Contact Information -->
+                        <div class="col-12 mt-4">
+                            <h6 style="font-weight: 600; color: #374151; margin-bottom: 15px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">
+                                <i class="fas fa-address-book" style="color: #3b82f6; margin-right: 8px;"></i>
+                                Contact Information
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label" style="font-weight: 600; color: #374151;">Email</label>
+                            <input type="email" class="form-control" name="email" id="quick_email"
+                                   style="border-radius: 10px; border: 1px solid #d1d5db; padding: 12px;">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label" style="font-weight: 600; color: #374151;">Phone</label>
+                            <input type="text" class="form-control" name="phone" id="quick_phone"
+                                   style="border-radius: 10px; border: 1px solid #d1d5db; padding: 12px;">
+                        </div>
+
+                        <!-- Social Links -->
+                        <div class="col-12 mt-4">
+                            <h6 style="font-weight: 600; color: #374151; margin-bottom: 15px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">
+                                <i class="fas fa-share-alt" style="color: #3b82f6; margin-right: 8px;"></i>
+                                Social Links
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label" style="font-weight: 600; color: #374151;">LinkedIn</label>
+                            <input type="url" class="form-control" name="linkedin" id="quick_linkedin"
+                                   style="border-radius: 10px; border: 1px solid #d1d5db; padding: 12px;">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label" style="font-weight: 600; color: #374151;">GitHub</label>
+                            <input type="url" class="form-control" name="github" id="quick_github"
+                                   style="border-radius: 10px; border: 1px solid #d1d5db; padding: 12px;">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label" style="font-weight: 600; color: #374151;">Portfolio</label>
+                            <input type="url" class="form-control" name="portfolio" id="quick_portfolio"
+                                   style="border-radius: 10px; border: 1px solid #d1d5db; padding: 12px;">
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label" style="font-weight: 600; color: #374151;">Twitter</label>
+                            <input type="url" class="form-control" name="twitter" id="quick_twitter"
+                                   style="border-radius: 10px; border: 1px solid #d1d5db; padding: 12px;">
+                        </div>
+
+                        <!-- Skills & Summary -->
+                        <div class="col-12 mt-4">
+                            <h6 style="font-weight: 600; color: #374151; margin-bottom: 15px; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px;">
+                                <i class="fas fa-code" style="color: #3b82f6; margin-right: 8px;"></i>
+                                Skills & Summary
+                            </h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label" style="font-weight: 600; color: #374151;">Skills (comma separated)</label>
+                            <textarea class="form-control" name="skills" id="quick_skills" rows="3"
+                                      style="border-radius: 10px; border: 1px solid #d1d5db; padding: 12px;"></textarea>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label class="form-label" style="font-weight: 600; color: #374151;">Hobbies (comma separated)</label>
+                            <textarea class="form-control" name="hobbies" id="quick_hobbies" rows="3"
+                                      style="border-radius: 10px; border: 1px solid #d1d5db; padding: 12px;"></textarea>
+                        </div>
+                        
+                        <div class="col-12">
+                            <label class="form-label" style="font-weight: 600; color: #374151;">Professional Summary</label>
+                            <textarea class="form-control" name="summary" id="quick_summary" rows="4"
+                                      style="border-radius: 10px; border: 1px solid #d1d5db; padding: 12px;"></textarea>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer" style="border-top: 1px solid #e5e7eb; padding: 20px 30px;">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius: 8px; padding: 10px 20px;">
+            <div class="modal-footer" style="border-top: 1px solid rgba(255, 255, 255, 0.2);">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" 
+                        style="border-radius: 25px; padding: 10px 20px; font-weight: 600;">
                     <i class="fas fa-times"></i> Cancel
                 </button>
-                <button type="button" id="saveQuickEdit" class="btn btn-primary" style="background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; border-radius: 8px; padding: 10px 20px;">
+                <button type="button" class="btn btn-primary" onclick="saveQuickEdit()" id="quickSaveBtn"
+                        style="background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; border-radius: 25px; padding: 10px 20px; font-weight: 600;">
                     <i class="fas fa-save"></i> Save Changes
                 </button>
             </div>
@@ -115,114 +139,122 @@
     </div>
 </div>
 
-<style>
-.modal {
-    animation: fadeIn 0.3s ease-out;
-}
-
-.modal-dialog {
-    animation: slideInDown 0.4s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes slideInDown {
-    from {
-        opacity: 0;
-        transform: translateY(-50px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.form-control:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.social-links-section {
-    background: #f8fafc;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid #e2e8f0;
-}
-</style>
-
 <script>
+// Quick Edit Modal Functions
 function openQuickEditModal(employeeId) {
     // Fetch current data and populate modal
     fetch(`/employees/${employeeId}/digital-card`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.digitalCard) {
-                const form = document.getElementById('quickEditForm');
-                Object.keys(data.digitalCard).forEach(key => {
-                    const input = form.querySelector(`[name="${key}"]`);
-                    if (input) {
-                        input.value = data.digitalCard[key] || '';
-                    }
-                });
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch digital card data');
             }
-            $('#quickEditModal').modal('show');
+            return response.text();
+        })
+        .then(html => {
+            // Parse the HTML to extract data (this is a simple approach)
+            // In a real application, you'd want a dedicated API endpoint
+            populateQuickEditForm(employeeId);
+            const modal = new bootstrap.Modal(document.getElementById('quickEditModal'));
+            modal.show();
         })
         .catch(error => {
-            console.error('Error fetching digital card data:', error);
-            showNotification('Error loading data', 'error');
+            console.error('Error:', error);
+            showNotification('Failed to load digital card data', 'error');
         });
 }
 
-document.getElementById('saveQuickEdit').addEventListener('click', function() {
+function populateQuickEditForm(employeeId) {
+    // Store employee ID for saving
+    document.getElementById('quickEditForm').setAttribute('data-employee-id', employeeId);
+    
+    // You can populate with existing data here if needed
+    // For now, we'll let users edit from current values
+}
+
+function saveQuickEdit() {
     const form = document.getElementById('quickEditForm');
+    const employeeId = form.getAttribute('data-employee-id');
     const formData = new FormData(form);
-    const employeeId = window.currentEmployeeId; // Set this globally
+    const saveBtn = document.getElementById('quickSaveBtn');
     
     // Show loading state
-    this.disabled = true;
-    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
     
-    // Send multiple requests for each field
-    const promises = [];
-    for (let [field, value] of formData.entries()) {
-        if (field !== '_token') {
-            promises.push(
-                fetch(`/employees/${employeeId}/digital-card/quick-edit`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({ field, value })
-                })
-            );
+    // Convert FormData to JSON
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+        if (value.trim() !== '') {
+            data[key] = value;
         }
     }
     
-    Promise.all(promises)
-        .then(responses => {
-            const allSuccessful = responses.every(response => response.ok);
-            if (allSuccessful) {
-                $('#quickEditModal').modal('hide');
-                showNotification('Digital card updated successfully!', 'success');
-                // Reload the page to show updated data
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-            } else {
-                throw new Error('Some updates failed');
-            }
-        })
-        .catch(error => {
-            console.error('Error updating digital card:', error);
-            showNotification('Error updating digital card', 'error');
-        })
-        .finally(() => {
-            this.disabled = false;
-            this.innerHTML = '<i class="fas fa-save"></i> Save Changes';
-        });
-});
+    // Add CSRF token
+    data._token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    
+    fetch(`/employees/${employeeId}/digital-card/quick-edit`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Digital card updated successfully!', 'success');
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('quickEditModal'));
+            modal.hide();
+            // Reload page to show changes
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            throw new Error(data.message || 'Failed to update digital card');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification(error.message || 'Failed to update digital card', 'error');
+    })
+    .finally(() => {
+        // Reset button state
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+    });
+}
+
+// Enhanced quick edit with individual field updates
+function quickEditField(employeeId, field, value) {
+    const data = {
+        field: field,
+        value: value,
+        _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    };
+    
+    return fetch(`/employees/${employeeId}/digital-card/quick-edit`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(`${field.replace('_', ' ')} updated successfully!`, 'success');
+            return true;
+        } else {
+            throw new Error(data.message || 'Failed to update field');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification(error.message || 'Failed to update field', 'error');
+        return false;
+    });
+}
 </script>

@@ -15,8 +15,8 @@ use App\Http\Controllers\Performa\PerformaController;
 use App\Http\Controllers\Performa\InvoiceController;
 use App\Http\Controllers\Receipt\ReceiptController;
 use App\Http\Controllers\Ticket\TicketController;
-use App\Http\Controllers\Attendance\AttendanceReportController;
-use App\Http\Controllers\Attendance\LeaveApprovalController;
+use App\Http\Controllers\AttendanceReportController;
+use App\Http\Controllers\LeaveApprovalController;
 use App\Http\Controllers\Event\EventController;
 use App\Http\Controllers\Setting\SettingController; 
 use App\Http\Controllers\MaintenanceController;
@@ -32,15 +32,17 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
 // Attendance Routes
 Route::prefix('attendance')->middleware('auth')->group(function () {
-    Route::get('/', [App\Http\Controllers\Attendance\AttendanceController::class, 'index'])->name('attendance.index');
-    Route::post('/check-in', [App\Http\Controllers\Attendance\AttendanceController::class, 'checkIn'])->name('attendance.check-in');
-    Route::post('/check-out', [App\Http\Controllers\Attendance\AttendanceController::class, 'checkOut'])->name('attendance.check-out');
-    Route::get('/history', [App\Http\Controllers\Attendance\AttendanceController::class, 'history'])->name('attendance.history');
+    Route::get('/', [App\Http\Controllers\AttendanceController::class, 'index'])->name('attendance.index');
+    Route::get('/check', [App\Http\Controllers\AttendanceController::class, 'checkPage'])->name('attendance.check');
+    Route::get('/status', [App\Http\Controllers\AttendanceController::class, 'checkStatus'])->name('attendance.status');
+    Route::post('/check-in', [App\Http\Controllers\AttendanceController::class, 'checkIn'])->name('attendance.check-in');
+    Route::post('/check-out', [App\Http\Controllers\AttendanceController::class, 'checkOut'])->name('attendance.check-out');
+    Route::get('/history', [App\Http\Controllers\AttendanceController::class, 'history'])->name('attendance.history');
     
     // Attendance Reports
-    Route::get('/reports', [App\Http\Controllers\Attendance\AttendanceReportController::class, 'index'])->name('attendance.reports');
-    Route::get('/reports/generate', [App\Http\Controllers\Attendance\AttendanceReportController::class, 'generate'])->name('attendance.reports.generate');
-    Route::get('/reports/export', [App\Http\Controllers\Attendance\AttendanceReportController::class, 'export'])->name('attendance.reports.export');
+    Route::get('/reports', [App\Http\Controllers\AttendanceReportController::class, 'index'])->name('attendance.reports');
+    Route::get('/reports/generate', [App\Http\Controllers\AttendanceReportController::class, 'generate'])->name('attendance.reports.generate');
+    Route::get('/reports/export', [App\Http\Controllers\AttendanceReportController::class, 'export'])->name('attendance.reports.export');
 });
 
 // Leave Management Routes
@@ -93,7 +95,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('hiring', HiringController::class);
     Route::get('hiring/{id}/print', [HiringController::class, 'print'])->name('hiring.print');
     Route::get('hiring/{id}/resume', [HiringController::class, 'resume'])->name('hiring.resume');
-    Route::post('hiring/{id}/convert', [HiringController::class, 'convert'])->name('hiring.convert');
+    Route::match(['GET', 'POST'], 'hiring/{id}/convert', [HiringController::class, 'convert'])->name('hiring.convert');
     // Offer Letter routes
     Route::get('hiring/{id}/offer/create', [HiringController::class, 'offerCreate'])->name('hiring.offer.create');
     Route::post('hiring/{id}/offer', [HiringController::class, 'offerStore'])->name('hiring.offer.store');

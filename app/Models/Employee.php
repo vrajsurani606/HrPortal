@@ -48,6 +48,7 @@ class Employee extends Model
         'joining_date',
         'role_id',
         'status',
+        'user_id',
     ];
 
     protected $casts = [
@@ -82,6 +83,14 @@ class Employee extends Model
     public function digitalCard()
     {
         return $this->hasOne(DigitalCard::class);
+    }
+    
+    /**
+     * Get the user account for the employee.
+     */
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class);
     }
 
     public static function nextCode(string $prefix = 'CMS/EMP/'): string

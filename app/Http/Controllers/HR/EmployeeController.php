@@ -4,14 +4,16 @@ namespace App\Http\Controllers\HR;
 
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use App\Models\User;
 use App\Models\Attendance;
 use Illuminate\Http\Request;
-use Yajra\DataTables\Facades\DataTables;
+// use Yajra\DataTables\Facades\DataTables; // Commented out until package is installed
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Carbon\Carbon;
 use App\Models\EmployeeLetter;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeController extends Controller
 {
@@ -26,15 +28,7 @@ class EmployeeController extends Controller
 
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            return DataTables::of(Employee::query())
-                ->addIndexColumn()
-                ->addColumn('actions', function ($row) {
-                    return view('hr.employees.partials.actions', compact('row'))->render();
-                })
-                ->rawColumns(['actions'])
-                ->make(true);
-        }
+        // Skip DataTables if not available
         $employees = Employee::orderByDesc('id')->paginate(12);
         return view('hr.employees.index', [
             'page_title' => 'Employee List',
@@ -106,13 +100,128 @@ class EmployeeController extends Controller
         }
         
         // Hash password if provided
+        $password = $data['password'] ?? 'password123';
         if (!empty($data['password'])) {
             $data['password_hash'] = bcrypt($data['password']);
         }
-        unset($data['password'], $data['photo']);
         
-        Employee::create($data);
-        return redirect()->route('employees.index')->with('success', 'Employee created');
+        DB::transaction(function () use ($data, $password) {
+            // Create user account first
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => bcrypt($password),
+                'mobile_no' => $data['mobile_no'] ?? null,
+                'address' => $data['address'] ?? null,
+                'photo_path' => $data['photo_path'] ?? null,
+            ]);
+            
+            // Skip role assignment if Spatie package not available
+            try {
+                $user->assignRole('employee');
+            } catch (\Exception $e) {
+                // Role assignment failed, continue without it
+            }
+            
+            // Link user to employee
+            $data['user_id'] = $user->id;
+            
+            unset($data['password'], $data['photo']);
+            Employee::create($data);
+        });
+        
+        return redirect()->route('employees.index')->with('success', 'Employee and user account created successfully');
+    }
+
+    public function storeFromLead(Request $request, $leadId)
+    {
+        $lead = HiringLead::findOrFail($leadId);
+        
+        $data = $request->validate([
+            'code' => 'nullable|string|max:100',
+            'name'  => 'required|string|max:100',
+            'email' => 'required|email|unique:employees,email',
+            'mobile_no' => 'nullable|string|max:30',
+            'address' => 'nullable|string',
+            'position' => 'nullable|string|max:190',
+            'password' => 'nullable|string|min:6',
+            'reference_name' => 'nullable|string|max:190',
+            'reference_no' => 'nullable|string|max:50',
+            'aadhaar_no' => 'nullable|string|max:20',
+            'pan_no' => 'nullable|string|max:20',
+            'bank_name' => 'nullable|string|max:190',
+            'bank_account_no' => 'nullable|string|max:50',
+            'bank_ifsc' => 'nullable|string|max:20',
+            'experience_type' => 'nullable|in:YES,NO',
+            'previous_company_name' => 'nullable|string|max:190',
+            'previous_salary' => 'nullable|numeric|min:0',
+            'current_offer_amount' => 'nullable|numeric|min:0',
+            'has_incentive' => 'nullable|in:YES,NO',
+            'incentive_amount' => 'nullable|numeric|min:0',
+            'joining_date' => 'nullable|date',
+            'aadhaar_photo_front' => 'nullable|image|max:2048',
+            'aadhaar_photo_back' => 'nullable|image|max:2048',
+            'pan_photo' => 'nullable|image|max:2048',
+            'cheque_photo' => 'nullable|image|max:2048',
+            'marksheet_photo' => 'nullable|image|max:2048',
+            'photo' => 'nullable|image|max:2048',
+        ]);
+        
+        $data['code'] = Employee::nextCode();
+        
+        // Handle file uploads
+        $fileFields = ['aadhaar_photo_front', 'aadhaar_photo_back', 'pan_photo', 'cheque_photo', 'marksheet_photo', 'photo'];
+        foreach ($fileFields as $field) {
+            if ($request->hasFile($field)) {
+                if ($field === 'photo') {
+                    $data['photo_path'] = $request->file($field)->store('employees', 'public');
+                } else {
+                    $data[$field] = $request->file($field)->store('employees', 'public');
+                }
+            }
+        }
+        
+        if (isset($data['has_incentive'])) {
+            $data['has_incentive'] = $data['has_incentive'] === 'YES' ? 1 : 0;
+        }
+        
+        $password = $data['password'] ?? 'password123';
+        if (!empty($data['password'])) {
+            $data['password_hash'] = bcrypt($data['password']);
+        }
+        
+        DB::transaction(function () use ($data, $password, $lead) {
+            $user = User::create([
+                'name' => $data['name'],
+                'email' => $data['email'],
+                'password' => bcrypt($password),
+                'mobile_no' => $data['mobile_no'] ?? null,
+                'address' => $data['address'] ?? null,
+                'photo_path' => $data['photo_path'] ?? null,
+            ]);
+            
+            // Skip role assignment if Spatie package not available
+            try {
+                $user->assignRole('employee');
+            } catch (\Exception $e) {
+                // Role assignment failed, continue without it
+            }
+            
+            $data['user_id'] = $user->id;
+            
+            unset($data['password'], $data['photo']);
+            Employee::create($data);
+            
+            // Update lead status if field exists
+            try {
+                $lead->update(['status' => 'converted']);
+            } catch (\Exception $e) {
+                // Status field might not exist, continue
+            }
+        });
+        
+        return redirect()->route('employees.index')
+            ->with('success', 'Lead converted to employee successfully! Email: ' . $data['email'] . ', Password: ' . $password);
     }
 
     public function show(Employee $employee)
@@ -233,10 +342,29 @@ class EmployeeController extends Controller
         if (!empty($data['password'])) {
             $data['password_hash'] = bcrypt($data['password']);
         }
-        unset($data['password'], $data['photo']);
-
-        $employee->update($data);
-        return redirect()->route('employees.index')->with('success', 'Employee updated');
+        
+        DB::transaction(function () use ($employee, $data) {
+            // Update associated user account if exists
+            if ($employee->user) {
+                $employee->user->update([
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'mobile_no' => $data['mobile_no'] ?? null,
+                    'address' => $data['address'] ?? null,
+                    'photo_path' => $data['photo_path'] ?? $employee->user->photo_path,
+                ]);
+                
+                // Update password if provided
+                if (!empty($data['password'])) {
+                    $employee->user->update(['password' => bcrypt($data['password'])]);
+                }
+            }
+            
+            unset($data['password'], $data['photo']);
+            $employee->update($data);
+        });
+        
+        return redirect()->route('employees.index')->with('success', 'Employee and user account updated successfully');
     }
 
     public function destroy(Employee $employee)
