@@ -143,6 +143,8 @@ class AttendanceController extends Controller
         $attendance->check_out = $checkOut;
         // compute and store formatted total working hours
         $attendance->total_working_hours = $attendance->calculateWorkingHours();
+        // Auto-calculate status based on check-in/out times
+        $attendance->status = $attendance->autoCalculateStatus();
         $attendance->check_out_ip = $request->ip();
         try { $attendance->check_out_location = $this->getLocation($request->ip()); } catch (\Throwable $e) { $attendance->check_out_location = 'Location not available'; }
         $attendance->save();

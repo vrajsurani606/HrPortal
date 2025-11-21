@@ -4,9 +4,9 @@
 @section('content')
 <div class="hrp-content">
   <!-- Filter Row -->
-  <form method="GET" action="{{ route('attendance.report') }}" class="jv-filter">
-    <input type="date" name="start_date" class="filter-pill" placeholder="From" value="{{ request('start_date') }}">
-    <input type="date" name="end_date" class="filter-pill" placeholder="To" value="{{ request('end_date') }}">
+  <form method="GET" action="{{ route('attendance.report') }}" class="jv-filter" id="filterForm">
+    <input type="date" name="start_date" class="filter-pill" placeholder="From : dd/mm/yyyy" value="{{ request('start_date') }}">
+    <input type="date" name="end_date" class="filter-pill" placeholder="To : dd/mm/yyyy" value="{{ request('end_date') }}">
     
     <select name="employee_id" class="filter-pill" style="min-width: 200px;">
       <option value="">All Employees</option>
@@ -44,75 +44,119 @@
 
   <!-- Data Table -->
   <div class="JV-datatble striped-surface striped-surface--full table-wrap pad-none">
+    <style>
+      .JV-datatble table td:first-child {
+        text-align: center !important;
+      }
+      .JV-datatble table td:first-child > div {
+        display: inline-flex !important;
+        gap: 12px;
+        align-items: center;
+      }
+    </style>
     <table>
       <thead>
         <tr>
-          <th>Date</th>
-          <th>EMP Code</th>
-          <th>Employee</th>
-          <th>Check IN & OUT</th>
-          <th>Working Hours</th>
-          <th>Status</th>
+          <th style="width: 140px; text-align: center;">Action</th>
+          <th style="width: 150px;">EMP Code</th>
+          <th style="width: 250px;">EMPLOYEE</th>
+          <th style="width: 380px;">Check IN & OUT</th>
+          <th style="width: 100px; text-align: center;">Overtime</th>
+          <th style="width: 120px; text-align: center;">Status</th>
         </tr>
       </thead>
       <tbody>
         @forelse($attendances as $attendance)
         <tr>
-          <td>{{ \Carbon\Carbon::parse($attendance->date)->format('d M Y') }}</td>
-          <td>{{ $attendance->employee->code ?? 'EMP-' . str_pad($attendance->employee->id ?? '000', 4, '0', STR_PAD_LEFT) }}</td>
-          <td>{{ $attendance->employee->name ?? 'N/A' }}</td>
-          <td>
-            @if($attendance->check_in)
-              <span style="color:#f97316;font-weight:600">{{ \Carbon\Carbon::parse($attendance->check_in)->format('h:i A') }}</span>
-            @else
-              <span style="color:#9ca3af">--</span>
-            @endif
-            
-            @if($attendance->check_in && $attendance->check_out)
-              <span style="color:#6b7280"> — </span>
-              @php
-                $checkIn = \Carbon\Carbon::parse($attendance->check_in);
-                $checkOut = \Carbon\Carbon::parse($attendance->check_out);
-                $diff = $checkIn->diff($checkOut);
-                $hours = $diff->h;
-                $minutes = $diff->i;
-              @endphp
-              <span style="color:#6b7280">{{ $hours }}h {{ $minutes }}m</span>
-              <span style="color:#6b7280"> — </span>
-            @endif
-            
-            @if($attendance->check_out)
-              <span style="color:#10b981;font-weight:600">{{ \Carbon\Carbon::parse($attendance->check_out)->format('h:i A') }}</span>
-            @else
-              <span style="color:#9ca3af">--</span>
-            @endif
+          <td style="vertical-align: middle; padding: 14px;">
+            <div>
+              <img src="{{ asset('action_icon/edit.svg') }}" alt="Edit" style="cursor: pointer; width: 18px; height: 18px;" onclick="editAttendance({{ $attendance->id }})">
+              <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" style="cursor: pointer; width: 18px; height: 18px;" onclick="deleteAttendance({{ $attendance->id }})">
+              <img src="{{ asset('action_icon/print.svg') }}" alt="Print" style="cursor: pointer; width: 18px; height: 18px;" onclick="printAttendance({{ $attendance->id }})">
+            </div>
           </td>
-          <td>
-            @if($attendance->total_working_hours)
-              {{ $attendance->total_working_hours }}
-            @elseif($attendance->check_in && $attendance->check_out)
-              @php
-                $mins = \Carbon\Carbon::parse($attendance->check_in)->diffInMinutes(\Carbon\Carbon::parse($attendance->check_out));
-                $h = floor($mins / 60);
-                $m = $mins % 60;
-              @endphp
-              {{ $h }}h {{ $m }}m
-            @else
-              <span style="color:#9ca3af">--</span>
-            @endif
+          <td style="vertical-align: middle;">{{ $attendance->employee->code ?? 'EMP/' . str_pad($attendance->employee->id ?? '000', 4, '0', STR_PAD_LEFT) }}</td>
+          <td style="vertical-align: middle;">{{ $attendance->employee->name ?? 'N/A' }}</td>
+          <td style="vertical-align: middle; padding: 12px 16px;">
+            @php
+              $checkIn = $attendance->check_in ? \Carbon\Carbon::parse($attendance->check_in) : null;
+              $checkOut = $attendance->check_out ? \Carbon\Carbon::parse($attendance->check_out) : null;
+              $standardCheckIn = \Carbon\Carbon::parse($attendance->date)->setTime(9, 30);
+              $yellowThreshold = \Carbon\Carbon::parse($attendance->date)->setTime(9, 30); // After 9:30 = Yellow
+              $redThreshold = \Carbon\Carbon::parse($attendance->date)->setTime(10, 0); // After 10:00 = Red
+              $standardCheckOut = \Carbon\Carbon::parse($attendance->date)->setTime(18, 30);
+              
+              // Determine check-in color
+              $checkInColor = '#10b981'; // Default green
+              if ($checkIn) {
+                  if ($checkIn->greaterThan($redThreshold)) {
+                      $checkInColor = '#ef4444'; // Red - Very late (after 10:00)
+                  } elseif ($checkIn->greaterThan($yellowThreshold)) {
+                      $checkInColor = '#f59e0b'; // Yellow/Orange - Late (after 9:30)
+                  }
+              }
+              
+              // Determine check-out color - Green if after 6:30 PM
+              $checkOutColor = '#10b981'; // Default green (on time or overtime)
+              $overtimeText = '';
+              if ($checkOut) {
+                  if ($checkOut->greaterThan($standardCheckOut)) {
+                      // Calculate overtime
+                      $overtimeMinutes = $checkOut->diffInMinutes($standardCheckOut);
+                      $overtimeHours = floor($overtimeMinutes / 60);
+                      $overtimeMins = $overtimeMinutes % 60;
+                      if ($overtimeHours > 0 || $overtimeMins > 0) {
+                          $overtimeText = sprintf('%dh %dm', $overtimeHours, $overtimeMins);
+                      }
+                  }
+              }
+            @endphp
+            
+            <div style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+              @if($overtimeText)
+                <div style="color:#10b981; font-size:10px; font-weight:600; margin-bottom:3px; line-height:1;">{{ $overtimeText }}</div>
+              @endif
+              <div style="display: flex; justify-content: center; align-items: center; white-space: nowrap;">
+                @if($checkIn)
+                  <span style="color:{{ $checkInColor }}; font-weight:600; font-size:14px;">{{ $checkIn->format('h:i A') }}</span>
+                @else
+                  <span style="color:#9ca3af;">--</span>
+                @endif
+                
+                @if($checkIn && $checkOut)
+                  <span style="color:#d1d5db; margin:0 8px; font-weight:300; font-size:14px;">———</span>
+                  @php
+                    $diff = $checkIn->diff($checkOut);
+                    $totalHours = $diff->h + ($diff->days * 24);
+                    $minutes = $diff->i;
+                  @endphp
+                  <span style="color:#9ca3af; font-size:12px; font-weight:500;">{{ sprintf('%02dh %02dm', $totalHours, $minutes) }}</span>
+                  <span style="color:#d1d5db; margin:0 8px; font-weight:300; font-size:14px;">———</span>
+                @endif
+                
+                @if($checkOut)
+                  <span style="color:{{ $checkOutColor }}; font-weight:600; font-size:14px;">{{ $checkOut->format('h:i A') }}</span>
+                @else
+                  <span style="color:#9ca3af;">--</span>
+                @endif
+              </div>
+            </div>
           </td>
-          <td>
-            @if($attendance->status == 'present')
-              <span class="badge badge--success">Present</span>
-            @elseif($attendance->status == 'absent')
-              <span class="badge badge--danger">Absent</span>
-            @elseif($attendance->status == 'half_day')
-              <span class="badge badge--warning">Half Day</span>
-            @elseif($attendance->status == 'late')
-              <span class="badge badge--warning">Late</span>
-            @else
-              <span class="badge badge--secondary">{{ ucfirst($attendance->status ?? 'N/A') }}</span>
-            @endif
+          <td style="vertical-align: middle; text-align: center;">
+            <span style="font-weight:600;color:#6b7280">{{ $attendance->calculateOvertime() }}</span>
+          </td>
+          <td style="vertical-align: middle; text-align: center; padding: 12px;">
+            @php
+              $statusColor = match($attendance->status) {
+                'present' => '#10b981',
+                'absent' => '#ef4444',
+                'half_day' => '#f59e0b',
+                'late' => '#f59e0b',
+                'early_leave' => '#f59e0b',
+                default => '#6b7280',
+              };
+            @endphp
+            <span style="color: {{ $statusColor }}; font-weight: 600; font-size: 14px;">{{ $attendance->getStatusText() }}</span>
           </td>
         </tr>
         @empty
@@ -137,4 +181,42 @@
   </div>
   @endif
 </div>
+
+<script>
+function editAttendance(id) {
+  // Redirect to edit page or open modal
+  window.location.href = '/attendance/' + id + '/edit';
+}
+
+function deleteAttendance(id) {
+  if (confirm('Are you sure you want to delete this attendance record?')) {
+    fetch('/attendance/' + id, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        alert('Attendance record deleted successfully!');
+        location.reload();
+      } else {
+        alert('Error deleting record: ' + (data.message || 'Unknown error'));
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Error deleting record');
+    });
+  }
+}
+
+function printAttendance(id) {
+  // Open print view in new window
+  window.open('/attendance/' + id + '/print', '_blank');
+}
+</script>
 @endsection

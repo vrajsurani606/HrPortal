@@ -263,7 +263,7 @@
         <div class="progress-bar">
             <div class="progress-fill" id="progressFill"></div>
         </div>
-      <form method="POST" action="{{ isset($isEdit) && $isEdit ? route('employees.digital-card.update', $employee) : route('employees.digital-card.store', $employee) }}" enctype="multipart/form-data" class="hrp-form grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3" id="digitalCardForm">
+      <form method="POST" action="{{ isset($isEdit) && $isEdit ? route('employees.digital-card.update', $employee) : route('employees.digital-card.store', $employee) }}" enctype="multipart/form-data" class="hrp-form" id="digitalCardForm">
         @csrf
         @if(isset($isEdit) && $isEdit)
             @method('PUT')
@@ -304,7 +304,7 @@
         </div>
         
         <!-- Contact Information -->
-        <div class="form-section">
+        <div class="form-section" style="margin-top: 20px;">
             <div class="section-header">
                 <i class="fas fa-address-book section-icon"></i>
                 <h3 class="section-title">Contact Information</h3>
@@ -362,42 +362,51 @@
         </div>
         
         <!-- Location & Preferences -->
-        <div class="md:col-span-2">
-          <h3 style="font-weight:800;color:#0f0f0f;margin:20px 0 10px 0;font-size:18px;">Location & Preferences</h3>
-        </div>
-        
-        <div class="md:col-span-2">
-          <label class="hrp-label">Location:</label>
-          <input name="location" value="{{ old('location', $digitalCard->location ?? '') }}" placeholder="Enter Location" class="hrp-input Rectangle-29">
-          @error('location')<small class="hrp-error">{{ $message }}</small>@enderror
+        <div class="form-section" style="margin-top: 20px;">
+            <div class="section-header">
+                <i class="fas fa-map-marker-alt section-icon"></i>
+                <h3 class="section-title">Location & Preferences</h3>
+            </div>
+            <div>
+                <label class="hrp-label">Location:</label>
+                <input name="location" value="{{ old('location', $digitalCard->location ?? '') }}" placeholder="Enter Location" class="hrp-input Rectangle-29">
+                @error('location')<small class="hrp-error">{{ $message }}</small>@enderror
+            </div>
         </div>
         
         <!-- Skills & Summary -->
-        <div class="md:col-span-2">
-          <h3 style="font-weight:800;color:#0f0f0f;margin:20px 0 10px 0;font-size:18px;">Skills & Summary</h3>
-        </div>
-        
-        <div>
-          <label class="hrp-label">Skills (comma separated):</label>
-          <textarea name="skills" placeholder="PHP, Laravel, JavaScript, etc." class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('skills', $digitalCard->skills ?? '') }}</textarea>
-          @error('skills')<small class="hrp-error">{{ $message }}</small>@enderror
-        </div>
-        
-        <div>
-          <label class="hrp-label">Hobbies & Interests (comma separated):</label>
-          <textarea name="hobbies" placeholder="Reading, Traveling, Photography, etc." class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('hobbies', $digitalCard->hobbies ?? '') }}</textarea>
-          @error('hobbies')<small class="hrp-error">{{ $message }}</small>@enderror
-        </div>
-        
-        <div class="md:col-span-2">
-          <label class="hrp-label">Professional Summary:</label>
-          <textarea name="summary" placeholder="Brief professional summary" class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('summary', $digitalCard->summary ?? '') }}</textarea>
-          @error('summary')<small class="hrp-error">{{ $message }}</small>@enderror
+        <div class="form-section" style="margin-top: 20px;">
+            <div class="section-header">
+                <i class="fas fa-code section-icon"></i>
+                <h3 class="section-title">Skills & Summary</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="hrp-label">Skills (comma separated):</label>
+                    <textarea name="skills" placeholder="PHP, Laravel, JavaScript, etc." class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('skills', $digitalCard->skills ?? '') }}</textarea>
+                    @error('skills')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                
+                <div>
+                    <label class="hrp-label">Hobbies & Interests (comma separated):</label>
+                    <textarea name="hobbies" placeholder="Reading, Traveling, Photography, etc." class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('hobbies', $digitalCard->hobbies ?? '') }}</textarea>
+                    @error('hobbies')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+            </div>
+            
+            <div style="margin-top: 16px;">
+                <label class="hrp-label">Professional Summary:</label>
+                <textarea name="summary" placeholder="Brief professional summary" class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('summary', $digitalCard->summary ?? '') }}</textarea>
+                @error('summary')<small class="hrp-error">{{ $message }}</small>@enderror
+            </div>
         </div>
         
         <!-- Previous Roles -->
-        <div class="md:col-span-2">
-          <h3 style="font-weight:800;color:#0f0f0f;margin:20px 0 10px 0;font-size:18px;">Previous Roles</h3>
+        <div class="form-section" style="margin-top: 20px;">
+            <div class="section-header">
+                <i class="fas fa-briefcase section-icon"></i>
+                <h3 class="section-title">Previous Roles</h3>
+            </div>
           <div id="previousRoles">
             <div class="row role-item" style="margin-bottom:15px;align-items:end;">
               <div class="col-4">

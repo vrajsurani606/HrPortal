@@ -45,22 +45,15 @@ Route::prefix('attendance')->middleware('auth')->group(function () {
     Route::get('/reports/export', [App\Http\Controllers\AttendanceReportController::class, 'export'])->name('attendance.reports.export');
 });
 
-// Leave Management Routes
-Route::prefix('leaves')->middleware('auth')->group(function () {
-    Route::get('/', [App\Http\Controllers\Leave\LeaveController::class, 'index'])->name('leaves.index');
-    Route::get('/create', [App\Http\Controllers\Leave\LeaveController::class, 'create'])->name('leaves.create');
-    Route::post('/', [App\Http\Controllers\Leave\LeaveController::class, 'store'])->name('leaves.store');
-    Route::get('/{leave}/edit', [App\Http\Controllers\Leave\LeaveController::class, 'edit'])->name('leaves.edit');
-    Route::put('/{leave}', [App\Http\Controllers\Leave\LeaveController::class, 'update'])->name('leaves.update');
-    Route::delete('/{leave}', [App\Http\Controllers\Leave\LeaveController::class, 'destroy'])->name('leaves.destroy');
-    
-    // Leave Approval Routes (for managers/admins)
-    Route::prefix('approvals')->group(function () {
-        Route::get('/', [App\Http\Controllers\Leave\LeaveApprovalController::class, 'index'])->name('leaves.approvals.index');
-        Route::post('/{leave}/approve', [App\Http\Controllers\Leave\LeaveApprovalController::class, 'approve'])->name('leaves.approvals.approve');
-        Route::post('/{leave}/reject', [App\Http\Controllers\Leave\LeaveApprovalController::class, 'reject'])->name('leaves.approvals.reject');
-    });
-});
+// Leave Management Routes - Commented out until LeaveController is created
+// Route::prefix('leaves')->middleware('auth')->group(function () {
+//     Route::get('/', [App\Http\Controllers\Leave\LeaveController::class, 'index'])->name('leaves.index');
+//     Route::get('/create', [App\Http\Controllers\Leave\LeaveController::class, 'create'])->name('leaves.create');
+//     Route::post('/', [App\Http\Controllers\Leave\LeaveController::class, 'store'])->name('leaves.store');
+//     Route::get('/{leave}/edit', [App\Http\Controllers\Leave\LeaveController::class, 'edit'])->name('leaves.edit');
+//     Route::put('/{leave}', [App\Http\Controllers\Leave\LeaveController::class, 'update'])->name('leaves.update');
+//     Route::delete('/{leave}', [App\Http\Controllers\Leave\LeaveController::class, 'destroy'])->name('leaves.destroy');
+// });
 
 // Employee Self-Service Routes
 Route::middleware('auth')->group(function () {
@@ -150,7 +143,7 @@ Route::middleware('auth')->group(function () {
 
     // Attendance
     Route::get('attendance/report', [AttendanceReportController::class,'index'])->name('attendance.report');
-    Route::resource('leave-approval', LeaveApprovalController::class)->only(['index','update']); // leave-approval.index
+    Route::resource('leave-approval', LeaveApprovalController::class)->only(['index','store','edit','update','destroy']); // leave-approval routes
 
     // Events (align with new permission names)
     Route::resource('events', EventController::class);
@@ -174,9 +167,9 @@ Route::middleware('auth')->group(function () {
     // Settings
     Route::resource('settings', SettingController::class)->only(['index','update']);
 
-    // Placeholder named routes to replace generic 'section' links
-    Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
-    Route::get('/payroll/create', [PayrollController::class, 'create'])->name('payroll.create');
+    // Payroll Management
+    Route::resource('payroll', PayrollController::class);
+    Route::post('/payroll/get-employee-salary', [PayrollController::class, 'getEmployeeSalary'])->name('payroll.get-employee-salary');
     Route::get('/rules', [RuleController::class, 'index'])->name('rules.index');
     // Inquiry create/store handled by resource routes above
 
