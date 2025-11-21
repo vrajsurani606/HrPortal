@@ -48,29 +48,35 @@ class InvoiceController extends Controller
         $proforma = Proforma::findOrFail($proformaId);
         
         // Generate next GST invoice code (for display only)
-        $lastGstInvoice = Invoice::where('invoice_type', 'gst')
-            ->where('unique_code', 'like', 'CMS/INV/%')
-            ->orderByDesc('id')
-            ->first();
-        $nextGstNumber = 1;
-        if ($lastGstInvoice && !empty($lastGstInvoice->unique_code)) {
-            if (preg_match('/(\d+)$/', $lastGstInvoice->unique_code, $matches)) {
-                $nextGstNumber = ((int) $matches[1]) + 1;
+        $allGstInvoices = Invoice::where('unique_code', 'like', 'CMS/INV/%')
+            ->pluck('unique_code');
+        
+        $maxGstNumber = 0;
+        foreach ($allGstInvoices as $code) {
+            if (preg_match('/(\d+)$/', $code, $matches)) {
+                $num = (int) $matches[1];
+                if ($num > $maxGstNumber) {
+                    $maxGstNumber = $num;
+                }
             }
         }
+        $nextGstNumber = $maxGstNumber + 1;
         $nextGstCode = 'CMS/INV/' . str_pad($nextGstNumber, 4, '0', STR_PAD_LEFT);
         
         // Generate next Without GST invoice code
-        $lastWgInvoice = Invoice::where('invoice_type', 'without_gst')
-            ->where('unique_code', 'like', 'CMS/WGINV/%')
-            ->orderByDesc('id')
-            ->first();
-        $nextWgNumber = 1;
-        if ($lastWgInvoice && !empty($lastWgInvoice->unique_code)) {
-            if (preg_match('/(\d+)$/', $lastWgInvoice->unique_code, $matches)) {
-                $nextWgNumber = ((int) $matches[1]) + 1;
+        $allWgInvoices = Invoice::where('unique_code', 'like', 'CMS/WGINV/%')
+            ->pluck('unique_code');
+        
+        $maxWgNumber = 0;
+        foreach ($allWgInvoices as $code) {
+            if (preg_match('/(\d+)$/', $code, $matches)) {
+                $num = (int) $matches[1];
+                if ($num > $maxWgNumber) {
+                    $maxWgNumber = $num;
+                }
             }
         }
+        $nextWgNumber = $maxWgNumber + 1;
         $nextWgCode = 'CMS/WGINV/' . str_pad($nextWgNumber, 4, '0', STR_PAD_LEFT);
         
         return view('invoices.convert', compact('proforma', 'nextGstCode', 'nextWgCode'));
@@ -89,29 +95,35 @@ class InvoiceController extends Controller
             // Generate unique code based on invoice type
             if ($validated['invoice_type'] === 'gst') {
                 // GST Invoice: CMS/INV/0001
-                $lastInvoice = Invoice::where('invoice_type', 'gst')
-                    ->where('unique_code', 'like', 'CMS/INV/%')
-                    ->orderByDesc('id')
-                    ->first();
-                $nextNumber = 1;
-                if ($lastInvoice && !empty($lastInvoice->unique_code)) {
-                    if (preg_match('/(\d+)$/', $lastInvoice->unique_code, $matches)) {
-                        $nextNumber = ((int) $matches[1]) + 1;
+                $allGstInvoices = Invoice::where('unique_code', 'like', 'CMS/INV/%')
+                    ->pluck('unique_code');
+                
+                $maxNumber = 0;
+                foreach ($allGstInvoices as $code) {
+                    if (preg_match('/(\d+)$/', $code, $matches)) {
+                        $num = (int) $matches[1];
+                        if ($num > $maxNumber) {
+                            $maxNumber = $num;
+                        }
                     }
                 }
+                $nextNumber = $maxNumber + 1;
                 $uniqueCode = 'CMS/INV/' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
             } else {
                 // Without GST Invoice: CMS/WGINV/0001
-                $lastInvoice = Invoice::where('invoice_type', 'without_gst')
-                    ->where('unique_code', 'like', 'CMS/WGINV/%')
-                    ->orderByDesc('id')
-                    ->first();
-                $nextNumber = 1;
-                if ($lastInvoice && !empty($lastInvoice->unique_code)) {
-                    if (preg_match('/(\d+)$/', $lastInvoice->unique_code, $matches)) {
-                        $nextNumber = ((int) $matches[1]) + 1;
+                $allWgInvoices = Invoice::where('unique_code', 'like', 'CMS/WGINV/%')
+                    ->pluck('unique_code');
+                
+                $maxNumber = 0;
+                foreach ($allWgInvoices as $code) {
+                    if (preg_match('/(\d+)$/', $code, $matches)) {
+                        $num = (int) $matches[1];
+                        if ($num > $maxNumber) {
+                            $maxNumber = $num;
+                        }
                     }
                 }
+                $nextNumber = $maxNumber + 1;
                 $uniqueCode = 'CMS/WGINV/' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
             }
             
