@@ -215,69 +215,119 @@ class PayrollController extends Controller
      */
     public function getEmployeeSalary(Request $request)
     {
-        $employeeId = $request->employee_id;
-        $month = $request->month ?? date('F');
-        $year = $request->year ?? date('Y');
+        try {
+            $employeeId = $request->employee_id;
+            $month = $request->month ?? date('F');
+            $year = $request->year ?? date('Y');
 
-        $employee = Employee::findOrFail($employeeId);
-        
-        // Get employee's basic salary from current_offer_amount field
-        $basicSalary = $employee->current_offer_amount ?? $employee->salary ?? 0;
-        
-        // Calculate working days in month
-        $monthNumber = date('n', strtotime($month));
-        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $monthNumber, $year);
-        
-        // Get leave days for this employee in this month
-        $leaveDays = \App\Models\Leave::where('employee_id', $employeeId)
-            ->where('status', 'approved')
-            ->whereYear('start_date', $year)
-            ->whereMonth('start_date', $monthNumber)
-            ->sum('total_days');
-        
-        // Calculate per day salary based on current_offer_amount
-        $perDaySalary = $basicSalary / $daysInMonth;
-        
-        // Calculate leave deduction
-        $leaveDeduction = $perDaySalary * $leaveDays;
-        
-        // Calculate working days
-        $workingDays = $daysInMonth - $leaveDays;
-        
-        // Allowances - fetch from employee incentive_amount
-        $allowances = $employee->incentive_amount ?? 0;
-        
-        // Bonuses - set to 0 by default (can be entered manually)
-        $bonuses = 0;
-        
-        // Tax - set to 0 by default (can be entered manually)
-        $grossSalary = $basicSalary + $allowances + $bonuses;
-        $tax = 0;
-        
-        // Total deductions
-        $totalDeductions = $leaveDeduction;
-        
-        // Net salary
-        $netSalary = ($basicSalary + $allowances + $bonuses) - ($totalDeductions + $tax);
-        
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'employee_name' => $employee->name,
-                'employee_code' => $employee->code,
-                'basic_salary' => number_format($basicSalary, 2, '.', ''),
-                'allowances' => number_format($allowances, 2, '.', ''),
-                'bonuses' => number_format($bonuses, 2, '.', ''),
-                'leave_days' => $leaveDays,
-                'leave_deduction' => number_format($leaveDeduction, 2, '.', ''),
-                'deductions' => number_format($totalDeductions, 2, '.', ''),
-                'tax' => number_format($tax, 2, '.', ''),
-                'net_salary' => number_format($netSalary, 2, '.', ''),
-                'days_in_month' => $daysInMonth,
-                'working_days' => $workingDays,
-                'per_day_salary' => number_format($perDaySalary, 2, '.', ''),
-            ]
-        ]);
+            $employee = Employee::findOrFail($employeeId);
+            
+            // Get employee's basic salary from current_offer_amount field
+            $basicSalary = $employee->current_offer_amount ?? 0;
+            
+            // Calculate working days in month
+            $monthNumber = date('n', strtotime($month . ' 1'));
+            $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $monthNumber, $year);
+            
+            // Get leave data from leave system
+            // Casual Leave (Paid - NO deduction from salary)
+            $casualLeaveUsed = \App\Models\Leave::where('employee_id', $employeeId)
+                ->where('leave_type', 'casual')
+                ->where('status', 'approved')
+                ->whereYear('start_date', $year)
+                ->whereMonth('start_date', $monthNumber)
+                ->sum('total_days') ?? 0;
+            
+            // Medical Leave (Paid - NO deduction from salary)
+            $medicalLeaveUsed = \App\Models\Leave::where('employee_id', $employeeId)
+                ->where('leave_type', 'medical')
+                ->where('status', 'approved')
+                ->whereYear('start_date', $year)
+                ->whereMonth('start_date', $monthNumber)
+                ->sum('total_days') ?? 0;
+            
+            // Personal Leave (Unpaid - WILL BE DEDUCTED from salary)
+            $personalLeaveUsed = \App\Models\Leave::where('employee_id', $employeeId)
+                ->where('leave_type', 'personal')
+                ->where('status', 'approved')
+                ->whereYear('start_date', $year)
+                ->whereMonth('start_date', $monthNumber)
+                ->sum('total_days') ?? 0;
+            
+            // Holiday Leave (Company holidays)
+            $holidayLeaveUsed = \App\Models\Leave::where('employee_id', $employeeId)
+                ->where('leave_type', 'holiday')
+                ->where('status', 'approved')
+                ->whereYear('start_date', $year)
+                ->whereMonth('start_date', $monthNumber)
+                ->sum('total_days') ?? 0;
+            
+            // Total paid leaves (Casual + Medical) - NOT deducted
+            $paidLeavesUsed = $casualLeaveUsed + $medicalLeaveUsed;
+            
+            // Only personal leave is deducted from salary
+            $leaveDaysDeducted = $personalLeaveUsed;
+            
+            // Calculate per day salary based on current_offer_amount
+            $perDaySalary = $daysInMonth > 0 ? $basicSalary / $daysInMonth : 0;
+            
+            // Calculate leave deduction (ONLY for personal leave)
+            $leaveDeduction = $perDaySalary * $leaveDaysDeducted;
+            
+            // Calculate working days (excluding all leaves)
+            $totalLeaveDays = $paidLeavesUsed + $leaveDaysDeducted + $holidayLeaveUsed;
+            $workingDays = $daysInMonth - $totalLeaveDays;
+            
+            // Get leave balance for the year
+            $leaveBalance = \App\Models\LeaveBalance::where('employee_id', $employeeId)
+                ->where('year', $year)
+                ->first();
+            
+            $paidLeaveBalance = $leaveBalance ? ($leaveBalance->paid_leave_balance ?? 12) : 12;
+            
+            \Log::info('Payroll Employee Data Loaded', [
+                'employee_id' => $employeeId,
+                'month' => $month,
+                'year' => $year,
+                'casual_leave' => $casualLeaveUsed,
+                'medical_leave' => $medicalLeaveUsed,
+                'personal_leave' => $personalLeaveUsed,
+                'holiday_leave' => $holidayLeaveUsed,
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'emp_code' => $employee->code ?? '',
+                    'bank_name' => $employee->bank_name ?? '',
+                    'bank_account_no' => $employee->bank_account_no ?? '',
+                    'ifsc_code' => $employee->bank_ifsc ?? '',
+                    'basic_salary' => number_format($basicSalary, 2, '.', ''),
+                    
+                    // Leave data - keep decimals for accurate leave counting (e.g., 7.5 days)
+                    'casual_leave_used' => (int)$casualLeaveUsed,
+                    'medical_leave_used' => (int)$medicalLeaveUsed,
+                    'personal_leave_used' => (float)$personalLeaveUsed, // Keep decimal (7.5, etc)
+                    'holiday_leave_used' => (int)$holidayLeaveUsed,
+                    'paid_leave_balance' => (int)$paidLeaveBalance,
+                    
+                    // Working days
+                    'days_in_month' => (int)$daysInMonth,
+                    'working_days' => (int)$workingDays,
+                    'per_day_salary' => number_format($perDaySalary, 2, '.', ''),
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Payroll Employee Data Load Error', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error loading employee data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
 

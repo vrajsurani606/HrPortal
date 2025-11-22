@@ -45,15 +45,34 @@ Route::prefix('attendance')->middleware('auth')->group(function () {
     Route::get('/reports/export', [App\Http\Controllers\AttendanceReportController::class, 'export'])->name('attendance.reports.export');
 });
 
-// Leave Management Routes - Commented out until LeaveController is created
-// Route::prefix('leaves')->middleware('auth')->group(function () {
-//     Route::get('/', [App\Http\Controllers\Leave\LeaveController::class, 'index'])->name('leaves.index');
-//     Route::get('/create', [App\Http\Controllers\Leave\LeaveController::class, 'create'])->name('leaves.create');
-//     Route::post('/', [App\Http\Controllers\Leave\LeaveController::class, 'store'])->name('leaves.store');
-//     Route::get('/{leave}/edit', [App\Http\Controllers\Leave\LeaveController::class, 'edit'])->name('leaves.edit');
-//     Route::put('/{leave}', [App\Http\Controllers\Leave\LeaveController::class, 'update'])->name('leaves.update');
-//     Route::delete('/{leave}', [App\Http\Controllers\Leave\LeaveController::class, 'destroy'])->name('leaves.destroy');
-// });
+// Leave Management Routes
+Route::prefix('leaves')->middleware('auth')->group(function () {
+    Route::get('/', [App\Http\Controllers\Leave\LeaveController::class, 'index'])->name('leaves.index');
+    Route::post('/', [App\Http\Controllers\Leave\LeaveController::class, 'store'])->name('leaves.store');
+    Route::get('/{leave}', [App\Http\Controllers\Leave\LeaveController::class, 'show'])->name('leaves.show');
+    Route::put('/{leave}', [App\Http\Controllers\Leave\LeaveController::class, 'update'])->name('leaves.update');
+    Route::delete('/{leave}', [App\Http\Controllers\Leave\LeaveController::class, 'destroy'])->name('leaves.destroy');
+    
+    // HR/Admin only routes
+    Route::post('/{leave}/approve', [App\Http\Controllers\Leave\LeaveController::class, 'approve'])->name('leaves.approve');
+    Route::post('/{leave}/reject', [App\Http\Controllers\Leave\LeaveController::class, 'reject'])->name('leaves.reject');
+});
+
+// API route for paid leave balance
+Route::get('/api/employee/{employeeId}/paid-leave-balance', [App\Http\Controllers\Leave\LeaveController::class, 'getPaidLeaveBalance'])->middleware('auth');
+
+// API route for employee leave balance (HR/Admin)
+Route::get('/api/employee/{employeeId}/leave-balance', [App\Http\Controllers\LeaveController::class, 'getEmployeeBalance'])->middleware('auth');
+
+// Company Holidays Routes
+Route::prefix('holidays')->middleware('auth')->group(function () {
+    Route::get('/', [App\Http\Controllers\CompanyHolidayController::class, 'index'])->name('holidays.index');
+    Route::get('/create', [App\Http\Controllers\CompanyHolidayController::class, 'create'])->name('holidays.create')->middleware('role:admin|hr');
+    Route::post('/', [App\Http\Controllers\CompanyHolidayController::class, 'store'])->name('holidays.store')->middleware('role:admin|hr');
+    Route::get('/{holiday}/edit', [App\Http\Controllers\CompanyHolidayController::class, 'edit'])->name('holidays.edit')->middleware('role:admin|hr');
+    Route::put('/{holiday}', [App\Http\Controllers\CompanyHolidayController::class, 'update'])->name('holidays.update')->middleware('role:admin|hr');
+    Route::delete('/{holiday}', [App\Http\Controllers\CompanyHolidayController::class, 'destroy'])->name('holidays.destroy')->middleware('role:admin|hr');
+});
 
 // Employee Self-Service Routes
 Route::middleware('auth')->group(function () {

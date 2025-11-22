@@ -3,20 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Models\Leave;
+use App\Models\Employee;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LeaveApprovalController extends Controller
 {
     /**
-     * Display a listing of leave requests for approval.
+     * Display a listing of leave requests for approval
      */
     public function index(Request $request)
     {
-        $query = Leave::with(['employee.user']);
+        $query = Leave::with('employee');
 
-        // Filter by status - show all if no status filter is applied
+        // Filter by status
         if ($request->has('status') && $request->status !== '') {
             $query->where('status', $request->status);
+        }
+
+        // Filter by employee
+        if ($request->has('employee_id') && $request->employee_id) {
+            $query->where('employee_id', $request->employee_id);
         }
 
         // Filter by date range
@@ -28,130 +35,115 @@ class LeaveApprovalController extends Controller
             $query->whereDate('end_date', '<=', $request->end_date);
         }
 
-        // Filter by employee
-        if ($request->has('employee_id') && $request->employee_id) {
-            $query->where('employee_id', $request->employee_id);
-        }
-
-        // Order by created date descending
         $leaves = $query->orderBy('created_at', 'desc')->paginate(20);
 
         return view('hr.attendance.leave-approval', compact('leaves'));
     }
 
     /**
-     * Store a new leave request.
+     * Store a new leave request
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'employee_id' => 'required|exists:employees,id',
-            'leave_type' => 'required|string',
+            'leave_type' => 'required|in:casual,medical,personal,company_holiday',
+            'is_paid' => 'required|boolean',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
+            'total_days' => 'required|numeric|min:0.5',
             'reason' => 'required|string|max:500',
-            'total_days' => 'required|integer|min:1'
         ]);
 
+        // Check monthly limit for paid leaves
+        if ($validated['is_paid']) {
+            $startDate = \Carbon\Carbon::parse($validated['start_date']);
+            $monthUsed = Leave::where('employee_id', $validated['employee_id'])
+                ->where('is_paid', true)
+                ->whereYear('start_date', $startDate->year)
+                ->whereMonth('start_date', $startDate->month)
+                ->where('status', '!=', 'rejected')
+                ->sum('total_days');
+            
+            if ($monthUsed >= 1) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Monthly paid leave limit reached. Only 1 paid leave per month is allowed.'
+                    ], 422);
+                }
+                return redirect()->back()->with('error', 'Monthly paid leave limit reached. Only 1 paid leave per month is allowed.');
+            }
+        }
+
         $leave = Leave::create([
-            'employee_id' => $request->employee_id,
-            'leave_type' => $request->leave_type,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'total_days' => $request->total_days,
-            'reason' => $request->reason,
+            'employee_id' => $validated['employee_id'],
+            'leave_type' => $validated['leave_type'],
+            'is_paid' => $validated['is_paid'],
+            'start_date' => $validated['start_date'],
+            'end_date' => $validated['end_date'],
+            'total_days' => (float) $validated['total_days'], // Cast to float to preserve decimals
+            'reason' => $validated['reason'],
             'status' => 'pending'
         ]);
 
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Leave request submitted successfully!',
+                'message' => 'Leave request created successfully!',
                 'leave' => $leave
             ]);
         }
 
-        return redirect()->back()->with('success', 'Leave request submitted successfully!');
+        return redirect()->back()->with('success', 'Leave request created successfully!');
     }
 
     /**
-     * Show the form for editing the specified leave request.
+     * Update the specified leave request
      */
-    public function edit($leave_approval)
+    public function update(Request $request, $id)
     {
-        $leave = Leave::findOrFail($leave_approval);
+        $leave = Leave::findOrFail($id);
 
-        if (request()->ajax() || request()->wantsJson()) {
-            return response()->json([
-                'success' => true,
-                'leave' => $leave
+        // Check if this is a status update (approve/reject)
+        if ($request->has('status') && !$request->has('employee_id')) {
+            $validated = $request->validate([
+                'status' => 'required|in:approved,rejected',
             ]);
-        }
 
-        return view('hr.attendance.leave-edit', compact('leave'));
-    }
-
-    /**
-     * Update the specified leave request.
-     */
-    public function update(Request $request, $leave_approval)
-    {
-        // Check if this is a simple status update (approve/reject) or full edit
-        if ($request->has('employee_id')) {
-            // Full edit
-            $request->validate([
+            if ($validated['status'] === 'approved') {
+                $leave->update([
+                    'status' => 'approved',
+                    'approved_by' => Auth::id(),
+                    'approved_at' => now()
+                ]);
+                $message = 'Leave approved successfully!';
+            } else {
+                $leave->update([
+                    'status' => 'rejected',
+                    'rejected_by' => Auth::id(),
+                    'rejected_at' => now()
+                ]);
+                $message = 'Leave rejected successfully!';
+            }
+        } else {
+            // Full update
+            $validated = $request->validate([
                 'employee_id' => 'required|exists:employees,id',
-                'leave_type' => 'required|string',
+                'leave_type' => 'required|in:casual,medical,personal,company_holiday',
+                'is_paid' => 'required|boolean',
                 'start_date' => 'required|date',
                 'end_date' => 'required|date|after_or_equal:start_date',
+                'total_days' => 'required|numeric|min:0.5',
                 'reason' => 'required|string|max:500',
-                'total_days' => 'required|integer|min:1',
-                'status' => 'required|in:pending,approved,rejected'
+                'status' => 'nullable|in:pending,approved,rejected'
             ]);
 
-            $leave = Leave::findOrFail($leave_approval);
-            
-            $leave->employee_id = $request->employee_id;
-            $leave->leave_type = $request->leave_type;
-            $leave->start_date = $request->start_date;
-            $leave->end_date = $request->end_date;
-            $leave->total_days = $request->total_days;
-            $leave->reason = $request->reason;
-            $leave->status = $request->status;
-            
-            if ($request->status !== 'pending' && !$leave->approved_by) {
-                $leave->approved_by = auth()->id();
-                $leave->approved_at = now();
-            }
-            
-            $leave->save();
-
-            $message = 'Leave request updated successfully!';
-        } else {
-            // Simple status update (approve/reject)
-            $request->validate([
-                'status' => 'required|in:approved,rejected',
-                'remarks' => 'nullable|string|max:500'
-            ]);
-
-            $leave = Leave::findOrFail($leave_approval);
-            
-            $leave->status = $request->status;
-            $leave->approved_by = auth()->id();
-            $leave->approved_at = now();
-            
-            if ($request->remarks) {
-                $leave->remarks = $request->remarks;
-            }
-            
-            $leave->save();
-
-            $message = $request->status === 'approved' 
-                ? 'Leave request approved successfully!' 
-                : 'Leave request rejected.';
+            $leave->update($validated);
+            $message = 'Leave updated successfully!';
         }
 
-        if ($request->ajax() || $request->wantsJson()) {
+        if ($request->ajax()) {
             return response()->json([
                 'success' => true,
                 'message' => $message,
@@ -163,20 +155,37 @@ class LeaveApprovalController extends Controller
     }
 
     /**
-     * Remove the specified leave request.
+     * Remove the specified leave request
      */
-    public function destroy($leave_approval)
+    public function destroy($id)
     {
-        $leave = Leave::findOrFail($leave_approval);
+        $leave = Leave::findOrFail($id);
         $leave->delete();
 
-        if (request()->ajax() || request()->wantsJson()) {
+        if (request()->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Leave request deleted successfully!'
+                'message' => 'Leave deleted successfully!'
             ]);
         }
 
-        return redirect()->back()->with('success', 'Leave request deleted successfully!');
+        return redirect()->back()->with('success', 'Leave deleted successfully!');
+    }
+
+    /**
+     * Show the form for editing the specified leave
+     */
+    public function edit($id)
+    {
+        $leave = Leave::findOrFail($id);
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'leave' => $leave
+            ]);
+        }
+
+        return view('hr.attendance.leave-edit', compact('leave'));
     }
 }

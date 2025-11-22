@@ -63,11 +63,27 @@
       <!-- Timing Display -->
       <div id="checkTiming" style="{{ $showTimingImmediately ? '' : 'display:none;' }} margin-top: 20px;">
         <div style="display: inline-block; padding: 18px 28px; border-radius: 15px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); color: #1976d2; font-weight: 700; font-size: 16px; box-shadow: 0 5px 15px rgba(25, 118, 210, 0.2);">
-          {{ $attendance && $attendance->check_in ? ('✓ Checked in at ' . \Carbon\Carbon::parse($attendance->check_in)->format('h:i A')) : '' }}
+          @if($attendance && $attendance->check_in)
+            ✓ Checked in at {{ \Carbon\Carbon::parse($attendance->check_in)->format('h:i A') }}
+          @endif
         </div>
+        
+        @if(!$hasCheckOut && $attendance && $attendance->check_in)
+          <div id="elapsedTime" style="margin-top: 15px; padding: 15px 25px; border-radius: 12px; background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); color: #e65100; font-weight: 700; font-size: 18px; box-shadow: 0 4px 12px rgba(230, 81, 0, 0.15);">
+            <div style="font-size: 13px; margin-bottom: 5px; opacity: 0.8;">Time Elapsed</div>
+            <div id="timerDisplay" style="font-size: 28px; font-family: 'Courier New', monospace; letter-spacing: 2px;">00:00:00</div>
+          </div>
+        @endif
+        
         @if($hasCheckOut)
           <div style="margin-top: 12px; color: #e74c3c; font-weight: 700; font-size: 15px;">✓ Checked out at {{ \Carbon\Carbon::parse($attendance->check_out)->format('h:i A') }}</div>
+          @if($attendance->total_working_hours)
+            <div style="margin-top: 10px; padding: 12px 20px; border-radius: 10px; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); color: #2e7d32; font-weight: 700; font-size: 15px;">
+              Total Working Time: {{ $attendance->total_working_hours }}
+            </div>
+          @endif
         @endif
+        
         <div style="margin-top: 25px;">
           <button id="okBtn" type="button" data-dashboard-url="{{ url('/dashboard') }}" style="cursor: pointer; padding: 14px 38px; border-radius: 50px; border: 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-weight: 700; font-size: 15px; box-shadow: 0 6px 18px rgba(102, 126, 234, 0.4); transition: all 0.3s ease;">OK</button>
         </div>
@@ -155,7 +171,40 @@ document.addEventListener('DOMContentLoaded', function(){
     } else {
       if(form) form.style.display = 'none';
       if(timing) timing.style.display = 'block';
+      startTimer();
     }
+  }
+
+  // Timer function to show elapsed time since check-in
+  function startTimer() {
+    var timerDisplay = document.getElementById('timerDisplay');
+    if (!timerDisplay) return;
+
+    @if($attendance && $attendance->check_in && !$hasCheckOut)
+      var checkInTime = new Date('{{ \Carbon\Carbon::parse($attendance->check_in)->toIso8601String() }}');
+      
+      function updateTimer() {
+        var now = new Date();
+        var diff = Math.floor((now - checkInTime) / 1000); // difference in seconds
+        
+        var hours = Math.floor(diff / 3600);
+        var minutes = Math.floor((diff % 3600) / 60);
+        var seconds = diff % 60;
+        
+        timerDisplay.textContent = 
+          String(hours).padStart(2, '0') + ':' + 
+          String(minutes).padStart(2, '0') + ':' + 
+          String(seconds).padStart(2, '0');
+      }
+      
+      updateTimer(); // Initial update
+      setInterval(updateTimer, 1000); // Update every second
+    @endif
+  }
+
+  // Start timer immediately if already checked in
+  if(hasCheckIn && !hasCheckOut && timing && timing.style.display !== 'none'){
+    startTimer();
   }
 });
 </script>

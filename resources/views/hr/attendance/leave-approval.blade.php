@@ -63,20 +63,21 @@
       }
       .leave-type--casual { background: #dbeafe; color: #1e40af; }
       .leave-type--medical { background: #fee2e2; color: #991b1b; }
-      .leave-type--annual { background: #d1fae5; color: #065f46; }
+      .leave-type--personal { background: #fef3c7; color: #92400e; }
+      .leave-type--company_holiday { background: #fbbf24; color: #78350f; }
     </style>
     <table>
       <thead>
         <tr>
           <th style="width: 140px; text-align: center;">Action</th>
           <th style="width: 130px;">EMP Code</th>
-          <th style="width: 200px;">EMPLOYEE</th>
-          <th style="width: 200px;">Start to End Date</th>
-          <th style="width: 100px;">Duration</th>
-          <th style="width: 120px;">Leave Type</th>
-          <th>Leave Reason</th>
+          <th style="width: 180px;">EMPLOYEE</th>
+          <th style="width: 280px;">Start to End Date</th>
+          <th style="width: 100px; text-align: center;">Duration</th>
+          <th style="width: 180px;">Leave Type</th>
+          <th style="width: 250px;">Leave Reason</th>
           <th style="width: 100px; text-align: center;">Status</th>
-          <th style="width: 150px;">Applied Date</th>
+          <th style="width: 180px;">Applied Date</th>
         </tr>
       </thead>
       <tbody>
@@ -102,7 +103,21 @@
           </td>
           <td style="vertical-align: middle; padding: 14px; text-align: center;">{{ $leave->total_days }} Day{{ $leave->total_days > 1 ? 's' : '' }}</td>
           <td style="vertical-align: middle; padding: 14px;">
-            <span class="leave-type leave-type--{{ strtolower($leave->leave_type) }}">{{ ucfirst($leave->leave_type) }}</span>
+            <span class="leave-type leave-type--{{ strtolower($leave->leave_type) }}">
+              {{ ucfirst(str_replace('_', ' ', $leave->leave_type)) }}
+              @if($leave->is_paid ?? true)
+                @php
+                  $yearlyUsed = \App\Models\Leave::where('employee_id', $leave->employee_id)
+                    ->where('is_paid', true)
+                    ->whereYear('start_date', now()->year)
+                    ->where('status', '!=', 'rejected')
+                    ->sum('total_days');
+                @endphp
+                <span style="font-size: 10px; opacity: 0.8;">(Paid {{ $yearlyUsed }}/12)</span>
+              @else
+                <span style="font-size: 10px; opacity: 0.8;">(Unpaid)</span>
+              @endif
+            </span>
           </td>
           <td style="vertical-align: middle; padding: 14px 16px;">{{ $leave->reason ?? '-' }}</td>
           <td style="vertical-align: middle; text-align: center; padding: 14px;">
@@ -153,12 +168,21 @@
       </div>
 
       <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Leave Category</label>
+        <select name="is_paid" id="add_leave_category" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" onchange="updateLeaveTypes()">
+          <option value="">Select Category</option>
+          <option value="1">Paid Leave</option>
+          <option value="0">Unpaid Leave</option>
+        </select>
+        <div id="paid_leave_info" style="display: none; margin-top: 8px; padding: 8px; background: #f0f9ff; border-radius: 6px; font-size: 12px; color: #0c4a6e;">
+          <strong>Paid Leave Balance:</strong> <span id="paid_leave_count">-</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 15px;">
         <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Leave Type</label>
-        <select name="leave_type" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
-          <option value="">Select Type</option>
-          <option value="casual">Casual</option>
-          <option value="medical">Medical</option>
-          <option value="annual">Annual</option>
+        <select name="leave_type" id="add_leave_type" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+          <option value="">Select Leave Type</option>
         </select>
       </div>
 
@@ -173,9 +197,15 @@
         </div>
       </div>
 
+      <div style="margin-bottom: 15px;">
+        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Total Days</label>
+        <input type="number" name="total_days" step="0.1" min="0.1" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;" placeholder="Enter days (e.g., 1, 1.5, 0.5)">
+        <small style="color: #6b7280; font-size: 12px;">Enter 0.5 for half day, 1 for full day, 1.5 for one and half days, etc.</small>
+      </div>
+
       <div style="margin-bottom: 20px;">
         <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Reason</label>
-        <textarea name="reason" rows="3" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; resize: vertical;"></textarea>
+        <textarea name="reason" rows="3" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; resize: vertical;" placeholder="Please provide a reason for the leave request..."></textarea>
       </div>
 
       <div style="display: flex; gap: 10px; justify-content: flex-end;">
@@ -186,76 +216,7 @@
   </div>
 </div>
 
-<!-- Edit Leave Modal -->
-<div id="editLeaveModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; align-items: center; justify-content: center;">
-  <div style="background: white; border-radius: 15px; padding: 30px; max-width: 500px; width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-    <h3 style="margin: 0 0 20px 0; font-size: 22px; font-weight: 700;">Edit Leave Request</h3>
-    
-    <form id="editLeaveForm" onsubmit="submitEditLeave(event)">
-      <input type="hidden" name="leave_id" id="edit_leave_id">
-      
-      <div style="margin-bottom: 15px;">
-        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Employee</label>
-        <select name="employee_id" id="edit_employee_id" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
-          <option value="">Select Employee</option>
-          @foreach(\App\Models\Employee::orderBy('name')->get() as $emp)
-            <option value="{{ $emp->id }}">{{ $emp->name }}</option>
-          @endforeach
-        </select>
-      </div>
-
-      <div style="margin-bottom: 15px;">
-        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Leave Type</label>
-        <select name="leave_type" id="edit_leave_type" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
-          <option value="">Select Type</option>
-          <option value="casual">Casual</option>
-          <option value="medical">Medical</option>
-          <option value="annual">Annual</option>
-        </select>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-        <div>
-          <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Start Date</label>
-          <input type="date" name="start_date" id="edit_start_date" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
-        </div>
-        <div>
-          <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">End Date</label>
-          <input type="date" name="end_date" id="edit_end_date" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
-        </div>
-      </div>
-
-      <div style="margin-bottom: 15px;">
-        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Status</label>
-        <select name="status" id="edit_status" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-        </select>
-      </div>
-
-      <div style="margin-bottom: 20px;">
-        <label style="display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px;">Reason</label>
-        <textarea name="reason" id="edit_reason" rows="3" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; resize: vertical;"></textarea>
-      </div>
-
-      <div style="display: flex; gap: 10px; justify-content: flex-end;">
-        <button type="button" onclick="closeEditLeaveModal()" style="padding: 10px 20px; border: 1px solid #ddd; background: white; border-radius: 8px; cursor: pointer; font-weight: 600;">Cancel</button>
-        <button type="submit" style="padding: 10px 20px; border: none; background: #3b82f6; color: white; border-radius: 8px; cursor: pointer; font-weight: 600;">Update Leave</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <script>
-// Wait for DOM and SweetAlert2 to be ready
-document.addEventListener('DOMContentLoaded', function() {
-  // Check if SweetAlert2 is loaded
-  if (typeof Swal === 'undefined') {
-    console.error('SweetAlert2 is not loaded!');
-  }
-});
-
 function openAddLeaveModal() {
   document.getElementById('addLeaveModal').style.display = 'flex';
 }
@@ -265,102 +226,126 @@ function closeAddLeaveModal() {
   document.getElementById('addLeaveForm').reset();
 }
 
+function updateLeaveTypes() {
+  const category = document.getElementById('add_leave_category').value;
+  const leaveType = document.getElementById('add_leave_type');
+  const paidLeaveInfo = document.getElementById('paid_leave_info');
+  const employeeId = document.querySelector('select[name="employee_id"]').value;
+  
+  leaveType.innerHTML = '<option value="">Select Leave Type</option>';
+  
+  if (category === '1') {
+    leaveType.innerHTML += '<option value="casual">Casual Leave</option>';
+    leaveType.innerHTML += '<option value="medical">Medical Leave</option>';
+    
+    // Show paid leave info and fetch balance
+    if (employeeId) {
+      paidLeaveInfo.style.display = 'block';
+      fetchPaidLeaveBalance(employeeId);
+    } else {
+      paidLeaveInfo.style.display = 'none';
+    }
+  } else if (category === '0') {
+    leaveType.innerHTML += '<option value="personal">Personal Leave</option>';
+    leaveType.innerHTML += '<option value="company_holiday">Company Holiday</option>';
+    paidLeaveInfo.style.display = 'none';
+  } else {
+    paidLeaveInfo.style.display = 'none';
+  }
+}
+
+function fetchPaidLeaveBalance(employeeId) {
+  const paidLeaveCount = document.getElementById('paid_leave_count');
+  paidLeaveCount.textContent = 'Loading...';
+  
+  fetch(`/api/employee/${employeeId}/paid-leave-balance`)
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const used = data.yearly_used || 0;
+        const total = 12;
+        const monthUsed = data.month_used || 0;
+        const monthAvailable = 1 - monthUsed;
+        
+        paidLeaveCount.innerHTML = `
+          <div style="margin-bottom: 4px;">Yearly: <strong>${used}/12</strong> used</div>
+          <div>This Month: <strong>${monthUsed}/1</strong> used 
+            ${monthAvailable > 0 ? '<span style="color: #10b981;">(' + monthAvailable + ' available)</span>' : '<span style="color: #ef4444;">(Limit reached)</span>'}
+          </div>
+        `;
+        
+        // Disable paid leave if monthly limit reached
+        if (monthAvailable <= 0) {
+          document.getElementById('add_leave_category').value = '';
+          document.getElementById('add_leave_type').innerHTML = '<option value="">Select Leave Type</option>';
+          document.getElementById('paid_leave_info').style.display = 'none';
+          alert('Monthly paid leave limit reached for this employee. Only 1 paid leave per month is allowed.');
+        }
+      } else {
+        paidLeaveCount.textContent = 'Error loading balance';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      paidLeaveCount.textContent = 'Error loading balance';
+    });
+}
+
 function submitLeave(event) {
   event.preventDefault();
   const formData = new FormData(event.target);
-  const data = Object.fromEntries(formData);
   
-  // Calculate total days
-  const start = new Date(data.start_date);
-  const end = new Date(data.end_date);
-  const diffTime = Math.abs(end - start);
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-  data.total_days = diffDays;
+  // Ensure total_days is sent as decimal
+  const totalDays = parseFloat(formData.get('total_days'));
+  formData.set('total_days', totalDays);
   
   fetch('{{ route("leave-approval.store") }}', {
     method: 'POST',
     headers: {
       'X-CSRF-TOKEN': '{{ csrf_token() }}',
       'Accept': 'application/json',
-      'Content-Type': 'application/json',
       'X-Requested-With': 'XMLHttpRequest'
     },
-    body: JSON.stringify(data)
+    body: formData
   })
-  .then(response => {
-    if (!response.ok) {
-      return response.json().then(err => {
-        throw new Error(err.message || 'Server error');
-      });
-    }
-    return response.json();
-  })
+  .then(response => response.json())
   .then(data => {
     if (data.success) {
-      toastr.success('Leave request submitted successfully!');
+      if (typeof toastr !== 'undefined') {
+        toastr.success(data.message || 'Leave request submitted successfully!');
+      } else {
+        alert(data.message || 'Leave request submitted successfully!');
+      }
       closeAddLeaveModal();
       setTimeout(() => location.reload(), 1000);
     } else {
-      toastr.error('Error: ' + (data.message || 'Unknown error'));
+      if (typeof toastr !== 'undefined') {
+        toastr.error(data.message || 'Error submitting leave request');
+      } else {
+        alert(data.message || 'Error submitting leave request');
+      }
     }
   })
   .catch(error => {
-    toastr.error('Error submitting leave request: ' + error.message);
+    console.error('Error:', error);
+    if (typeof toastr !== 'undefined') {
+      toastr.error('Error submitting leave request');
+    } else {
+      alert('Error submitting leave request');
+    }
   });
 }
 
 function approveLeave(id) {
-  if (typeof Swal === 'undefined') {
-    if (confirm('Are you sure you want to approve this leave request?')) {
-      updateLeaveStatus(id, 'approved');
-    }
-    return;
+  if (confirm('Are you sure you want to approve this leave request?')) {
+    updateLeaveStatus(id, 'approved');
   }
-  
-  Swal.fire({
-    title: 'Approve Leave?',
-    text: 'Are you sure you want to approve this leave request?',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#10b981',
-    cancelButtonColor: '#6b7280',
-    confirmButtonText: 'Yes, Approve',
-    cancelButtonText: 'Cancel',
-    width: '400px',
-    padding: '1.5rem',
-    customClass: { popup: 'perfect-swal-popup' }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      updateLeaveStatus(id, 'approved');
-    }
-  });
 }
 
 function rejectLeave(id) {
-  if (typeof Swal === 'undefined') {
-    if (confirm('Are you sure you want to reject this leave request?')) {
-      updateLeaveStatus(id, 'rejected');
-    }
-    return;
+  if (confirm('Are you sure you want to reject this leave request?')) {
+    updateLeaveStatus(id, 'rejected');
   }
-  
-  Swal.fire({
-    title: 'Reject Leave?',
-    text: 'Are you sure you want to reject this leave request?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#ef4444',
-    cancelButtonColor: '#6b7280',
-    confirmButtonText: 'Yes, Reject',
-    cancelButtonText: 'Cancel',
-    width: '400px',
-    padding: '1.5rem',
-    customClass: { popup: 'perfect-swal-popup' }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      updateLeaveStatus(id, 'rejected');
-    }
-  });
 }
 
 function updateLeaveStatus(id, status) {
@@ -377,185 +362,71 @@ function updateLeaveStatus(id, status) {
     },
     body: formData
   })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return response.json();
-  })
+  .then(response => response.json())
   .then(data => {
     if (data.success) {
-      toastr.success(data.message);
+      if (typeof toastr !== 'undefined') {
+        toastr.success(data.message);
+      } else {
+        alert(data.message);
+      }
       setTimeout(() => location.reload(), 1000);
     } else {
-      toastr.error('Error: ' + (data.message || 'Unknown error'));
+      if (typeof toastr !== 'undefined') {
+        toastr.error(data.message || 'Error updating leave status');
+      } else {
+        alert(data.message || 'Error updating leave status');
+      }
     }
   })
   .catch(error => {
     console.error('Error:', error);
-    toastr.error('Error updating leave status');
+    if (typeof toastr !== 'undefined') {
+      toastr.error('Error updating leave status');
+    } else {
+      alert('Error updating leave status');
+    }
   });
 }
 
 function editLeave(id) {
-  // Fetch leave data
-  fetch(`{{ url('leave-approval') }}/${id}/edit`, {
-    headers: {
-      'Accept': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest'
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.success) {
-      const leave = data.leave;
-      
-      // Format dates for input fields (YYYY-MM-DD)
-      const formatDate = (dateStr) => {
-        if (!dateStr) return '';
-        const date = new Date(dateStr);
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-      };
-      
-      document.getElementById('edit_leave_id').value = leave.id;
-      document.getElementById('edit_employee_id').value = leave.employee_id;
-      document.getElementById('edit_leave_type').value = leave.leave_type;
-      document.getElementById('edit_start_date').value = formatDate(leave.start_date);
-      document.getElementById('edit_end_date').value = formatDate(leave.end_date);
-      document.getElementById('edit_status').value = leave.status;
-      document.getElementById('edit_reason').value = leave.reason || '';
-      document.getElementById('editLeaveModal').style.display = 'flex';
-    } else {
-      toastr.error('Error loading leave data');
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    toastr.error('Error loading leave data');
-  });
-}
-
-function closeEditLeaveModal() {
-  document.getElementById('editLeaveModal').style.display = 'none';
-  document.getElementById('editLeaveForm').reset();
-}
-
-function submitEditLeave(event) {
-  event.preventDefault();
-  const formData = new FormData(event.target);
-  const data = Object.fromEntries(formData);
-  const leaveId = data.leave_id;
-  
-  // Calculate total days
-  const start = new Date(data.start_date);
-  const end = new Date(data.end_date);
-  const diffTime = Math.abs(end - start);
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-  data.total_days = diffDays;
-  
-  const formDataToSend = new FormData();
-  formDataToSend.append('_method', 'PUT');
-  formDataToSend.append('employee_id', data.employee_id);
-  formDataToSend.append('leave_type', data.leave_type);
-  formDataToSend.append('start_date', data.start_date);
-  formDataToSend.append('end_date', data.end_date);
-  formDataToSend.append('status', data.status);
-  formDataToSend.append('reason', data.reason);
-  formDataToSend.append('total_days', data.total_days);
-  
-  fetch(`{{ url('leave-approval') }}/${leaveId}`, {
-    method: 'POST',
-    headers: {
-      'X-CSRF-TOKEN': '{{ csrf_token() }}',
-      'Accept': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest'
-    },
-    body: formDataToSend
-  })
-  .then(response => {
-    if (!response.ok) {
-      return response.json().then(err => {
-        throw new Error(err.message || 'Server error');
-      });
-    }
-    return response.json();
-  })
-  .then(data => {
-    if (data.success) {
-      toastr.success('Leave request updated successfully!');
-      closeEditLeaveModal();
-      setTimeout(() => location.reload(), 1000);
-    } else {
-      toastr.error('Error: ' + (data.message || 'Unknown error'));
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    toastr.error('Error updating leave request: ' + error.message);
-  });
+  alert('Edit functionality coming soon');
 }
 
 function deleteLeave(id) {
-  if (typeof Swal === 'undefined') {
-    if (confirm('Are you sure you want to delete this leave request? This action cannot be undone.')) {
-      performDelete(id);
-    }
-    return;
+  if (confirm('Are you sure you want to delete this leave request? This action cannot be undone.')) {
+    const formData = new FormData();
+    formData.append('_method', 'DELETE');
+    
+    fetch(`{{ url('leave-approval') }}/${id}`, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        if (typeof toastr !== 'undefined') {
+          toastr.success('Leave request deleted successfully!');
+        } else {
+          alert('Leave request deleted successfully!');
+        }
+        setTimeout(() => location.reload(), 1000);
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      if (typeof toastr !== 'undefined') {
+        toastr.error('Error deleting leave request');
+      } else {
+        alert('Error deleting leave request');
+      }
+    });
   }
-  
-  Swal.fire({
-    title: 'Delete Leave?',
-    text: 'Are you sure you want to delete this leave request? This action cannot be undone.',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#ef4444',
-    cancelButtonColor: '#6b7280',
-    confirmButtonText: 'Yes, Delete',
-    cancelButtonText: 'Cancel',
-    width: '400px',
-    padding: '1.5rem',
-    customClass: { popup: 'perfect-swal-popup' }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      performDelete(id);
-    }
-  });
-}
-
-function performDelete(id) {
-  const formData = new FormData();
-  formData.append('_method', 'DELETE');
-  
-  fetch(`{{ url('leave-approval') }}/${id}`, {
-    method: 'POST',
-    headers: {
-      'X-CSRF-TOKEN': '{{ csrf_token() }}',
-      'Accept': 'application/json',
-      'X-Requested-With': 'XMLHttpRequest'
-    },
-    body: formData
-  })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-    return response.json();
-  })
-  .then(data => {
-    if (data.success) {
-      toastr.success('Leave request deleted successfully!');
-      setTimeout(() => location.reload(), 1000);
-    } else {
-      toastr.error('Error deleting leave request');
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    toastr.error('Error deleting leave request');
-  });
 }
 </script>
 @endsection

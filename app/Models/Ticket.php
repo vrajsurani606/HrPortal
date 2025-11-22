@@ -39,6 +39,14 @@ class Ticket extends Model
     }
 
     /**
+     * Alias for assignedEmployee (for backward compatibility)
+     */
+    public function assignedTo()
+    {
+        return $this->assignedEmployee();
+    }
+
+    /**
      * Get the user who opened this ticket.
      */
     public function opener()

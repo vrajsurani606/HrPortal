@@ -91,7 +91,7 @@ class AttendanceController extends Controller
         $attendance = $existing ?? new Attendance();
         $attendance->employee_id = $employee->id;
         $attendance->date = $today;
-        $attendance->check_in = now();
+        $attendance->check_in = Carbon::now(); // Use Carbon::now() for current timestamp
         $attendance->status = 'present';
         $attendance->check_in_ip = $request->ip();
         try { $attendance->check_in_location = $this->getLocation($request->ip()); } catch (\Throwable $e) { $attendance->check_in_location = 'Location not available'; }
@@ -139,7 +139,7 @@ class AttendanceController extends Controller
             return back()->with('error', 'You have already checked out today.');
         }
 
-        $checkOut = now();
+        $checkOut = Carbon::now(); // Use Carbon::now() for current timestamp
         $attendance->check_out = $checkOut;
         // compute and store formatted total working hours
         $attendance->total_working_hours = $attendance->calculateWorkingHours();
