@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice - {{ $invoice->unique_code }}</title>
+    <title>Receipt - {{ $receipt->unique_code }}</title>
     <style>
         :root {
             --primary-color: #456DB5;
@@ -86,14 +86,14 @@
         }
         
         /* Title */
-        .invoice-title {
+        .receipt-title {
             text-align: center;
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 2px solid var(--primary-color);
         }
         
-        .invoice-title h1 {
+        .receipt-title h1 {
             font-size: 26px;
             font-weight: 700;
             color: var(--primary-color);
@@ -178,12 +178,8 @@
             color: #444;
         }
         
-        td strong {
-            color: #000;
-        }
-        
         .items-table tbody tr:nth-child(even) {
-            background: #f9f9f9;
+            background: #fafafa;
         }
         
         .text-center {
@@ -239,73 +235,29 @@
             font-weight: 600;
         }
         
-        /* Totals Table */
-        .totals-table {
-            width: 100%;
-            margin-bottom: 15px;
-        }
-        
-        .totals-table tr {
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .totals-table td {
-            padding: 5px 8px;
-            font-size: 11px;
-        }
-        
-        .totals-table td:first-child {
-            text-align: right;
-            padding-right: 15px;
-            font-weight: 500;
-            color: #555;
-        }
-        
-        .totals-table td:last-child {
-            text-align: right;
-            font-weight: 600;
-            color: #222;
-            min-width: 110px;
-        }
-        
-        .total-amount-row {
-            background: var(--primary-color);
-            color: white !important;
-        }
-        
-        .total-amount-row td {
-            font-weight: 700;
-            font-size: 12px;
-            padding: 8px;
-            color: white !important;
-            border: none;
-        }
-        
-        /* Balance Due */
-        .balance-due-box {
+        /* Amount Box */
+        .amount-box {
             background: #E8F0FC;
             border: 1px solid #C5D9F2;
             border-radius: 4px;
-            padding: 8px 12px;
+            padding: 12px 15px;
             display: table;
             width: 100%;
-            margin-top: 10px;
         }
         
-        .balance-due-box .label {
+        .amount-box .label {
             display: table-cell;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-        
-        .balance-due-box .amount {
-            display: table-cell;
-            text-align: right;
             font-size: 14px;
             font-weight: 700;
             color: var(--primary-color);
-            letter-spacing: 0.5px;
+        }
+        
+        .amount-box .amount {
+            display: table-cell;
+            text-align: right;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary-color);
         }
         
         /* Signatures */
@@ -383,23 +335,15 @@
             
             <!-- Header Info -->
             <div class="header-info">
-                <p><strong>Date:</strong> {{ $invoice->invoice_date ? $invoice->invoice_date->format('d-m-Y') : date('d-m-Y') }}</p>
-                <p><strong>Invoice No.:</strong> {{ $invoice->unique_code }}</p>
-                @if($invoice->proforma)
-                <p><strong>Proforma No.:</strong> {{ $invoice->proforma->unique_code }}</p>
-                @endif
+                <p><strong>Date:</strong> {{ $receipt->receipt_date ? $receipt->receipt_date->format('d-m-Y') : date('d-m-Y') }}</p>
+                <p><strong>Receipt No.:</strong> {{ $receipt->unique_code }}</p>
             </div>
             
             <!-- Title -->
-            @if($invoice->invoice_type === 'gst')
-            <div class="invoice-title">
-                <h1>TAX INVOICE</h1>
-            </div> 
-            @else
-            <div class="invoice-title">
-                <h1>INVOICE</h1>
-            </div> 
-            @endif
+            <div class="receipt-title">
+                <h1>Receipt</h1>
+            </div>
+            
             <!-- From and Bill To -->
             <div class="parties-section">
                 <div class="party-column">
@@ -408,9 +352,7 @@
                         <p><strong>CHITRI ENLARGE SOFT IT HUB PVT. LTD.</strong></p>
                         <p>401/B, RISE ON PLAZA, SARKHEJ JAKAT NAKA,</p>
                         <p>SURAT, 390006.</p>
-                        @if($invoice->invoice_type === 'gst')
                         <p>GST. NO.: 24AAMCC4413E1Z1</p>
-                        @endif
                         <p>Mo. (+91) 72763 23999</p>
                     </div>
                 </div>
@@ -418,52 +360,28 @@
                 <div class="party-column">
                     <div class="party-heading">Bill To</div>
                     <div class="party-details">
-                        <p><strong>{{ strtoupper($invoice->company_name) }}</strong></p>
-                        @if($invoice->address)
-                        <p>{{ $invoice->address }}</p>
-                        @endif
-                        @if($invoice->invoice_type === 'gst' && $invoice->gst_no)
-                        <p>GST. NO.: {{ $invoice->gst_no }}</p>
-                        @endif
-                        @if($invoice->mobile_no)
-                        <p>Mo. {{ $invoice->mobile_no }}</p>
-                        @endif
+                        <p><strong>{{ strtoupper($receipt->company_name) }}</strong></p>
                     </div>
                 </div>
             </div>
             
-            <!-- Items Table -->
+            <!-- Transaction Details Table -->
             <table class="items-table">
                 <thead>
                     <tr>
                         <th>DESCRIPTION</th>
-                        <th class="text-center" style="width: 80px;">HSN/SAC</th>
-                        <th class="text-center" style="width: 60px;">QTY</th>
-                        <th class="text-right" style="width: 130px;">UNIT PRICE (INR)</th>
-                        <th class="text-right" style="width: 130px;">TOTAL</th>
+                        <th class="text-center" style="width: 150px;">TRANSACTION CODE</th>
+                        <th class="text-center" style="width: 150px;">PAYMENT TYPE</th>
+                        <th class="text-right" style="width: 150px;">AMOUNT</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @php
-                        $descriptions = is_array($invoice->description) ? $invoice->description : [];
-                        $sacCodes = is_array($invoice->sac_code) ? $invoice->sac_code : [];
-                        $quantities = is_array($invoice->quantity) ? $invoice->quantity : [];
-                        $rates = is_array($invoice->rate) ? $invoice->rate : [];
-                        $totals = is_array($invoice->total) ? $invoice->total : [];
-                        $maxCount = max(count($descriptions), count($sacCodes), count($quantities), count($rates), count($totals));
-                    @endphp
-                    
-                    @for($i = 0; $i < $maxCount; $i++)
-                    @if(!empty($descriptions[$i]) || !empty($quantities[$i]))
                     <tr>
-                        <td><strong>{{ strtoupper($descriptions[$i] ?? '-') }}</strong></td>
-                        <td class="text-center">{{ $sacCodes[$i] ?? 'df' }}</td>
-                        <td class="text-center">{{ $quantities[$i] ?? '-' }}</td>
-                        <td class="text-right">{{ isset($rates[$i]) ? number_format($rates[$i], 0) : '-' }}</td>
-                        <td class="text-right"><strong>{{ isset($totals[$i]) ? number_format($totals[$i], 2) : '-' }}</strong></td>
+                        <td><strong>{{ strtoupper($receipt->payment_type ?? 'PAYMENT') }}</strong></td>
+                        <td class="text-center">{{ $receipt->trans_code ?? '-' }}</td>
+                        <td class="text-center">{{ $receipt->payment_type ?? '-' }}</td>
+                        <td class="text-right"><strong>₹{{ number_format($receipt->received_amount, 2) }}</strong></td>
                     </tr>
-                    @endif
-                    @endfor
                 </tbody>
             </table>
             
@@ -482,52 +400,11 @@
                     </div>
                 </div>
                 
-                <!-- Totals -->
+                <!-- Amount Received -->
                 <div class="summary-right">
-                    <table class="totals-table">
-                        <tr>
-                            <td>Subtotal</td>
-                            <td>₹{{ number_format($invoice->sub_total ?? 0, 2) }}</td>
-                        </tr>
-                        @if($invoice->discount_amount > 0)
-                        <tr>
-                            <td>Discount ({{ $invoice->discount_percent }}%)</td>
-                            <td>₹{{ number_format($invoice->discount_amount, 2) }}</td>
-                        </tr>
-                        @endif
-                        @if(isset($invoice->retention_amount) && $invoice->retention_amount > 0)
-                        <tr>
-                            <td>Retention ({{ number_format($invoice->retention_percent ?? 0, 2) }}%)</td>
-                            <td>₹{{ number_format($invoice->retention_amount, 2) }}</td>
-                        </tr>
-                        @endif
-                        @if($invoice->invoice_type === 'gst' && $invoice->cgst_amount > 0)
-                        <tr>
-                            <td>CGST ({{ $invoice->cgst_percent }}%)</td>
-                            <td>₹{{ number_format($invoice->cgst_amount, 2) }}</td>
-                        </tr>
-                        @endif
-                        @if($invoice->invoice_type === 'gst' && $invoice->sgst_amount > 0)
-                        <tr>
-                            <td>SGST ({{ $invoice->sgst_percent }}%)</td>
-                            <td>₹{{ number_format($invoice->sgst_amount, 2) }}</td>
-                        </tr>
-                        @endif
-                        @if($invoice->invoice_type === 'gst' && $invoice->igst_amount > 0)
-                        <tr>
-                            <td>IGST ({{ $invoice->igst_percent }}%)</td>
-                            <td>₹{{ number_format($invoice->igst_amount, 2) }}</td>
-                        </tr>
-                        @endif
-                        <tr class="total-amount-row">
-                            <td>Total Amount</td>
-                            <td>₹{{ number_format($invoice->final_amount ?? 0, 2) }}</td>
-                        </tr>
-                    </table>
-                    
-                    <div class="balance-due-box">
-                        <div class="label">Balance Due</div>
-                        <div class="amount">₹{{ number_format($invoice->final_amount ?? 0, 2) }} /-</div>
+                    <div class="amount-box">
+                        <div class="label">Amount Received</div>
+                        <div class="amount">₹{{ number_format($receipt->received_amount, 2) }} /-</div>
                     </div>
                 </div>
             </div>
@@ -538,7 +415,7 @@
                     <div class="signature-label">Company Signature</div>
                     <div class="signature-line"></div>
                 </div>
-                <div class="signature-box" style="text-align: right;">
+                <div class="signature-box">
                     <div class="signature-label">Client Signature</div>
                     <div class="signature-line"></div>
                 </div>

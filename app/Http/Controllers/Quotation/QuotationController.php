@@ -212,6 +212,63 @@ class QuotationController extends Controller
             }
             $nextCode = 'CMS/QUAT/' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
             
+            // If customer type is "new", create a new company entry
+            $customerId = $request->customer_id;
+            if ($request->customer_type === 'new') {
+                // Validate required fields for new company
+                if (empty($request->city)) {
+                    return redirect()->back()->withInput()
+                        ->with('error', 'City is required when creating a new company.');
+                }
+                
+                if (empty($request->state)) {
+                    return redirect()->back()->withInput()
+                        ->with('error', 'State is required when creating a new company.');
+                }
+                
+                // Check if company with same email already exists
+                $existingCompany = Company::where('company_email', $request->company_email)->first();
+                
+                if ($existingCompany) {
+                    return redirect()->back()->withInput()
+                        ->with('error', 'A company with email "' . $request->company_email . '" already exists. Please use "Existing Customer" option or use a different email.');
+                }
+                
+                $companyData = [
+                    'company_name' => $request->company_name,
+                    'company_type' => $request->company_type ?: 'OTHER',
+                    'gst_no' => $request->gst_no,
+                    'pan_no' => $request->pan_no,
+                    'company_address' => $request->address ?: '',
+                    'city' => $request->city,
+                    'state' => $request->state,
+                    'company_email' => $request->company_email,
+                    'company_password' => $request->company_password,
+                    'other_details' => $request->nature_of_work,
+                    'contact_person_name' => $request->contact_person_1,
+                    'contact_person_mobile' => $request->contact_number_1,
+                    'contact_person_position' => $request->position_1,
+                    'person_name_1' => $request->contact_person_1,
+                    'person_number_1' => $request->contact_number_1,
+                    'person_position_1' => $request->position_1,
+                    'person_name_2' => $request->contact_person_2,
+                    'person_number_2' => $request->contact_number_2,
+                    'person_position_2' => $request->position_2,
+                    'person_name_3' => $request->contact_person_3,
+                    'person_number_3' => $request->contact_number_3,
+                    'person_position_3' => $request->position_3,
+                ];
+                
+                $newCompany = Company::create($companyData);
+                $customerId = $newCompany->id;
+                
+                \Log::info('New company created from quotation', [
+                    'company_id' => $newCompany->id,
+                    'company_name' => $newCompany->company_name,
+                    'unique_code' => $newCompany->unique_code
+                ]);
+            }
+            
             // Validate request data
             $validated = $request->validate([
                 // Basic Information
@@ -283,7 +340,7 @@ class QuotationController extends Controller
                 'quotation_title' => $validated['quotation_title'],
                 'quotation_date' => $validated['quotation_date'],
                 'customer_type' => $validated['customer_type'],
-                'customer_id' => $validated['customer_id'] ?? null,
+                'customer_id' => $customerId,
                 'gst_no' => $validated['gst_no'] ?? null,
                 'pan_no' => $validated['pan_no'] ?? null,
                 'company_name' => $validated['company_name'],
@@ -390,8 +447,13 @@ class QuotationController extends Controller
             // Create quotation
             $quotation = Quotation::create($data);
 
+            $message = 'Quotation created successfully with ID: ' . $quotation->unique_code;
+            if ($request->customer_type === 'new') {
+                $message .= ' and new company added to the company list.';
+            }
+
             return redirect()->route('quotations.index')
-                ->with('status', 'Quotation created successfully with ID: ' . $quotation->unique_code);
+                ->with('status', $message);
 
         } catch (\Exception $e) {
             \Log::error('Error creating quotation: ' . $e->getMessage());

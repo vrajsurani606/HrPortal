@@ -1,69 +1,345 @@
 <?php
+
 namespace App\Http\Controllers\Receipt;
+
 use App\Http\Controllers\Controller;
 use App\Models\Receipt;
+use App\Models\Invoice;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
+
 class ReceiptController extends Controller
 {
-    public function index(){ 
-        // $receipts = Receipt::latest()->get();
-        return view('receipts.index'); 
-    }
-    
-    public function create(){ 
-        return view('receipts.create'); 
-    }
-    
-    public function store(Request $request){ 
-        $validated = $request->validate([
-            'unique_code' => 'required|string',
-            'rec_date' => 'required|date',
-            'company_name' => 'required|string',
-            'total_amount' => 'required|numeric|min:0',
-            'paid_amount' => 'required|numeric|min:0',
-            'remain_amount' => 'required|numeric',
-            'received_amount' => 'required|numeric|min:0',
-            'payment_type' => 'required|in:cash,cheque,bank_transfer,online',
-            'narration' => 'required|string',
-            'trans_code' => 'required|string',
-        ]);
+    public function index(Request $request): View
+    {
+        $query = Receipt::latest();
         
-        Receipt::create($validated);
-        return redirect()->route('receipts.index')->with('success','Receipt created successfully'); 
-    }
-    
-    public function show($id){ 
-        $receipt = Receipt::findOrFail($id);
-        return view('receipts.show', compact('receipt')); 
-    }
-    
-    public function edit($id){ 
-        $receipt = Receipt::findOrFail($id);
-        return view('receipts.edit', compact('receipt')); 
-    }
-    
-    public function update(Request $request, $id){ 
-        $receipt = Receipt::findOrFail($id);
-        $validated = $request->validate([
-            'unique_code' => 'required|string',
-            'rec_date' => 'required|date',
-            'company_name' => 'required|string',
-            'total_amount' => 'required|numeric|min:0',
-            'paid_amount' => 'required|numeric|min:0',
-            'remain_amount' => 'required|numeric',
-            'received_amount' => 'required|numeric|min:0',
-            'payment_type' => 'required|in:cash,cheque,bank_transfer,online',
-            'narration' => 'required|string',
-            'trans_code' => 'required|string',
-        ]);
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('unique_code', 'like', '%' . $search . '%')
+                  ->orWhere('company_name', 'like', '%' . $search . '%');
+            });
+        }
         
-        $receipt->update($validated);
-        return redirect()->route('receipts.index')->with('success','Receipt updated successfully'); 
+        if ($request->filled('invoice_type')) {
+            $query->where('invoice_type', $request->invoice_type);
+        }
+        
+        if ($request->filled('from_date')) {
+            $query->whereDate('receipt_date', '>=', $request->from_date);
+        }
+        
+        if ($request->filled('to_date')) {
+            $query->whereDate('receipt_date', '<=', $request->to_date);
+        }
+        
+        $perPage = $request->get('per_page', 25);
+        $receipts = $query->paginate($perPage)->appends($request->query());
+        
+        return view('receipts.index', compact('receipts'));
+    }
+
+    public function create(): View
+    {
+        // Note: Receipt code will be generated after invoice type is selected
+        // For now, show placeholder
+        $nextCode = 'Will be generated based on invoice type';
+        
+        // Get unique company names from all invoices
+        $companies = Invoice::select('company_name')
+            ->distinct()
+            ->orderBy('company_name')
+            ->pluck('company_name');
+        
+        // Get all invoices for selection
+        $invoices = Invoice::with('proforma')
+            ->latest()
+            ->get();
+        
+        return view('receipts.create', compact('nextCode', 'companies', 'invoices'));
     }
     
-    public function destroy($id){ 
+    /**
+     * Generate unique receipt code based on invoice type
+     */
+    private function generateReceiptCode(string $invoiceType): string
+    {
+        if ($invoiceType === 'gst') {
+            // Get last GST receipt (CMS/REC/XXXX)
+            $lastReceipt = Receipt::where('invoice_type', 'gst')
+                ->where('unique_code', 'like', 'CMS/REC/%')
+                ->where('unique_code', 'not like', 'CMS/WGREC/%')
+                ->orderByDesc('id')
+                ->first();
+            
+            $nextNumber = 1;
+            if ($lastReceipt && !empty($lastReceipt->unique_code)) {
+                if (preg_match('/CMS\/REC\/(\d+)$/', $lastReceipt->unique_code, $matches)) {
+                    $nextNumber = ((int) $matches[1]) + 1;
+                }
+            }
+            
+            return 'CMS/REC/' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        } else {
+            // Get last Non-GST receipt (CMS/WGREC/XXXX)
+            $lastReceipt = Receipt::where('invoice_type', 'without_gst')
+                ->where('unique_code', 'like', 'CMS/WGREC/%')
+                ->orderByDesc('id')
+                ->first();
+            
+            $nextNumber = 1;
+            if ($lastReceipt && !empty($lastReceipt->unique_code)) {
+                if (preg_match('/CMS\/WGREC\/(\d+)$/', $lastReceipt->unique_code, $matches)) {
+                    $nextNumber = ((int) $matches[1]) + 1;
+                }
+            }
+            
+            return 'CMS/WGREC/' . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        }
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        try {
+            $validated = $request->validate([
+                'receipt_date' => ['required', 'date'],
+                'company_name' => ['required', 'string', 'max:255'],
+                'invoice_type' => ['required', 'string', 'in:gst,without_gst'],
+                'invoice_ids' => ['nullable', 'array'],
+                'invoice_ids.*' => ['integer', 'exists:invoices,id'],
+                'received_amount' => ['required', 'numeric', 'min:0.01'],
+                'payment_type' => ['nullable', 'string', 'max:255'],
+                'narration' => ['nullable', 'string', 'max:1000'],
+                'trans_code' => ['nullable', 'string', 'max:255'],
+            ]);
+            
+            // Generate unique code based on invoice type
+            $validated['unique_code'] = $this->generateReceiptCode($validated['invoice_type']);
+            
+            $receipt = Receipt::create($validated);
+            
+            // Update paid amounts for selected invoices
+            if (!empty($validated['invoice_ids']) && $validated['received_amount'] > 0) {
+                $invoices = Invoice::whereIn('id', $validated['invoice_ids'])->get();
+                $remainingAmount = $validated['received_amount'];
+                
+                \Log::info('Updating invoice paid amounts', [
+                    'receipt_id' => $receipt->id,
+                    'invoice_ids' => $validated['invoice_ids'],
+                    'received_amount' => $validated['received_amount']
+                ]);
+                
+                foreach ($invoices as $invoice) {
+                    if ($remainingAmount <= 0) break;
+                    
+                    $oldPaidAmount = $invoice->paid_amount;
+                    $invoiceBalance = $invoice->final_amount - $invoice->paid_amount;
+                    $paymentForThisInvoice = min($remainingAmount, $invoiceBalance);
+                    
+                    $invoice->paid_amount = ($invoice->paid_amount ?? 0) + $paymentForThisInvoice;
+                    $invoice->save();
+                    
+                    \Log::info('Invoice payment updated', [
+                        'invoice_id' => $invoice->id,
+                        'invoice_code' => $invoice->unique_code,
+                        'old_paid' => $oldPaidAmount,
+                        'new_paid' => $invoice->paid_amount,
+                        'payment_applied' => $paymentForThisInvoice
+                    ]);
+                    
+                    $remainingAmount -= $paymentForThisInvoice;
+                }
+            }
+            
+            return redirect()->route('receipts.index')
+                ->with('status', 'Receipt created successfully with ID: ' . $receipt->unique_code);
+                
+        } catch (\Exception $e) {
+            \Log::error('Error creating receipt: ' . $e->getMessage());
+            return redirect()->back()->withInput()
+                ->with('error', 'Error creating receipt: ' . $e->getMessage());
+        }
+    }
+
+    public function show(int $id): View
+    {
         $receipt = Receipt::findOrFail($id);
-        $receipt->delete();
-        return back()->with('success','Receipt deleted successfully'); 
+        return view('receipts.show', compact('receipt'));
+    }
+
+    public function edit(int $id): View
+    {
+        $receipt = Receipt::findOrFail($id);
+        
+        // Get unique company names from all invoices
+        $companies = Invoice::select('company_name')
+            ->distinct()
+            ->orderBy('company_name')
+            ->pluck('company_name');
+        
+        // Get all invoices for selection
+        $invoices = Invoice::with('proforma')
+            ->latest()
+            ->get();
+        
+        return view('receipts.edit', compact('receipt', 'companies', 'invoices'));
+    }
+
+    public function update(Request $request, int $id): RedirectResponse
+    {
+        try {
+            $receipt = Receipt::findOrFail($id);
+            
+            $validated = $request->validate([
+                'receipt_date' => ['required', 'date'],
+                'company_name' => ['required', 'string', 'max:255'],
+                'invoice_type' => ['required', 'string', 'in:gst,without_gst'],
+                'invoice_ids' => ['nullable', 'array'],
+                'invoice_ids.*' => ['integer', 'exists:invoices,id'],
+                'received_amount' => ['required', 'numeric', 'min:0.01'],
+                'payment_type' => ['nullable', 'string', 'max:255'],
+                'narration' => ['nullable', 'string', 'max:1000'],
+                'trans_code' => ['nullable', 'string', 'max:255'],
+            ]);
+            
+            // Get old invoice IDs before update
+            $oldInvoiceIds = $receipt->invoice_ids ?? [];
+            $newInvoiceIds = $validated['invoice_ids'] ?? [];
+            $oldReceivedAmount = $receipt->received_amount;
+            $newReceivedAmount = $validated['received_amount'];
+            
+            \Log::info('Updating receipt', [
+                'receipt_id' => $receipt->id,
+                'old_invoice_ids' => $oldInvoiceIds,
+                'new_invoice_ids' => $newInvoiceIds,
+                'old_amount' => $oldReceivedAmount,
+                'new_amount' => $newReceivedAmount
+            ]);
+            
+            // Step 1: Reverse old payments (subtract from invoices that were previously selected)
+            if (!empty($oldInvoiceIds) && $oldReceivedAmount > 0) {
+                $oldInvoices = Invoice::whereIn('id', $oldInvoiceIds)->get();
+                $remainingAmount = $oldReceivedAmount;
+                
+                foreach ($oldInvoices as $invoice) {
+                    if ($remainingAmount <= 0) break;
+                    
+                    $invoiceBalance = $invoice->final_amount - ($invoice->paid_amount - $oldReceivedAmount);
+                    $paymentToReverse = min($remainingAmount, $oldReceivedAmount);
+                    
+                    // Subtract the old payment
+                    $invoice->paid_amount = max(0, ($invoice->paid_amount ?? 0) - $paymentToReverse);
+                    $invoice->save();
+                    
+                    \Log::info('Reversed payment for invoice', [
+                        'invoice_id' => $invoice->id,
+                        'invoice_code' => $invoice->unique_code,
+                        'amount_reversed' => $paymentToReverse,
+                        'new_paid' => $invoice->paid_amount
+                    ]);
+                    
+                    $remainingAmount -= $paymentToReverse;
+                }
+            }
+            
+            // Step 2: Apply new payments (add to newly selected invoices)
+            if (!empty($newInvoiceIds) && $newReceivedAmount > 0) {
+                $newInvoices = Invoice::whereIn('id', $newInvoiceIds)->get();
+                $remainingAmount = $newReceivedAmount;
+                
+                foreach ($newInvoices as $invoice) {
+                    if ($remainingAmount <= 0) break;
+                    
+                    $invoiceBalance = $invoice->final_amount - $invoice->paid_amount;
+                    $paymentForThisInvoice = min($remainingAmount, $invoiceBalance);
+                    
+                    // Add the new payment
+                    $invoice->paid_amount = ($invoice->paid_amount ?? 0) + $paymentForThisInvoice;
+                    $invoice->save();
+                    
+                    \Log::info('Applied payment to invoice', [
+                        'invoice_id' => $invoice->id,
+                        'invoice_code' => $invoice->unique_code,
+                        'payment_applied' => $paymentForThisInvoice,
+                        'new_paid' => $invoice->paid_amount
+                    ]);
+                    
+                    $remainingAmount -= $paymentForThisInvoice;
+                }
+            }
+            
+            // Step 3: Update the receipt
+            $receipt->update($validated);
+            
+            return redirect()->route('receipts.index')
+                ->with('status', 'Receipt updated successfully');
+                
+        } catch (\Exception $e) {
+            \Log::error('Error updating receipt: ' . $e->getMessage());
+            return redirect()->back()->withInput()
+                ->with('error', 'Error updating receipt: ' . $e->getMessage());
+        }
+    }
+
+    public function destroy(int $id): RedirectResponse
+    {
+        try {
+            $receipt = Receipt::findOrFail($id);
+            
+            // Reverse payments before deleting receipt
+            $invoiceIds = $receipt->invoice_ids ?? [];
+            $receivedAmount = $receipt->received_amount;
+            
+            if (!empty($invoiceIds) && $receivedAmount > 0) {
+                $invoices = Invoice::whereIn('id', $invoiceIds)->get();
+                $remainingAmount = $receivedAmount;
+                
+                \Log::info('Reversing payments for deleted receipt', [
+                    'receipt_id' => $receipt->id,
+                    'receipt_code' => $receipt->unique_code,
+                    'invoice_ids' => $invoiceIds,
+                    'amount_to_reverse' => $receivedAmount
+                ]);
+                
+                foreach ($invoices as $invoice) {
+                    if ($remainingAmount <= 0) break;
+                    
+                    $invoiceBalance = $invoice->final_amount - ($invoice->paid_amount - $receivedAmount);
+                    $paymentToReverse = min($remainingAmount, $receivedAmount);
+                    
+                    // Subtract the payment
+                    $oldPaidAmount = $invoice->paid_amount;
+                    $invoice->paid_amount = max(0, ($invoice->paid_amount ?? 0) - $paymentToReverse);
+                    $invoice->save();
+                    
+                    \Log::info('Reversed payment for invoice', [
+                        'invoice_id' => $invoice->id,
+                        'invoice_code' => $invoice->unique_code,
+                        'old_paid' => $oldPaidAmount,
+                        'new_paid' => $invoice->paid_amount,
+                        'amount_reversed' => $paymentToReverse
+                    ]);
+                    
+                    $remainingAmount -= $paymentToReverse;
+                }
+            }
+            
+            $receipt->delete();
+            
+            return redirect()->route('receipts.index')
+                ->with('status', 'Receipt deleted successfully');
+                
+        } catch (\Exception $e) {
+            \Log::error('Error deleting receipt: ' . $e->getMessage());
+            return back()->with('error', 'Error deleting receipt');
+        }
+    }
+
+    public function print(int $id): View
+    {
+        $receipt = Receipt::findOrFail($id);
+        return view('receipts.print', compact('receipt'));
     }
 }

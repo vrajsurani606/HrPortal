@@ -36,6 +36,7 @@ class Invoice extends Model
         'igst_percent',
         'igst_amount',
         'final_amount',
+        'paid_amount',
         'total_tax_amount',
         'billing_item',
         'type_of_billing',
@@ -62,6 +63,7 @@ class Invoice extends Model
         'igst_percent' => 'decimal:2',
         'igst_amount' => 'decimal:2',
         'final_amount' => 'decimal:2',
+        'paid_amount' => 'decimal:2',
         'total_tax_amount' => 'decimal:2',
         'billing_item' => 'decimal:2',
     ];
@@ -69,5 +71,10 @@ class Invoice extends Model
     public function proforma()
     {
         return $this->belongsTo(Proforma::class);
+    }
+
+    public function receipts()
+    {
+        return Receipt::whereJsonContains('invoice_ids', $this->id)->get();
     }
 }

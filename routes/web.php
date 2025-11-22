@@ -143,7 +143,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('invoices', \App\Http\Controllers\Invoice\InvoiceController::class)->except(['create', 'store']); // invoices.index, show, edit, update, destroy
 
     // Receipts & (Vouchers disabled)
-    Route::resource('receipts', ReceiptController::class); // receipts.index, receipts.create
+    Route::get('receipts/{id}/print', [\App\Http\Controllers\Receipt\ReceiptController::class, 'print'])->name('receipts.print');
+    Route::resource('receipts', \App\Http\Controllers\Receipt\ReceiptController::class);
     // Route::resource('vouchers', VoucherController::class);
 
     // Tickets

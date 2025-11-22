@@ -146,15 +146,15 @@
       </div>
 
       <!-- Row 4 -->
-      <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
+      <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
         <div class="md:col-span-1">
           <label class="hrp-label">Nature Of Work:</label>
           <input class="Rectangle-29 @error('nature_of_work') is-invalid @enderror" name="nature_of_work" placeholder="Enter Nature" value="{{ old('nature_of_work') }}">
           @error('nature_of_work')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div class="md:col-span-1">
-          <label class="hrp-label">City:</label>
-          <select class="Rectangle-29-select @error('city') is-invalid @enderror" name="city">
+          <label class="hrp-label">City: <span class="text-red-500 city-required-indicator" style="display: none;">*</span></label>
+          <select class="Rectangle-29-select @error('city') is-invalid @enderror" name="city" id="city_select">
             <option value="" {{ !old('city') ? 'selected' : '' }}>Select City</option>
             <option value="Ahmedabad" {{ old('city') == 'Ahmedabad' ? 'selected' : '' }}>Ahmedabad</option>
             <option value="Surat" {{ old('city') == 'Surat' ? 'selected' : '' }}>Surat</option>
@@ -183,6 +183,27 @@
             <option>Vadodara</option>
           </select>
           @error('city')<small class="hrp-error">{{ $message }}</small>@enderror
+        </div>
+        <div class="md:col-span-1">
+          <label class="hrp-label">State: <span class="text-red-500 state-required-indicator" style="display: none;">*</span></label>
+          <select class="Rectangle-29-select @error('state') is-invalid @enderror" name="state" id="state_select">
+            <option value="" {{ !old('state') ? 'selected' : '' }}>Select State</option>
+            <option value="Gujarat" {{ old('state') == 'Gujarat' ? 'selected' : '' }}>Gujarat</option>
+            <option value="Maharashtra" {{ old('state') == 'Maharashtra' ? 'selected' : '' }}>Maharashtra</option>
+            <option value="Delhi" {{ old('state') == 'Delhi' ? 'selected' : '' }}>Delhi</option>
+            <option value="Karnataka" {{ old('state') == 'Karnataka' ? 'selected' : '' }}>Karnataka</option>
+            <option value="Tamil Nadu" {{ old('state') == 'Tamil Nadu' ? 'selected' : '' }}>Tamil Nadu</option>
+            <option value="Telangana" {{ old('state') == 'Telangana' ? 'selected' : '' }}>Telangana</option>
+            <option value="West Bengal" {{ old('state') == 'West Bengal' ? 'selected' : '' }}>West Bengal</option>
+            <option value="Rajasthan" {{ old('state') == 'Rajasthan' ? 'selected' : '' }}>Rajasthan</option>
+            <option value="Madhya Pradesh" {{ old('state') == 'Madhya Pradesh' ? 'selected' : '' }}>Madhya Pradesh</option>
+            <option value="Uttar Pradesh" {{ old('state') == 'Uttar Pradesh' ? 'selected' : '' }}>Uttar Pradesh</option>
+            <option value="Bihar" {{ old('state') == 'Bihar' ? 'selected' : '' }}>Bihar</option>
+            <option value="Haryana" {{ old('state') == 'Haryana' ? 'selected' : '' }}>Haryana</option>
+            <option value="Punjab" {{ old('state') == 'Punjab' ? 'selected' : '' }}>Punjab</option>
+            <option value="Chandigarh" {{ old('state') == 'Chandigarh' ? 'selected' : '' }}>Chandigarh</option>
+          </select>
+          @error('state')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
 
@@ -242,10 +263,11 @@
       <div class="md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
         <div>
           <label class="hrp-label">Company Email: <span class="text-red-500">*</span></label>
-          <input class="Rectangle-29 @error('company_email') is-invalid @enderror" type="email" name="company_email" value="{{ old('company_email', $quotationData['email'] ?? '') }}" placeholder="Add Mail-Id" required>
+          <input class="Rectangle-29 @error('company_email') is-invalid @enderror" type="email" name="company_email" id="company_email" value="{{ old('company_email', $quotationData['email'] ?? '') }}" placeholder="Add Mail-Id" required>
           @error('company_email')
               <small class="hrp-error">{{ $message }}</small>
           @enderror
+          <small id="email_check_message" class="hrp-error" style="display: none;"></small>
         </div>
         <div>
           <label class="hrp-label">Company Password:</label>
@@ -951,6 +973,24 @@ function calculateRetentionAmount() {
 function toggleCustomerFields(type) {
     const field = document.getElementById('existing_customer_field');
     if (field) field.classList.toggle('hidden', type !== 'existing');
+    
+    // Toggle required attribute and visual indicator for city and state
+    const citySelect = document.getElementById('city_select');
+    const stateSelect = document.getElementById('state_select');
+    const cityIndicator = document.querySelector('.city-required-indicator');
+    const stateIndicator = document.querySelector('.state-required-indicator');
+    
+    if (type === 'new') {
+        if (citySelect) citySelect.setAttribute('required', 'required');
+        if (stateSelect) stateSelect.setAttribute('required', 'required');
+        if (cityIndicator) cityIndicator.style.display = 'inline';
+        if (stateIndicator) stateIndicator.style.display = 'inline';
+    } else {
+        if (citySelect) citySelect.removeAttribute('required');
+        if (stateSelect) stateSelect.removeAttribute('required');
+        if (cityIndicator) cityIndicator.style.display = 'none';
+        if (stateIndicator) stateIndicator.style.display = 'none';
+    }
 }
 
 function clearCustomerFields() {
@@ -1827,6 +1867,57 @@ document.getElementById('quotationForm').addEventListener('submit', function(e) 
     // Continue with form submission
     return true;
 });
+
+// Email duplicate check for new customers
+const companyEmailInput = document.getElementById('company_email');
+const emailCheckMessage = document.getElementById('email_check_message');
+const customerTypeSelect = document.getElementById('customer_type');
+
+if (companyEmailInput && customerTypeSelect) {
+    let emailCheckTimeout;
+    
+    companyEmailInput.addEventListener('input', function() {
+        clearTimeout(emailCheckTimeout);
+        
+        // Only check if customer type is "new"
+        if (customerTypeSelect.value !== 'new') {
+            emailCheckMessage.style.display = 'none';
+            return;
+        }
+        
+        const email = this.value.trim();
+        
+        if (!email || !email.includes('@')) {
+            emailCheckMessage.style.display = 'none';
+            return;
+        }
+        
+        emailCheckTimeout = setTimeout(() => {
+            // Check if email exists
+            fetch(`/api/check-company-email?email=${encodeURIComponent(email)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        emailCheckMessage.textContent = 'This email is already registered. Please use "Existing Customer" or a different email.';
+                        emailCheckMessage.style.display = 'block';
+                        emailCheckMessage.style.color = '#dc3545';
+                    } else {
+                        emailCheckMessage.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking email:', error);
+                });
+        }, 500);
+    });
+    
+    // Hide message when switching to existing customer
+    customerTypeSelect.addEventListener('change', function() {
+        if (this.value === 'existing') {
+            emailCheckMessage.style.display = 'none';
+        }
+    });
+}
 
 </script>
 @endpush

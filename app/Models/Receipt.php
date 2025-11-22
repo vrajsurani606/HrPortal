@@ -11,11 +11,10 @@ class Receipt extends Model
 
     protected $fillable = [
         'unique_code',
-        'rec_date',
+        'receipt_date',
         'company_name',
-        'total_amount',
-        'paid_amount',
-        'remain_amount',
+        'invoice_type',
+        'invoice_ids',
         'received_amount',
         'payment_type',
         'narration',
@@ -23,10 +22,16 @@ class Receipt extends Model
     ];
 
     protected $casts = [
-        'rec_date' => 'date',
-        'total_amount' => 'decimal:2',
-        'paid_amount' => 'decimal:2',
-        'remain_amount' => 'decimal:2',
+        'receipt_date' => 'date',
+        'invoice_ids' => 'array',
         'received_amount' => 'decimal:2',
     ];
+
+    public function invoices()
+    {
+        if (empty($this->invoice_ids)) {
+            return collect();
+        }
+        return Invoice::whereIn('id', $this->invoice_ids)->get();
+    }
 }

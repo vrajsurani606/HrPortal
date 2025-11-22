@@ -1,5 +1,5 @@
 @extends('layouts.macos')
-@section('page_title', 'Add Receipt')
+@section('page_title', 'Edit Receipt')
 
 @push('styles')
 <style>
@@ -49,8 +49,9 @@
 </div>
 @endif
 
-<form method="POST" action="{{ route('receipts.store') }}" class="hrp-form">
+<form method="POST" action="{{ route('receipts.update', $receipt->id) }}" class="hrp-form">
   @csrf
+  @method('PUT')
 
 <div class="hrp-card">
   <div class="Rectangle-30 hrp-compact">
@@ -59,11 +60,11 @@
       <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
         <div>
           <label class="hrp-label">Unique Code:</label>
-          <input type="text" class="Rectangle-29" value="{{ $nextCode }}" readonly style="background: #f3f4f6;">
+          <input type="text" class="Rectangle-29" value="{{ $receipt->unique_code }}" readonly style="background: #f3f4f6;">
         </div>
         <div>
           <label class="hrp-label">Rec Date: <span class="text-red-500">*</span></label>
-          <input type="date" class="Rectangle-29 @error('receipt_date') is-invalid @enderror" name="receipt_date" value="{{ old('receipt_date', date('Y-m-d')) }}" required>
+          <input type="date" class="Rectangle-29 @error('receipt_date') is-invalid @enderror" name="receipt_date" value="{{ old('receipt_date', $receipt->receipt_date ? $receipt->receipt_date->format('Y-m-d') : '') }}" required>
           @error('receipt_date')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
@@ -71,7 +72,7 @@
           <select class="Rectangle-29-select @error('company_name') is-invalid @enderror" name="company_name" id="companySelect" required>
             <option value="">-- Select Company --</option>
             @foreach($companies as $company)
-            <option value="{{ $company }}" {{ old('company_name') == $company ? 'selected' : '' }}>{{ $company }}</option>
+            <option value="{{ $company }}" {{ old('company_name', $receipt->company_name) == $company ? 'selected' : '' }}>{{ $company }}</option>
             @endforeach
           </select>
           @error('company_name')<small class="hrp-error">{{ $message }}</small>@enderror
@@ -80,8 +81,8 @@
           <label class="hrp-label">Invoice Type: <span class="text-red-500">*</span></label>
           <select class="Rectangle-29-select @error('invoice_type') is-invalid @enderror" name="invoice_type" id="invoiceTypeSelect" required>
             <option value="">-- Select Type --</option>
-            <option value="gst" {{ old('invoice_type') == 'gst' ? 'selected' : '' }}>GST Invoice</option>
-            <option value="without_gst" {{ old('invoice_type') == 'without_gst' ? 'selected' : '' }}>Without GST Invoice</option>
+            <option value="gst" {{ old('invoice_type', $receipt->invoice_type) == 'gst' ? 'selected' : '' }}>GST Invoice</option>
+            <option value="without_gst" {{ old('invoice_type', $receipt->invoice_type) == 'without_gst' ? 'selected' : '' }}>Without GST Invoice</option>
           </select>
           @error('invoice_type')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
@@ -121,6 +122,9 @@
               </tr>
             </thead>
             <tbody>
+              @php
+                $selectedInvoiceIds = old('invoice_ids', $receipt->invoice_ids ?? []);
+              @endphp
               @forelse($invoices as $index => $invoice)
               @php
                 $paidAmount = $invoice->paid_amount ?? 0;
@@ -135,7 +139,7 @@
                   style="border-bottom: 1px solid #f3f4f6; display: none;">
                 <td style="padding: 12px;">
                   <label class="custom-checkbox" style="display: flex; align-items: center; cursor: pointer; margin: 0;">
-                    <input type="checkbox" name="invoice_ids[]" value="{{ $invoice->id }}" class="invoice-checkbox" {{ $balance <= 0 ? 'disabled' : '' }}>
+                    <input type="checkbox" name="invoice_ids[]" value="{{ $invoice->id }}" class="invoice-checkbox" {{ in_array($invoice->id, $selectedInvoiceIds) ? 'checked' : '' }} {{ $balance <= 0 ? 'disabled' : '' }}>
                     <div class="checkbox-box">
                       <span class="checkmark">✓</span>
                     </div>
@@ -159,7 +163,7 @@
               </tr>
               @empty
               <tr id="noInvoicesRow">
-                <td colspan="8" style="padding: 20px; text-align: center; color: #9ca3af;">Select invoice type and company to view invoices</td>
+                <td colspan="8" style="padding: 20px; text-align: center; color: #9ca3af;">Select company name and invoice type to view invoices</td>
               </tr>
               @endforelse
             </tbody>
@@ -171,28 +175,28 @@
       <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 1.5rem;">
         <div>
           <label class="hrp-label">Received Amount: <span class="text-red-500">*</span></label>
-          <input type="number" step="0.01" class="Rectangle-29 @error('received_amount') is-invalid @enderror" name="received_amount" id="receivedAmount" value="{{ old('received_amount') }}" placeholder="0.00" readonly style="background: #FEF3C7; border: 2px solid #F59E0B; font-weight: 600; color: #92400E;" required>
+          <input type="number" step="0.01" class="Rectangle-29 @error('received_amount') is-invalid @enderror" name="received_amount" id="receivedAmount" value="{{ old('received_amount', $receipt->received_amount) }}" placeholder="0.00" readonly style="background: #FEF3C7; border: 2px solid #F59E0B; font-weight: 600; color: #92400E;" required>
           @error('received_amount')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
           <label class="hrp-label">Payment Type:</label>
           <select class="Rectangle-29-select @error('payment_type') is-invalid @enderror" name="payment_type">
             <option value="">Select Mode</option>
-            <option value="In Account" {{ old('payment_type') == 'In Account' ? 'selected' : '' }}>In Account</option>
-            <option value="Cash" {{ old('payment_type') == 'Cash' ? 'selected' : '' }}>Cash</option>
-            <option value="Cheque" {{ old('payment_type') == 'Cheque' ? 'selected' : '' }}>Cheque</option>
-            <option value="Online Transfer" {{ old('payment_type') == 'Online Transfer' ? 'selected' : '' }}>Online Transfer</option>
+            <option value="In Account" {{ old('payment_type', $receipt->payment_type) == 'In Account' ? 'selected' : '' }}>In Account</option>
+            <option value="Cash" {{ old('payment_type', $receipt->payment_type) == 'Cash' ? 'selected' : '' }}>Cash</option>
+            <option value="Cheque" {{ old('payment_type', $receipt->payment_type) == 'Cheque' ? 'selected' : '' }}>Cheque</option>
+            <option value="Online Transfer" {{ old('payment_type', $receipt->payment_type) == 'Online Transfer' ? 'selected' : '' }}>Online Transfer</option>
           </select>
           @error('payment_type')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
           <label class="hrp-label">Narration:</label>
-          <input type="text" class="Rectangle-29 @error('narration') is-invalid @enderror" name="narration" value="{{ old('narration') }}" placeholder="Enter Narration">
+          <input type="text" class="Rectangle-29 @error('narration') is-invalid @enderror" name="narration" value="{{ old('narration', $receipt->narration) }}" placeholder="Enter Narration">
           @error('narration')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         <div>
           <label class="hrp-label">Trans Code:</label>
-          <input type="text" class="Rectangle-29 @error('trans_code') is-invalid @enderror" name="trans_code" value="{{ old('trans_code') }}" placeholder="Enter SAC Code">
+          <input type="text" class="Rectangle-29 @error('trans_code') is-invalid @enderror" name="trans_code" value="{{ old('trans_code', $receipt->trans_code) }}" placeholder="Enter SAC Code">
           @error('trans_code')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
       </div>
@@ -203,7 +207,7 @@
 <!-- Action Buttons -->
 <div style="margin-top: 30px; display: flex; justify-content: flex-end; gap: 15px;">
   <button type="submit" style="background: #10B981; color: white; padding: 12px 32px; border-radius: 8px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10B981'">
-    Add Receipt
+    Edit Receipt
   </button>
 </div>
 
@@ -222,28 +226,35 @@ document.addEventListener('DOMContentLoaded', function() {
   const form = document.querySelector('form');
   
   // Filter invoices when company changes (FIRST)
-  companySelect.addEventListener('change', filterInvoices);
+  companySelect.addEventListener('change', function() {
+    filterInvoices(false);
+  });
   
   // Filter invoices when invoice type changes (SECOND)
-  invoiceTypeSelect.addEventListener('change', filterInvoices);
+  invoiceTypeSelect.addEventListener('change', function() {
+    filterInvoices(false);
+  });
   
-  function filterInvoices() {
+  function filterInvoices(isInitialLoad = false) {
     const selectedCompany = companySelect.value;
     const selectedType = invoiceTypeSelect.value;
     let visibleCount = 0;
     
-    // Hide all invoice rows first and uncheck
+    // Hide all invoice rows first
     invoiceRows.forEach(row => {
       row.style.display = 'none';
-      const checkbox = row.querySelector('.invoice-checkbox');
-      if (checkbox) checkbox.checked = false;
+      
+      // Uncheck checkboxes only if NOT initial load and user is changing selection
+      if (!isInitialLoad) {
+        const checkbox = row.querySelector('.invoice-checkbox');
+        if (checkbox && !checkbox.disabled) {
+          checkbox.checked = false;
+        }
+      }
     });
     
-    // Reset amounts
-    updateAmounts();
-    
     if (selectedCompany && selectedType) {
-      // Show only invoices matching both company and type AND have balance > 0
+      // Show only invoices matching both company and type AND have balance > 0 (UNPAID ONLY)
       invoiceRows.forEach(row => {
         const balance = parseFloat(row.dataset.balance) || 0;
         
@@ -269,6 +280,9 @@ document.addEventListener('DOMContentLoaded', function() {
       noInvoicesRow.querySelector('td').textContent = 'Select company name and invoice type to view invoices';
       noInvoicesRow.style.display = '';
     }
+    
+    // Update amounts after filtering (this will calculate Total, Paid, Remain)
+    updateAmounts();
   }
   
   // Add event listeners to all checkboxes
@@ -353,6 +367,9 @@ document.addEventListener('DOMContentLoaded', function() {
       noInvoicesRow.style.display = '';
     }
   }
+  
+  // Filter invoices on page load (with initial load flag set to true)
+  filterInvoices(true);
   
   // Form validation before submit
   form.addEventListener('submit', function(e) {

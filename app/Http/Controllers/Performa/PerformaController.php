@@ -94,7 +94,7 @@ class PerformaController extends Controller
                 'gst_no' => ['nullable', 'string', 'max:50'],
                 'mobile_no' => ['nullable', 'regex:/^\d{10}$/'],
                 'type_of_billing' => ['nullable', 'string', 'max:255'],
-                'sub_total' => ['nullable', 'numeric', 'min:0'],
+                'sub_total' => ['required', 'numeric', 'min:0.01'],
                 'discount_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
                 'discount_amount' => ['nullable', 'numeric', 'min:0'],
                 'retention_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
@@ -105,10 +105,27 @@ class PerformaController extends Controller
                 'sgst_amount' => ['nullable', 'numeric', 'min:0'],
                 'igst_percent' => ['nullable', 'numeric', 'min:0'],
                 'igst_amount' => ['nullable', 'numeric', 'min:0'],
-                'final_amount' => ['nullable', 'numeric', 'min:0'],
+                'final_amount' => ['required', 'numeric', 'min:0.01'],
                 'tds_amount' => ['nullable', 'numeric', 'min:0'],
                 'remark' => ['nullable', 'string', 'max:1000'],
             ]);
+            
+            // Validate that at least one service item exists
+            $descriptions = $request->input('description', []);
+            $quantities = $request->input('quantity', []);
+            
+            $hasValidItem = false;
+            foreach ($descriptions as $index => $description) {
+                if (!empty($description) || !empty($quantities[$index])) {
+                    $hasValidItem = true;
+                    break;
+                }
+            }
+            
+            if (!$hasValidItem) {
+                return redirect()->back()->withInput()
+                    ->with('error', 'Please add at least one service item with description and quantity.');
+            }
             
             // Generate unique code
             $lastProforma = Proforma::orderByDesc('id')->first();
@@ -193,7 +210,7 @@ class PerformaController extends Controller
                 'gst_no' => ['nullable', 'string', 'max:50'],
                 'mobile_no' => ['nullable', 'regex:/^\d{10}$/'],
                 'type_of_billing' => ['nullable', 'string', 'max:255'],
-                'sub_total' => ['nullable', 'numeric', 'min:0'],
+                'sub_total' => ['required', 'numeric', 'min:0.01'],
                 'discount_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
                 'discount_amount' => ['nullable', 'numeric', 'min:0'],
                 'retention_percent' => ['nullable', 'numeric', 'min:0', 'max:100'],
@@ -204,10 +221,27 @@ class PerformaController extends Controller
                 'sgst_amount' => ['nullable', 'numeric', 'min:0'],
                 'igst_percent' => ['nullable', 'numeric', 'min:0'],
                 'igst_amount' => ['nullable', 'numeric', 'min:0'],
-                'final_amount' => ['nullable', 'numeric', 'min:0'],
+                'final_amount' => ['required', 'numeric', 'min:0.01'],
                 'tds_amount' => ['nullable', 'numeric', 'min:0'],
                 'remark' => ['nullable', 'string', 'max:1000'],
             ]);
+            
+            // Validate that at least one service item exists
+            $descriptions = $request->input('description', []);
+            $quantities = $request->input('quantity', []);
+            
+            $hasValidItem = false;
+            foreach ($descriptions as $index => $description) {
+                if (!empty($description) || !empty($quantities[$index])) {
+                    $hasValidItem = true;
+                    break;
+                }
+            }
+            
+            if (!$hasValidItem) {
+                return redirect()->back()->withInput()
+                    ->with('error', 'Please add at least one service item with description and quantity.');
+            }
             
             // Handle repeater fields - filter out empty rows
             $descriptions = $request->input('description', []);
