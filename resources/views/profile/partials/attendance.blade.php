@@ -336,7 +336,7 @@
       
       .time-container {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
       }
       
       .time-line {

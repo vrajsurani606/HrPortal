@@ -15,8 +15,8 @@ use App\Http\Controllers\Performa\PerformaController;
 use App\Http\Controllers\Performa\InvoiceController;
 use App\Http\Controllers\Receipt\ReceiptController;
 use App\Http\Controllers\Ticket\TicketController;
-use App\Http\Controllers\Attendance\AttendanceReportController;
-use App\Http\Controllers\Attendance\LeaveApprovalController;
+use App\Http\Controllers\AttendanceReportController;
+use App\Http\Controllers\LeaveApprovalController;
 use App\Http\Controllers\Event\EventController;
 use App\Http\Controllers\Setting\SettingController; 
 use App\Http\Controllers\MaintenanceController;
@@ -32,32 +32,46 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
 // Attendance Routes
 Route::prefix('attendance')->middleware('auth')->group(function () {
-    Route::get('/', [App\Http\Controllers\Attendance\AttendanceController::class, 'index'])->name('attendance.index');
-    Route::post('/check-in', [App\Http\Controllers\Attendance\AttendanceController::class, 'checkIn'])->name('attendance.check-in');
-    Route::post('/check-out', [App\Http\Controllers\Attendance\AttendanceController::class, 'checkOut'])->name('attendance.check-out');
-    Route::get('/history', [App\Http\Controllers\Attendance\AttendanceController::class, 'history'])->name('attendance.history');
+    Route::get('/', [App\Http\Controllers\AttendanceController::class, 'index'])->name('attendance.index');
+    Route::get('/check', [App\Http\Controllers\AttendanceController::class, 'checkPage'])->name('attendance.check');
+    Route::get('/status', [App\Http\Controllers\AttendanceController::class, 'checkStatus'])->name('attendance.status');
+    Route::post('/check-in', [App\Http\Controllers\AttendanceController::class, 'checkIn'])->name('attendance.check-in');
+    Route::post('/check-out', [App\Http\Controllers\AttendanceController::class, 'checkOut'])->name('attendance.check-out');
+    Route::get('/history', [App\Http\Controllers\AttendanceController::class, 'history'])->name('attendance.history');
     
     // Attendance Reports
-    Route::get('/reports', [App\Http\Controllers\Attendance\AttendanceReportController::class, 'index'])->name('attendance.reports');
-    Route::get('/reports/generate', [App\Http\Controllers\Attendance\AttendanceReportController::class, 'generate'])->name('attendance.reports.generate');
-    Route::get('/reports/export', [App\Http\Controllers\Attendance\AttendanceReportController::class, 'export'])->name('attendance.reports.export');
+    Route::get('/reports', [App\Http\Controllers\AttendanceReportController::class, 'index'])->name('attendance.reports');
+    Route::get('/reports/generate', [App\Http\Controllers\AttendanceReportController::class, 'generate'])->name('attendance.reports.generate');
+    Route::get('/reports/export', [App\Http\Controllers\AttendanceReportController::class, 'export'])->name('attendance.reports.export');
 });
 
 // Leave Management Routes
 Route::prefix('leaves')->middleware('auth')->group(function () {
     Route::get('/', [App\Http\Controllers\Leave\LeaveController::class, 'index'])->name('leaves.index');
-    Route::get('/create', [App\Http\Controllers\Leave\LeaveController::class, 'create'])->name('leaves.create');
     Route::post('/', [App\Http\Controllers\Leave\LeaveController::class, 'store'])->name('leaves.store');
-    Route::get('/{leave}/edit', [App\Http\Controllers\Leave\LeaveController::class, 'edit'])->name('leaves.edit');
+    Route::get('/{leave}', [App\Http\Controllers\Leave\LeaveController::class, 'show'])->name('leaves.show');
     Route::put('/{leave}', [App\Http\Controllers\Leave\LeaveController::class, 'update'])->name('leaves.update');
     Route::delete('/{leave}', [App\Http\Controllers\Leave\LeaveController::class, 'destroy'])->name('leaves.destroy');
     
-    // Leave Approval Routes (for managers/admins)
-    Route::prefix('approvals')->group(function () {
-        Route::get('/', [App\Http\Controllers\Leave\LeaveApprovalController::class, 'index'])->name('leaves.approvals.index');
-        Route::post('/{leave}/approve', [App\Http\Controllers\Leave\LeaveApprovalController::class, 'approve'])->name('leaves.approvals.approve');
-        Route::post('/{leave}/reject', [App\Http\Controllers\Leave\LeaveApprovalController::class, 'reject'])->name('leaves.approvals.reject');
-    });
+    // HR/Admin only routes
+    Route::post('/{leave}/approve', [App\Http\Controllers\Leave\LeaveController::class, 'approve'])->name('leaves.approve');
+    Route::post('/{leave}/reject', [App\Http\Controllers\Leave\LeaveController::class, 'reject'])->name('leaves.reject');
+});
+
+// API route for paid leave balance
+Route::get('/api/employee/{employeeId}/paid-leave-balance', [App\Http\Controllers\Leave\LeaveController::class, 'getPaidLeaveBalance'])->middleware('auth');
+
+// API route for employee leave balance (HR/Admin)
+Route::get('/api/employee/{employeeId}/leave-balance', [App\Http\Controllers\LeaveController::class, 'getEmployeeBalance'])->middleware('auth');
+
+// Company Holidays Routes
+Route::prefix('holidays')->middleware('auth')->group(function () {
+    Route::get('/', [App\Http\Controllers\CompanyHolidayController::class, 'index'])->name('holidays.index');
+    Route::get('/create', [App\Http\Controllers\CompanyHolidayController::class, 'create'])->name('holidays.create')->middleware('role:admin|hr');
+    Route::post('/', [App\Http\Controllers\CompanyHolidayController::class, 'store'])->name('holidays.store')->middleware('role:admin|hr');
+    Route::get('/{holiday}/edit', [App\Http\Controllers\CompanyHolidayController::class, 'edit'])->name('holidays.edit')->middleware('role:admin|hr');
+    Route::put('/{holiday}', [App\Http\Controllers\CompanyHolidayController::class, 'update'])->name('holidays.update')->middleware('role:admin|hr');
+    Route::delete('/{holiday}', [App\Http\Controllers\CompanyHolidayController::class, 'destroy'])->name('holidays.destroy')->middleware('role:admin|hr');
 });
 
 // Employee Self-Service Routes
@@ -82,6 +96,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/digital-card', [\App\Http\Controllers\HR\DigitalCardController::class, 'show'])->name('employees.digital-card.show');
         Route::get('/digital-card/edit', [\App\Http\Controllers\HR\DigitalCardController::class, 'edit'])->name('employees.digital-card.edit');
         Route::put('/digital-card', [\App\Http\Controllers\HR\DigitalCardController::class, 'update'])->name('employees.digital-card.update');
+        Route::delete('/digital-card', [\App\Http\Controllers\HR\DigitalCardController::class, 'destroy'])->name('employees.digital-card.destroy');
+        Route::post('/digital-card/quick-edit', [\App\Http\Controllers\HR\DigitalCardController::class, 'quickEdit'])->name('employees.digital-card.quick-edit');
     });
     Route::get('employees/letters/generate-number', [EmployeeController::class, 'generateLetterNumber'])->name('employees.letters.generate-number');
     Route::get('employees/letters/generate-reference', [EmployeeController::class, 'generateLetterNumber'])->name('employees.letters.generate-reference');
@@ -91,7 +107,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('hiring', HiringController::class);
     Route::get('hiring/{id}/print', [HiringController::class, 'print'])->name('hiring.print');
     Route::get('hiring/{id}/resume', [HiringController::class, 'resume'])->name('hiring.resume');
-    Route::post('hiring/{id}/convert', [HiringController::class, 'convert'])->name('hiring.convert');
+    Route::match(['GET', 'POST'], 'hiring/{id}/convert', [HiringController::class, 'convert'])->name('hiring.convert');
     // Offer Letter routes
     Route::get('hiring/{id}/offer/create', [HiringController::class, 'offerCreate'])->name('hiring.offer.create');
     Route::post('hiring/{id}/offer', [HiringController::class, 'offerStore'])->name('hiring.offer.store');
@@ -152,7 +168,7 @@ Route::middleware('auth')->group(function () {
 
     // Attendance
     Route::get('attendance/report', [AttendanceReportController::class,'index'])->name('attendance.report');
-    Route::resource('leave-approval', LeaveApprovalController::class)->only(['index','update']); // leave-approval.index
+    Route::resource('leave-approval', LeaveApprovalController::class)->only(['index','store','edit','update','destroy']); // leave-approval routes
 
     // Events (align with new permission names)
     Route::resource('events', EventController::class);
@@ -176,9 +192,9 @@ Route::middleware('auth')->group(function () {
     // Settings
     Route::resource('settings', SettingController::class)->only(['index','update']);
 
-    // Placeholder named routes to replace generic 'section' links
-    Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
-    Route::get('/payroll/create', [PayrollController::class, 'create'])->name('payroll.create');
+    // Payroll Management
+    Route::resource('payroll', PayrollController::class);
+    Route::post('/payroll/get-employee-salary', [PayrollController::class, 'getEmployeeSalary'])->name('payroll.get-employee-salary');
     Route::get('/rules', [RuleController::class, 'index'])->name('rules.index');
     // Inquiry create/store handled by resource routes above
 

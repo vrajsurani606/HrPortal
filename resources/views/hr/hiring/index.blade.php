@@ -67,9 +67,15 @@
                 <img src="{{ asset('action_icon/delete.svg') }}" alt="Delete" class="action-icon">
               </button>
             </form>
-            <a href="#" class="convert-btn" data-id="{{ $lead->id }}" data-name="{{ $lead->person_name }}" data-action="{{ route('hiring.convert', $lead->id) }}" title="Convert to Employee" aria-label="Convert to Employee">
-              <img src="{{ asset('action_icon/convert.svg') }}" alt="Convert" class="action-icon">
-            </a>
+           <a href="{{ route('hiring.convert', $lead->id) }}"
+                  class="convert-btn"
+                  data-id="{{ $lead->id }}"
+                  data-url="{{ route('hiring.convert', $lead->id) }}"
+                  data-name="{{ $lead->person_name }}"
+                  title="Convert to Employee">
+                    <img src="{{ asset('action_icon/convert.svg') }}" class="action-icon">
+                </a>
+
           </td>
           <td>
             @php($sno = ($leads->currentPage()-1) * $leads->perPage() + $i + 1)
@@ -140,44 +146,114 @@
     });
   }
 
-  document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
     const csrf = '{{ csrf_token() }}';
-    document.querySelectorAll('.convert-btn').forEach(function(el) {
-      el.addEventListener('click', function(e) {
-        e.preventDefault();
-        const name = this.getAttribute('data-name') || 'this lead';
-        const action = this.getAttribute('data-action');
-        Swal.fire({
-          title: 'Convert to Employee?',
-          text: `Do you want to convert ${name} to Employee?`,
-          icon: 'question',
-          showCancelButton: true,
-          confirmButtonColor: '#10b981',
-          cancelButtonColor: '#6b7280',
-          confirmButtonText: 'Yes, Convert',
-          cancelButtonText: 'Cancel',
-          width: '400px',
-          padding: '1.5rem',
-          customClass: {
-            popup: 'perfect-swal-popup'
-          }
-        }).then((result) => {
-          if (result.isConfirmed) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = action;
-            const token = document.createElement('input');
-            token.type = 'hidden';
-            token.name = '_token';
-            token.value = csrf;
-            form.appendChild(token);
-            document.body.appendChild(form);
-            form.submit();
-          }
+
+    document.querySelectorAll('.convert-btn').forEach(function(btn) {
+
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const leadId = this.dataset.id;
+            const name = this.dataset.name || 'this lead';
+            const routeUrl = this.dataset.url; // <-- Laravel route('hiring.convert', id)
+
+            // Load form data (GET request)
+            fetch(routeUrl, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+
+                Swal.fire({
+                    title: `Convert ${name} to Employee`,
+                    html: `
+                        <div style="text-align: left; margin: 20px 0;">
+                            <label class="hrp-label">Email:</label>
+                            <input type="email" id="convert-email" class="hrp-input Rectangle-29"
+                                   value="${data.suggested_email || ''}"
+                                   placeholder="Enter email" style="margin-bottom: 15px; color: #000;">
+
+                            <label class="hrp-label">Password:</label>
+                            <input type="password" id="convert-password" class="hrp-input Rectangle-29"
+                                   placeholder="Enter password" style="color: #000;">
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonColor: '#10b981',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Convert & Create Login',
+                    cancelButtonText: 'Cancel',
+                    width: '450px',
+                    customClass: { popup: 'perfect-swal-popup' },
+                    preConfirm: () => {
+                        const email = document.getElementById('convert-email').value.trim();
+                        const password = document.getElementById('convert-password').value.trim();
+
+                        if (!email || !password) {
+                            Swal.showValidationMessage('Please fill all fields');
+                            return false;
+                        }
+
+                        if (password.length < 6) {
+                            Swal.showValidationMessage('Password must be at least 6 characters');
+                            return false;
+                        }
+
+                        return { email, password };
+                    }
+                })
+                .then(result => {
+                    if (!result.isConfirmed) return;
+
+                    // Submit conversion (POST request)
+                    const formData = new FormData();
+                    formData.append('email', result.value.email);
+                    formData.append('password', result.value.password);
+                    formData.append('_token', csrf);
+                    
+                    fetch(routeUrl, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json'
+                        },
+                        body: formData
+                    })
+                    .then(res => {
+                        if (!res.ok) {
+                            return res.text().then(text => {
+                                throw new Error(`HTTP ${res.status}: ${text}`);
+                            });
+                        }
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire('Success!', data.message, 'success')
+                                .then(() => location.reload());
+                        } else {
+                            Swal.fire('Error!', data.message || 'Conversion failed', 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Conversion error:', error);
+                        Swal.fire('Error!', error.message || 'Something went wrong', 'error');
+                    });
+                });
+
+            })
+            .catch(() => {
+                Swal.fire('Error!', 'Failed to load conversion form', 'error');
+            });
         });
-      });
+
     });
-  });
+});
 </script>
 
 <style>
@@ -211,6 +287,34 @@
 
   .perfect-swal-popup .swal2-icon {
     margin: 0.5rem auto 1rem !important;
+  }
+
+  .perfect-swal-popup .hrp-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #000 !important;
+  }
+
+  .perfect-swal-popup .Rectangle-29 {
+    width: 100% !important;
+    padding: 12px 16px !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    color: #000 !important;
+    background: #fff !important;
+    margin: 0 !important;
+  }
+
+  .perfect-swal-popup .Rectangle-29:focus {
+    outline: none !important;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+  }
+
+  .perfect-swal-popup .Rectangle-29::placeholder {
+    color: #6b7280 !important;
   }
 </style>
 @endpush

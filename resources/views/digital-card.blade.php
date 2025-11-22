@@ -657,10 +657,22 @@
                 <i class="fas fa-download"></i>
                 Download
             </a>
+            <button onclick="openQuickEditModal({{ $employee->id }})" class="action-btn">
+                <i class="fas fa-bolt"></i>
+                Quick Edit
+            </button>
             <a href="{{ route('employees.digital-card.edit', $employee) }}" class="action-btn">
                 <i class="fas fa-edit"></i>
-                Edit Card
+                Full Edit
             </a>
+            <form method="POST" action="{{ route('employees.digital-card.destroy', $employee) }}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this digital card?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="action-btn" style="background: rgba(239, 68, 68, 0.2);">
+                    <i class="fas fa-trash"></i>
+                    Delete
+                </button>
+            </form>
         </div>
 
         <!-- Profile Header -->
@@ -951,9 +963,13 @@
         @endif
     </div>
 
+    <!-- Quick Edit Modal -->
+    @include('hr.employees.digital-card.quick-edit-modal')
+    
     <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     
     <script>
         // Initialize AOS (Animate On Scroll)
@@ -1032,6 +1048,57 @@
                 }
             }, 1000);
         });
+        
+        // Set current employee ID for quick edit
+        window.currentEmployeeId = {{ $employee->id }};
+        
+        // Notification system
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i>
+                ${message}
+            `;
+            
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'error' ? '#ef4444' : '#10b981'};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                z-index: 10000;
+                animation: slideInRight 0.3s ease-out;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => {
+                    if (document.body.contains(notification)) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        // Add CSS for notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 </html>

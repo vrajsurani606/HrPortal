@@ -1,158 +1,412 @@
 @extends('layouts.macos')
-@section('page_title', 'Create Digital Card - ' . $employee->name)
+@section('page_title', isset($isEdit) && $isEdit ? 'Edit Digital Card - ' . $employee->name : 'Create Digital Card - ' . $employee->name)
+
+@push('styles')
+<style>
+.digital-card-form {
+    animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid #e5e7eb;
+    transition: all 0.3s ease;
+}
+
+.form-section:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+.section-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+    color: #3b82f6;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.dynamic-field {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+    animation: fadeInScale 0.4s ease-out;
+}
+
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.dynamic-field:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.add-btn:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.remove-btn {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.remove-btn:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: scale(1.05);
+}
+
+.file-upload-area {
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.file-upload-area:hover {
+    border-color: #3b82f6;
+    background: #f8fafc;
+}
+
+.file-upload-area.dragover {
+    border-color: #10b981;
+    background: #ecfdf5;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #10b981);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.form-actions {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 20px;
+    border-top: 1px solid #e5e7eb;
+    margin: 0 -24px -24px;
+    border-radius: 0 0 12px 12px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-right: 12px;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: #e5e7eb;
+    transform: translateY(-2px);
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f4f6;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+</style>
+@endpush
 
 @section('content')
-  <div class="hrp-card">
-      <div class="Rectangle-30 hrp-compact">
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+</div>
+
+<div class="hrp-card digital-card-form">
+    <div class="Rectangle-30 hrp-compact">
       
       <!-- Success/Error Messages -->
-      @if(session('success'))
-          <div class="alert alert-success" style="background:#d4edda;color:#155724;padding:12px;border-radius:6px;margin-bottom:20px;border:1px solid #c3e6cb;">
-              <i class="fas fa-check-circle"></i> {{ session('success') }}
-          </div>
-      @endif
-      
-      @if(session('error'))
-          <div class="alert alert-danger" style="background:#f8d7da;color:#721c24;padding:12px;border-radius:6px;margin-bottom:20px;border:1px solid #f5c6cb;">
-              <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
-          </div>
-      @endif
-      
-      @if($errors->any())
-          <div class="alert alert-danger" style="background:#f8d7da;color:#721c24;padding:12px;border-radius:6px;margin-bottom:20px;border:1px solid #f5c6cb;">
-              <i class="fas fa-exclamation-triangle"></i> Please fix the following errors:
-              <ul style="margin:8px 0 0 20px;">
-                  @foreach($errors->all() as $error)
-                      <li>{{ $error }}</li>
-                  @endforeach
-              </ul>
-          </div>
-      @endif
-      <form method="POST" action="{{ isset($isEdit) && $isEdit ? route('employees.digital-card.update', $employee) : route('employees.digital-card.store', $employee) }}" enctype="multipart/form-data" class="hrp-form grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3" id="digitalCardForm">
+        @if(session('success'))
+            <div class="alert alert-success" style="background:#d4edda;color:#155724;padding:12px;border-radius:6px;margin-bottom:20px;border:1px solid #c3e6cb;animation:slideInDown 0.5s ease-out;">
+                <i class="fas fa-check-circle"></i> {{ session('success') }}
+            </div>
+        @endif
+        
+        @if(session('error'))
+            <div class="alert alert-danger" style="background:#f8d7da;color:#721c24;padding:12px;border-radius:6px;margin-bottom:20px;border:1px solid #f5c6cb;animation:slideInDown 0.5s ease-out;">
+                <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+            </div>
+        @endif
+        
+        @if($errors->any())
+            <div class="alert alert-danger" style="background:#f8d7da;color:#721c24;padding:12px;border-radius:6px;margin-bottom:20px;border:1px solid #f5c6cb;animation:slideInDown 0.5s ease-out;">
+                <i class="fas fa-exclamation-triangle"></i> Please fix the following errors:
+                <ul style="margin:8px 0 0 20px;">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+      <form method="POST" action="{{ isset($isEdit) && $isEdit ? route('employees.digital-card.update', $employee) : route('employees.digital-card.store', $employee) }}" enctype="multipart/form-data" class="hrp-form" id="digitalCardForm">
         @csrf
         @if(isset($isEdit) && $isEdit)
             @method('PUT')
         @endif
           
         <!-- Basic Information -->
-        <div class="md:col-span-2">
-          <h3 style="font-weight:800;color:#0f0f0f;margin:20px 0 10px 0;font-size:18px;">Basic Information</h3>
-        </div>
+        <div class="form-section">
+            <div class="section-header">
+                <i class="fas fa-user section-icon"></i>
+                <h3 class="section-title">Basic Information</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         
-        <div>
-          <label class="hrp-label">Full Name:</label>
-          <input name="full_name" value="{{ old('full_name', $digitalCard->full_name ?? $employee->name) }}" placeholder="Enter Full Name" class="hrp-input Rectangle-29" required>
-          @error('full_name')<small class="hrp-error">{{ $message }}</small>@enderror
-        </div>
-        
-        <div>
-          <label class="hrp-label">Current Position:</label>
-          <input name="current_position" value="{{ old('current_position', $digitalCard->current_position ?? $employee->position) }}" placeholder="Enter Current Position" class="hrp-input Rectangle-29">
-          @error('current_position')<small class="hrp-error">{{ $message }}</small>@enderror
-        </div>
-        
-        <div>
-          <label class="hrp-label">Company Name:</label>
-          <input name="company_name" value="{{ old('company_name', $digitalCard->company_name ?? '') }}" placeholder="Enter Company Name" class="hrp-input Rectangle-29">
-          @error('company_name')<small class="hrp-error">{{ $message }}</small>@enderror
-        </div>
-        
-        <div>
-          <label class="hrp-label">Years of Experience:</label>
-          <input name="years_experience" value="{{ old('years_experience', $digitalCard->years_of_experience ?? '') }}" placeholder="e.g. 3.5" class="hrp-input Rectangle-29" type="number" step="0.1" min="0">
-          @error('years_experience')<small class="hrp-error">{{ $message }}</small>@enderror
+                <div>
+                    <label class="hrp-label">Full Name:</label>
+                    <input name="full_name" value="{{ old('full_name', $digitalCard->full_name ?? $employee->name) }}" placeholder="Enter Full Name" class="hrp-input Rectangle-29" required>
+                    @error('full_name')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                
+                <div>
+                    <label class="hrp-label">Current Position:</label>
+                    <input name="current_position" value="{{ old('current_position', $digitalCard->current_position ?? $employee->position) }}" placeholder="Enter Current Position" class="hrp-input Rectangle-29">
+                    @error('current_position')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                
+                <div>
+                    <label class="hrp-label">Company Name:</label>
+                    <input name="company_name" value="{{ old('company_name', $digitalCard->company_name ?? '') }}" placeholder="Enter Company Name" class="hrp-input Rectangle-29">
+                    @error('company_name')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                
+                <div>
+                    <label class="hrp-label">Years of Experience:</label>
+                    <input name="years_experience" value="{{ old('years_experience', $digitalCard->years_of_experience ?? '') }}" placeholder="e.g. 3.5" class="hrp-input Rectangle-29" type="number" step="0.1" min="0">
+                    @error('years_experience')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+            </div>
         </div>
         
         <!-- Contact Information -->
-        <div class="md:col-span-2">
-          <h3 style="font-weight:800;color:#0f0f0f;margin:20px 0 10px 0;font-size:18px;">Contact Information</h3>
-        </div>
+        <div class="form-section" style="margin-top: 20px;">
+            <div class="section-header">
+                <i class="fas fa-address-book section-icon"></i>
+                <h3 class="section-title">Contact Information</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         
-        <div>
-          <label class="hrp-label">Email:</label>
-          <input name="email" value="{{ old('email', $digitalCard->email ?? $employee->email) }}" placeholder="Enter Email" class="hrp-input Rectangle-29" type="email">
-          @error('email')<small class="hrp-error">{{ $message }}</small>@enderror
-        </div>
-        
-        <div>
-          <label class="hrp-label">Phone:</label>
-          <input name="phone" value="{{ old('phone', $digitalCard->phone ?? '') }}" placeholder="Enter Phone Number" class="hrp-input Rectangle-29">
-          @error('phone')<small class="hrp-error">{{ $message }}</small>@enderror
-        </div>
-        
-        <div>
-          <label class="hrp-label">LinkedIn Profile:</label>
-          <input name="linkedin" value="{{ old('linkedin', $digitalCard->linkedin ?? '') }}" placeholder="LinkedIn Profile URL" class="hrp-input Rectangle-29">
-          @error('linkedin')<small class="hrp-error">{{ $message }}</small>@enderror
-        </div>
-        
-        <div>
-          <label class="hrp-label">Portfolio Website:</label>
-          <input name="portfolio" value="{{ old('portfolio', $digitalCard->portfolio ?? '') }}" placeholder="Portfolio Website URL" class="hrp-input Rectangle-29">
-          @error('portfolio')<small class="hrp-error">{{ $message }}</small>@enderror
-        </div>
-        
-        <div>
-          <label class="hrp-label">Facebook:</label>
-          <input name="facebook" value="{{ old('facebook', $digitalCard->facebook ?? '') }}" placeholder="Facebook Profile URL" class="hrp-input Rectangle-29">
-          @error('facebook')<small class="hrp-error">{{ $message }}</small>@enderror
-        </div>
-        
-        <div>
-          <label class="hrp-label">Twitter:</label>
-          <input name="twitter" value="{{ old('twitter', $digitalCard->twitter ?? '') }}" placeholder="Twitter Profile URL" class="hrp-input Rectangle-29">
-          @error('twitter')<small class="hrp-error">{{ $message }}</small>@enderror
-        </div>
-        
-        <div>
-          <label class="hrp-label">Instagram:</label>
-          <input name="instagram" value="{{ old('instagram', $digitalCard->instagram ?? '') }}" placeholder="Instagram Profile URL" class="hrp-input Rectangle-29">
-          @error('instagram')<small class="hrp-error">{{ $message }}</small>@enderror
-        </div>
-        
-        <div>
-          <label class="hrp-label">GitHub:</label>
-          <input name="github" value="{{ old('github', $digitalCard->github ?? '') }}" placeholder="GitHub Profile URL" class="hrp-input Rectangle-29">
-          @error('github')<small class="hrp-error">{{ $message }}</small>@enderror
+                <div>
+                    <label class="hrp-label">Email:</label>
+                    <input name="email" value="{{ old('email', $digitalCard->email ?? $employee->email) }}" placeholder="Enter Email" class="hrp-input Rectangle-29" type="email">
+                    @error('email')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                
+                <div>
+                    <label class="hrp-label">Phone:</label>
+                    <input name="phone" value="{{ old('phone', $digitalCard->phone ?? '') }}" placeholder="Enter Phone Number" class="hrp-input Rectangle-29">
+                    @error('phone')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                
+                <div>
+                    <label class="hrp-label">LinkedIn Profile:</label>
+                    <input name="linkedin" value="{{ old('linkedin', $digitalCard->linkedin ?? '') }}" placeholder="LinkedIn Profile URL" class="hrp-input Rectangle-29">
+                    @error('linkedin')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                
+                <div>
+                    <label class="hrp-label">Portfolio Website:</label>
+                    <input name="portfolio" value="{{ old('portfolio', $digitalCard->portfolio ?? '') }}" placeholder="Portfolio Website URL" class="hrp-input Rectangle-29">
+                    @error('portfolio')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                
+                <div>
+                    <label class="hrp-label">Facebook:</label>
+                    <input name="facebook" value="{{ old('facebook', $digitalCard->facebook ?? '') }}" placeholder="Facebook Profile URL" class="hrp-input Rectangle-29">
+                    @error('facebook')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                
+                <div>
+                    <label class="hrp-label">Twitter:</label>
+                    <input name="twitter" value="{{ old('twitter', $digitalCard->twitter ?? '') }}" placeholder="Twitter Profile URL" class="hrp-input Rectangle-29">
+                    @error('twitter')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                
+                <div>
+                    <label class="hrp-label">Instagram:</label>
+                    <input name="instagram" value="{{ old('instagram', $digitalCard->instagram ?? '') }}" placeholder="Instagram Profile URL" class="hrp-input Rectangle-29">
+                    @error('instagram')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                
+                <div>
+                    <label class="hrp-label">GitHub:</label>
+                    <input name="github" value="{{ old('github', $digitalCard->github ?? '') }}" placeholder="GitHub Profile URL" class="hrp-input Rectangle-29">
+                    @error('github')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+            </div>
         </div>
         
         <!-- Location & Preferences -->
-        <div class="md:col-span-2">
-          <h3 style="font-weight:800;color:#0f0f0f;margin:20px 0 10px 0;font-size:18px;">Location & Preferences</h3>
-        </div>
-        
-        <div class="md:col-span-2">
-          <label class="hrp-label">Location:</label>
-          <input name="location" value="{{ old('location', $digitalCard->location ?? '') }}" placeholder="Enter Location" class="hrp-input Rectangle-29">
-          @error('location')<small class="hrp-error">{{ $message }}</small>@enderror
+        <div class="form-section" style="margin-top: 20px;">
+            <div class="section-header">
+                <i class="fas fa-map-marker-alt section-icon"></i>
+                <h3 class="section-title">Location & Preferences</h3>
+            </div>
+            <div>
+                <label class="hrp-label">Location:</label>
+                <input name="location" value="{{ old('location', $digitalCard->location ?? '') }}" placeholder="Enter Location" class="hrp-input Rectangle-29">
+                @error('location')<small class="hrp-error">{{ $message }}</small>@enderror
+            </div>
         </div>
         
         <!-- Skills & Summary -->
-        <div class="md:col-span-2">
-          <h3 style="font-weight:800;color:#0f0f0f;margin:20px 0 10px 0;font-size:18px;">Skills & Summary</h3>
-        </div>
-        
-        <div>
-          <label class="hrp-label">Skills (comma separated):</label>
-          <textarea name="skills" placeholder="PHP, Laravel, JavaScript, etc." class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('skills', $digitalCard->skills ?? '') }}</textarea>
-          @error('skills')<small class="hrp-error">{{ $message }}</small>@enderror
-        </div>
-        
-        <div>
-          <label class="hrp-label">Hobbies & Interests (comma separated):</label>
-          <textarea name="hobbies" placeholder="Reading, Traveling, Photography, etc." class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('hobbies', $digitalCard->hobbies ?? '') }}</textarea>
-          @error('hobbies')<small class="hrp-error">{{ $message }}</small>@enderror
-        </div>
-        
-        <div class="md:col-span-2">
-          <label class="hrp-label">Professional Summary:</label>
-          <textarea name="summary" placeholder="Brief professional summary" class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('summary', $digitalCard->summary ?? '') }}</textarea>
-          @error('summary')<small class="hrp-error">{{ $message }}</small>@enderror
+        <div class="form-section" style="margin-top: 20px;">
+            <div class="section-header">
+                <i class="fas fa-code section-icon"></i>
+                <h3 class="section-title">Skills & Summary</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="hrp-label">Skills (comma separated):</label>
+                    <textarea name="skills" placeholder="PHP, Laravel, JavaScript, etc." class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('skills', $digitalCard->skills ?? '') }}</textarea>
+                    @error('skills')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+                
+                <div>
+                    <label class="hrp-label">Hobbies & Interests (comma separated):</label>
+                    <textarea name="hobbies" placeholder="Reading, Traveling, Photography, etc." class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('hobbies', $digitalCard->hobbies ?? '') }}</textarea>
+                    @error('hobbies')<small class="hrp-error">{{ $message }}</small>@enderror
+                </div>
+            </div>
+            
+            <div style="margin-top: 16px;">
+                <label class="hrp-label">Professional Summary:</label>
+                <textarea name="summary" placeholder="Brief professional summary" class="hrp-textarea Rectangle-29 Rectangle-29-textarea">{{ old('summary', $digitalCard->summary ?? '') }}</textarea>
+                @error('summary')<small class="hrp-error">{{ $message }}</small>@enderror
+            </div>
         </div>
         
         <!-- Previous Roles -->
-        <div class="md:col-span-2">
-          <h3 style="font-weight:800;color:#0f0f0f;margin:20px 0 10px 0;font-size:18px;">Previous Roles</h3>
+        <div class="form-section" style="margin-top: 20px;">
+            <div class="section-header">
+                <i class="fas fa-briefcase section-icon"></i>
+                <h3 class="section-title">Previous Roles</h3>
+            </div>
           <div id="previousRoles">
             <div class="row role-item" style="margin-bottom:15px;align-items:end;">
               <div class="col-4">
@@ -305,13 +559,15 @@
           @error('resume')<small class="hrp-error">{{ $message }}</small>@enderror
         </div>
         
-        <div class="md:col-span-2">
-          <div class="hrp-actions">
-            <button type="submit" class="hrp-btn hrp-btn-primary">
-              {{ isset($isEdit) && $isEdit ? 'Update Digital Card' : 'Create Digital Card' }}
+        <div class="form-actions">
+            <button type="submit" class="btn-primary" id="submitBtn">
+                <i class="fas fa-save"></i>
+                {{ isset($isEdit) && $isEdit ? 'Update Digital Card' : 'Create Digital Card' }}
             </button>
-            <a href="{{ route('employees.digital-card.show', $employee) }}" class="hrp-btn hrp-btn-secondary">Cancel</a>
-          </div>
+            <a href="{{ route('employees.digital-card.show', $employee) }}" class="btn-secondary">
+                <i class="fas fa-times"></i>
+                Cancel
+            </a>
         </div>
       </form>
       </div>
@@ -327,61 +583,198 @@ let achievementCount = 1;
 let languageCount = 1;
 let projectCount = 1;
 
-// Form submission handling
+// Initialize form progress tracking
+let totalFields = 0;
+let filledFields = 0;
+
+// Form submission handling with enhanced animations
 document.getElementById('digitalCardForm').addEventListener('submit', function(e) {
     // Basic validation
     const fullName = this.querySelector('input[name="full_name"]').value.trim();
     if (!fullName) {
-        alert('Please enter the full name.');
+        showNotification('Please enter the full name.', 'error');
         e.preventDefault();
         return false;
     }
     
-    const submitBtn = this.querySelector('button[type="submit"]');
+    // Show loading overlay
+    document.getElementById('loadingOverlay').style.display = 'flex';
+    
+    const submitBtn = document.getElementById('submitBtn');
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
     
-    // Re-enable after 10 seconds as fallback
+    // Re-enable after 15 seconds as fallback
     setTimeout(() => {
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '{{ isset($isEdit) && $isEdit ? "Update Digital Card" : "Create Digital Card" }}';
-    }, 10000);
+        submitBtn.innerHTML = '<i class="fas fa-save"></i> {{ isset($isEdit) && $isEdit ? "Update Digital Card" : "Create Digital Card" }}';
+        document.getElementById('loadingOverlay').style.display = 'none';
+    }, 15000);
 });
 
+// Progress tracking
+function updateProgress() {
+    const inputs = document.querySelectorAll('input, textarea, select');
+    totalFields = inputs.length;
+    filledFields = 0;
+    
+    inputs.forEach(input => {
+        if (input.value.trim() !== '') {
+            filledFields++;
+        }
+    });
+    
+    const progress = (filledFields / totalFields) * 100;
+    document.getElementById('progressFill').style.width = progress + '%';
+}
+
+// Add event listeners to all form inputs
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+        input.addEventListener('input', updateProgress);
+        input.addEventListener('change', updateProgress);
+    });
+    
+    // Initial progress calculation
+    updateProgress();
+});
+
+// Notification system
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'}"></i>
+        ${message}
+    `;
+    
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: ${type === 'error' ? '#ef4444' : '#10b981'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        z-index: 10000;
+        animation: slideInRight 0.3s ease-out;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease-in';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
+
+// Add CSS for notifications
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOutRight {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+    @keyframes slideInDown {
+        from { transform: translateY(-100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+`;
+document.head.appendChild(style);
+
 function addRole() {
-  const html = `
-    <div class="row role-item" style="margin-bottom:15px;align-items:end;">
-      <div class="col-4"><input name="roles[${roleCount}][title]" placeholder="Job Title" class="hrp-input Rectangle-29"></div>
-      <div class="col-4"><input name="roles[${roleCount}][company]" placeholder="Company Name" class="hrp-input Rectangle-29"></div>
-      <div class="col-3"><input name="roles[${roleCount}][year]" placeholder="2020-2023" class="hrp-input Rectangle-29"></div>
-      <div class="col-1"><button type="button" onclick="removeRole(this)" style="background:#ef4444;color:#fff;border:none;padding:8px 12px;border-radius:6px;font-weight:600;width:100%;">×</button></div>
-    </div>`;
-  document.getElementById('previousRoles').insertAdjacentHTML('beforeend', html);
-  roleCount++;
+    const html = `
+        <div class="dynamic-field role-item">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div>
+                    <label class="hrp-label">Job Title:</label>
+                    <input name="roles[${roleCount}][title]" placeholder="Job Title" class="hrp-input Rectangle-29">
+                </div>
+                <div>
+                    <label class="hrp-label">Company:</label>
+                    <input name="roles[${roleCount}][company]" placeholder="Company Name" class="hrp-input Rectangle-29">
+                </div>
+                <div>
+                    <label class="hrp-label">Year:</label>
+                    <input name="roles[${roleCount}][year]" placeholder="2020-2023" class="hrp-input Rectangle-29">
+                </div>
+                <div class="flex items-end">
+                    <button type="button" onclick="removeRole(this)" class="remove-btn">
+                        <i class="fas fa-trash"></i> Remove
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    document.getElementById('previousRoles').insertAdjacentHTML('beforeend', html);
+    roleCount++;
+    updateProgress();
+    showNotification('Role field added successfully!', 'success');
 }
 
 function addEducation() {
-  const html = `
-    <div class="row education-item" style="margin-bottom:15px;align-items:end;">
-      <div class="col-4"><input name="education[${educationCount}][degree]" placeholder="Degree" class="hrp-input Rectangle-29"></div>
-      <div class="col-4"><input name="education[${educationCount}][institute]" placeholder="Institute Name" class="hrp-input Rectangle-29"></div>
-      <div class="col-3"><input name="education[${educationCount}][year]" placeholder="2020" class="hrp-input Rectangle-29"></div>
-      <div class="col-1"><button type="button" onclick="removeEducation(this)" style="background:#ef4444;color:#fff;border:none;padding:8px 12px;border-radius:6px;font-weight:600;width:100%;">×</button></div>
-    </div>`;
-  document.getElementById('education').insertAdjacentHTML('beforeend', html);
-  educationCount++;
+    const html = `
+        <div class="dynamic-field education-item">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div>
+                    <label class="hrp-label">Degree:</label>
+                    <input name="education[${educationCount}][degree]" placeholder="Degree" class="hrp-input Rectangle-29">
+                </div>
+                <div>
+                    <label class="hrp-label">Institute:</label>
+                    <input name="education[${educationCount}][institute]" placeholder="Institute Name" class="hrp-input Rectangle-29">
+                </div>
+                <div>
+                    <label class="hrp-label">Year:</label>
+                    <input name="education[${educationCount}][year]" placeholder="2020" class="hrp-input Rectangle-29">
+                </div>
+                <div class="flex items-end">
+                    <button type="button" onclick="removeEducation(this)" class="remove-btn">
+                        <i class="fas fa-trash"></i> Remove
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    document.getElementById('education').insertAdjacentHTML('beforeend', html);
+    educationCount++;
+    updateProgress();
+    showNotification('Education field added successfully!', 'success');
 }
 
 function addCertification() {
-  const html = `
-    <div class="row cert-item" style="margin-bottom:15px;align-items:end;">
-      <div class="col-4"><input name="certifications[${certCount}][name]" placeholder="Certificate Name" class="hrp-input Rectangle-29"></div>
-      <div class="col-4"><input name="certifications[${certCount}][authority]" placeholder="Issuing Authority" class="hrp-input Rectangle-29"></div>
-      <div class="col-3"><input name="certifications[${certCount}][year]" placeholder="2023" class="hrp-input Rectangle-29"></div>
-      <div class="col-1"><button type="button" onclick="removeCertification(this)" style="background:#ef4444;color:#fff;border:none;padding:8px 12px;border-radius:6px;font-weight:600;width:100%;">×</button></div>
-    </div>`;
-  document.getElementById('certifications').insertAdjacentHTML('beforeend', html);
-  certCount++;
+    const html = `
+        <div class="dynamic-field cert-item">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div>
+                    <label class="hrp-label">Certificate Name:</label>
+                    <input name="certifications[${certCount}][name]" placeholder="Certificate Name" class="hrp-input Rectangle-29">
+                </div>
+                <div>
+                    <label class="hrp-label">Issuing Authority:</label>
+                    <input name="certifications[${certCount}][authority]" placeholder="Issuing Authority" class="hrp-input Rectangle-29">
+                </div>
+                <div>
+                    <label class="hrp-label">Year:</label>
+                    <input name="certifications[${certCount}][year]" placeholder="2023" class="hrp-input Rectangle-29">
+                </div>
+                <div class="flex items-end">
+                    <button type="button" onclick="removeCertification(this)" class="remove-btn">
+                        <i class="fas fa-trash"></i> Remove
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    document.getElementById('certifications').insertAdjacentHTML('beforeend', html);
+    certCount++;
+    updateProgress();
+    showNotification('Certification field added successfully!', 'success');
 }
 
 function addAchievement() {
@@ -426,26 +819,72 @@ document.getElementById('galleryInput').addEventListener('change', function() {
   document.getElementById('galleryFileName').textContent = this.files.length ? `${this.files.length} files selected` : 'No Files Chosen';
 });
 
-// Remove functions for dynamic fields
+// Remove functions for dynamic fields with animations
 function removeRole(btn) {
-    btn.closest('.role-item').remove();
+    const item = btn.closest('.role-item');
+    item.style.animation = 'fadeOutScale 0.3s ease-in';
+    setTimeout(() => {
+        item.remove();
+        updateProgress();
+        showNotification('Role removed successfully!', 'info');
+    }, 300);
 }
 
 function removeEducation(btn) {
-    btn.closest('.education-item').remove();
+    const item = btn.closest('.education-item');
+    item.style.animation = 'fadeOutScale 0.3s ease-in';
+    setTimeout(() => {
+        item.remove();
+        updateProgress();
+        showNotification('Education removed successfully!', 'info');
+    }, 300);
 }
 
 function removeCertification(btn) {
-    btn.closest('.cert-item').remove();
+    const item = btn.closest('.cert-item');
+    item.style.animation = 'fadeOutScale 0.3s ease-in';
+    setTimeout(() => {
+        item.remove();
+        updateProgress();
+        showNotification('Certification removed successfully!', 'info');
+    }, 300);
 }
 
 function removeAchievement(btn) {
-    btn.closest('.achievement-item').remove();
+    const item = btn.closest('.achievement-item');
+    item.style.animation = 'fadeOutScale 0.3s ease-in';
+    setTimeout(() => {
+        item.remove();
+        updateProgress();
+        showNotification('Achievement removed successfully!', 'info');
+    }, 300);
 }
 
 function removeProject(btn) {
-    btn.closest('.project-item').remove();
+    const item = btn.closest('.project-item');
+    item.style.animation = 'fadeOutScale 0.3s ease-in';
+    setTimeout(() => {
+        item.remove();
+        updateProgress();
+        showNotification('Project removed successfully!', 'info');
+    }, 300);
 }
+
+// Add fadeOutScale animation
+const fadeOutStyle = document.createElement('style');
+fadeOutStyle.textContent = `
+    @keyframes fadeOutScale {
+        from {
+            opacity: 1;
+            transform: scale(1);
+        }
+        to {
+            opacity: 0;
+            transform: scale(0.95);
+        }
+    }
+`;
+document.head.appendChild(fadeOutStyle);
 </script>
 @endpush
 

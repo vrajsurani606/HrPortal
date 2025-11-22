@@ -48,6 +48,7 @@ class Employee extends Model
         'joining_date',
         'role_id',
         'status',
+        'user_id',
     ];
 
     protected $casts = [
@@ -69,6 +70,30 @@ class Employee extends Model
     public function profileImages(){ return $this->hasMany(EmployeeProfileImage::class); }
     
     /**
+     * Get all leaves for the employee.
+     */
+    public function leaves()
+    {
+        return $this->hasMany(Leave::class);
+    }
+    
+    /**
+     * Get leave balances for the employee.
+     */
+    public function leaveBalances()
+    {
+        return $this->hasMany(LeaveBalance::class);
+    }
+    
+    /**
+     * Get current year leave balance.
+     */
+    public function currentLeaveBalance()
+    {
+        return $this->hasOne(LeaveBalance::class)->where('year', now()->year);
+    }
+    
+    /**
      * Get all of the letters for the employee.
      */
     public function letters(): HasMany
@@ -82,6 +107,14 @@ class Employee extends Model
     public function digitalCard()
     {
         return $this->hasOne(DigitalCard::class);
+    }
+    
+    /**
+     * Get the user account for the employee.
+     */
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class);
     }
 
     public static function nextCode(string $prefix = 'CMS/EMP/'): string

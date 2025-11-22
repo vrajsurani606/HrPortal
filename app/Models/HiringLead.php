@@ -21,6 +21,7 @@ class HiringLead extends Model
         'previous_salary',
         'resume_path',
         'gender',
+        'status',
     ];
 
     protected $casts = [

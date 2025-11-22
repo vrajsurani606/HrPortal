@@ -6,7 +6,10 @@ use App\Models\HiringLead;
 use Illuminate\Support\Facades\Storage;
 use App\Models\OfferLetter;
 use App\Models\Employee;
+use App\Models\User;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class HiringController extends Controller
 {
@@ -59,38 +62,104 @@ class HiringController extends Controller
         ]);
     }
 
-    public function convert($id)
+    public function convert(Request $request, $id)
     {
         $lead = HiringLead::findOrFail($id);
-        $offer = $lead->offerLetter;
-
-        // Prepare employee payload
-        $email = $lead->email;
-        if (!$email || Employee::where('email', $email)->exists()) {
-            do {
-                $email = 'candidate'.$lead->id.'-'.Str::lower(Str::random(6)).'@hr.local';
-            } while (Employee::where('email', $email)->exists());
+        
+        if ($request->isMethod('GET')) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'suggested_email' => strtolower(str_replace(' ', '.', $lead->person_name)) . '@company.com'
+                ]);
+            }
+            
+            $positions = ['Developer', 'Designer', 'Manager', 'HR', 'Sales', 'Marketing', 'Accountant', 'Other'];
+            $nextCode = Employee::nextCode();
+            
+            return view('hr.employees.convert', [
+                'lead' => $lead,
+                'positions' => $positions,
+                'nextCode' => $nextCode,
+                'page_title' => 'Convert Lead to Employee - ' . $lead->person_name,
+            ]);
         }
-        $payload = [
-            'code' => Employee::nextCode(),
-            'name' => $lead->person_name,
-            'gender' => $lead->gender,
-            'email' => $email,
-            'mobile_no' => $lead->mobile_no,
-            'address' => $lead->address,
-            'position' => $lead->position,
-            'experience_type' => $lead->is_experience ? 'Experienced' : 'Fresher',
-            'previous_company_name' => $lead->experience_previous_company,
-            'previous_salary' => $lead->previous_salary,
-            'current_offer_amount' => optional($offer)->monthly_salary,
-            'joining_date' => optional($offer)->date_of_joining,
-            'status' => 'active',
-        ];
-
-        $employee = Employee::create($payload);
-
-        return redirect()->route('employees.index')
-            ->with('success', 'Hiring lead converted to employee');
+        
+        // Handle POST request for conversion
+        $data = $request->validate([
+            'email' => 'required|email|unique:users,email|unique:employees,email',
+            'password' => 'required|string|min:6',
+        ]);
+        
+        try {
+            // Check if user already exists
+            $existingUser = User::where('email', $data['email'])->first();
+            if ($existingUser) {
+                throw new \Exception('A user with this email already exists.');
+            }
+            
+            // Check if employee already exists
+            $existingEmployee = Employee::where('email', $data['email'])->first();
+            if ($existingEmployee) {
+                throw new \Exception('An employee with this email already exists.');
+            }
+            
+            DB::transaction(function () use ($data, $lead) {
+                $user = User::create([
+                    'name' => $lead->person_name,
+                    'email' => $data['email'],
+                    'password' => bcrypt($data['password']),
+                    'mobile_no' => $lead->mobile_no,
+                    'address' => $lead->address,
+                ]);
+                
+                try {
+                    $user->assignRole('employee');
+                } catch (\Exception $e) {
+                    // Role assignment failed, continue without it
+                }
+                
+                Employee::create([
+                    'code' => Employee::nextCode(),
+                    'name' => $lead->person_name,
+                    'email' => $data['email'],
+                    'mobile_no' => $lead->mobile_no,
+                    'address' => $lead->address,
+                    'position' => $lead->position,
+                    'user_id' => $user->id,
+                ]);
+                
+                try {
+                    $lead->update(['status' => 'converted']);
+                } catch (\Exception $e) {
+                    // Status field might not exist, continue
+                }
+            });
+            
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Lead converted to employee successfully'
+                ]);
+            }
+            
+            return redirect()->route('hiring.index')->with('success', 'Lead converted to employee successfully');
+            
+        } catch (\Exception $e) {
+            \Log::error('Employee conversion failed', [
+                'lead_id' => $id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Conversion failed: ' . $e->getMessage()
+                ], 422);
+            }
+            
+            return back()->withErrors(['error' => 'Conversion failed: ' . $e->getMessage()]);
+        }
     }
 
     public function create()

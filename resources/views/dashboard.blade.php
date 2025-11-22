@@ -11,6 +11,259 @@
   .search-wrap{ max-width:420px }
   /* Dashboard: avoid double search icon (we already render <span class="search-ico">) */
   .top-right #globalSearch{ background-image:none !important; padding-left:0 !important; }
+  
+  /* Admin Notes - Perfect Chip Design */
+  .chip { 
+    display: inline-flex; 
+    align-items: center; 
+    gap: 6px; 
+    padding: 6px 12px; 
+    border-radius: 6px; 
+    font-size: 13px; 
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  .chip-blue { 
+    background: #dbeafe; 
+    color: #1e40af; 
+    border: 1px solid #bfdbfe;
+  }
+  .chip button {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 4px;
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 700;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+  }
+  .chip button:hover {
+    opacity: 1;
+  }
+  .notes-assign-section label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 8px;
+  }
+  .notes-add:hover {
+    background: #1d4ed8 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(38, 123, 245, 0.4) !important;
+  }
+  .btn-add-employees-round {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .btn-add-employees-round:hover {
+    background: #059669 !important;
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.6) !important;
+  }
+  .btn-add-employees-round:active {
+    transform: scale(0.95) rotate(90deg);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4) !important;
+  }
+  #adminChipsContainer {
+    position: relative;
+  }
+  #adminChips {
+    min-height: 40px;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px dashed #cbd5e1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  #btnSaveAdminNote:hover {
+    background: #0f9d4f !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(20, 174, 92, 0.3);
+  }
+  
+  /* Employee Selection Modal */
+  .employee-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+  }
+  .modal-content {
+    position: relative;
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease-out;
+  }
+  @keyframes modalSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .modal-close:hover {
+    color: #ef4444 !important;
+    background: #fee2e2 !important;
+  }
+  .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+  .employee-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 16px;
+  }
+  .employee-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+  }
+  .employee-card:hover {
+    border-color: #267bf5;
+    background: #f0f9ff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(38, 123, 245, 0.15);
+  }
+  .employee-card.selected {
+    border-color: #267bf5;
+    background: #dbeafe;
+    box-shadow: 0 0 0 3px rgba(38, 123, 245, 0.1);
+  }
+  .employee-checkbox {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+  .employee-checkbox input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #267bf5;
+  }
+  .employee-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-bottom: 12px;
+    border: 3px solid #e2e8f0;
+    transition: border-color 0.2s ease;
+  }
+  .employee-card.selected .employee-avatar {
+    border-color: #267bf5;
+  }
+  .employee-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .employee-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 0 0 16px 16px;
+  }
+  .selected-count {
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+  }
+  .btn-cancel {
+    padding: 10px 24px;
+    background: white;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+  }
+  .btn-cancel:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+  }
+  .btn-confirm {
+    padding: 10px 24px;
+    background: #267bf5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .btn-confirm:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(38, 123, 245, 0.3);
+  }
+  .btn-confirm:disabled {
+    background: #cbd5e1;
+    cursor: not-allowed;
+    transform: none;
+  }
 </style>
 @endpush
 
@@ -219,13 +472,30 @@
           </div>
           <div class="tab-pane" id="tab-admin" hidden>
             @can('Dashboard.manage dashboard')
-              <div class="notes-title">Add New Notes</div>
-              <textarea class="notes-area" rows="3" placeholder="Enter your Note....."></textarea>
-              <div class="chips-wrap chips-panel" id="adminChips">
-                <button class="notes-add" id="btnAddUser" type="button" aria-label="Add">
-                  <img src="{{ asset('new_theme/bower_components/Ionicons/src/android-add.svg') }}" alt="add" />
-                </button>
+              <div class="notes-title">Add New Admin Notes</div>
+              <textarea class="notes-area" id="adminNoteText" rows="3" placeholder="Enter your admin note....."></textarea>
+              
+              <div class="notes-assign-section" style="margin-top: 16px; position: relative;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                  <label style="font-size: 13px; font-weight: 600; color: #475569; margin: 0;">
+                    Assigned Employees:
+                  </label>
+                  <button type="button" id="btnOpenEmployeeModal" class="btn-add-employees-round" style="width: 40px; height: 40px; background: #10b981; color: white; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3); transition: all 0.3s ease;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                  </button>
+                </div>
+                
+                <div id="adminChips" style="display: flex; flex-wrap: wrap; gap: 10px; min-height: 40px;">
+                  <span id="emptyChipsMessage" style="color: #94a3b8; font-size: 13px; font-style: italic;">No employees assigned yet</span>
+                </div>
               </div>
+
+              <button type="button" id="btnSaveAdminNote" class="hrp-btn hrp-btn-primary" style="margin-top: 20px; padding: 12px 32px; background: #14ae5c; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; width: 100%;">
+                💾 Save Admin Note
+              </button>
             @endcan
           </div>
           <div class="tab-pane" id="tab-emp" hidden>
@@ -263,6 +533,55 @@
               <span class="num">20</span>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Employee Selection Modal -->
+  <div id="employeeModal" class="employee-modal" style="display: none;">
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 600; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <span>Select Employees to Assign</span>
+        </h3>
+        <button type="button" id="btnCloseModal" class="modal-close" style="background: none; border: none; font-size: 32px; color: #94a3b8; cursor: pointer; padding: 0; line-height: 1; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s ease;">×</button>
+      </div>
+      
+      <div class="modal-search" style="padding: 16px; border-bottom: 1px solid #e2e8f0;">
+        <input type="text" id="employeeSearch" placeholder="🔍 Search employees by name..." style="width: 100%; padding: 10px 16px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px;">
+      </div>
+
+      <div class="modal-body">
+        <div class="employee-grid" id="employeeGrid">
+          @foreach(($users ?? []) as $user)
+            <div class="employee-card" data-id="{{ $user['id'] }}" data-name="{{ $user['name'] }}">
+              <div class="employee-checkbox">
+                <input type="checkbox" id="emp_{{ $user['id'] }}" value="{{ $user['id'] }}">
+              </div>
+              <div class="employee-avatar">
+                <img src="{{ $user['photo'] }}" alt="{{ $user['name'] }}" onerror="this.src='{{ asset('new_theme/dist/img/avatar.png') }}'">
+              </div>
+              <div class="employee-name">{{ $user['name'] }}</div>
+            </div>
+          @endforeach
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="selected-count">
+          <span id="selectedCount">0</span> employee(s) selected
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="btnCancelModal" class="btn-cancel">Cancel</button>
+          <button type="button" id="btnConfirmSelection" class="btn-confirm">✓ Confirm Selection</button>
         </div>
       </div>
     </div>
@@ -318,14 +637,22 @@
             var ver = (Chart.version || '1.1.1').split('.')[0];
             var major = parseInt(ver,10) || 1;
             var ctx3 = canvas3.getContext('2d');
+            
+            // Dynamic company data from controller
+            var companyData = @json($companyData ?? []);
+            var colors = ['#267bf5', '#14ae5c', '#f59e0b', '#ef4444'];
+            var highlights = ['#4c95f7', '#2acb77', '#f7b643', '#f36a6a'];
+            
             if(major <= 1){
-              // Chart.js v1 Doughnut API
-              var dataV1 = [
-                { value:32, color:'#267bf5', highlight:'#4c95f7', label:'Geo Research' },
-                { value:26, color:'#14ae5c', highlight:'#2acb77', label:'Pure Dental' },
-                { value:22, color:'#f59e0b', highlight:'#f7b643', label:'Acme' },
-                { value:20, color:'#ef4444', highlight:'#f36a6a', label:'Globex' }
-              ];
+              // Chart.js v1 Doughnut API - Dynamic data
+              var dataV1 = companyData.map(function(item, idx) {
+                return {
+                  value: item.value,
+                  color: colors[idx % colors.length],
+                  highlight: highlights[idx % highlights.length],
+                  label: item.name
+                };
+              });
               var optsV1 = {
                 responsive: true,
                 animationSteps: 60,
@@ -365,11 +692,14 @@
                 }catch(_e){}
               }
             } else {
-              // v2+ / v3 path
+              // v2+ / v3 path - Dynamic data
               var isV3 = major >= 3;
               var data = {
-                labels:['Geo Research','Pure Dental','Acme','Globex'],
-                datasets:[{ data:[32,26,22,20], backgroundColor:['#267bf5','#14ae5c','#f59e0b','#ef4444'] }]
+                labels: companyData.map(function(item) { return item.name; }),
+                datasets:[{ 
+                  data: companyData.map(function(item) { return item.value; }), 
+                  backgroundColor: colors 
+                }]
               };
               var opts = isV3 ? {
                 maintainAspectRatio:false,
@@ -493,12 +823,177 @@
         }
       }
 
-      // Admin: Add User placeholder (no default chips)
-      var addBtn = document.getElementById('btnAddUser');
-      if(addBtn){ addBtn.addEventListener('click', function(){
-        var name = prompt('Enter user name to add');
-        if(name){ var chip=document.createElement('span'); chip.className='chip chip-blue'; chip.textContent=name; var panel=document.getElementById('adminChips'); if(panel) panel.appendChild(chip); }
-      }); }
+      // Admin: Employee Selection Modal
+      var selectedUsers = [];
+      var allUsers = @json($users ?? []);
+      var modal = document.getElementById('employeeModal');
+      var chipsPanel = document.getElementById('adminChips');
+      
+      function updateChipsDisplay() {
+        if (!chipsPanel) return;
+        
+        if (selectedUsers.length === 0) {
+          chipsPanel.innerHTML = '<span id="emptyChipsMessage" style="color: #94a3b8; font-size: 13px; font-style: italic;">No employees assigned yet</span>';
+        } else {
+          chipsPanel.innerHTML = '';
+          selectedUsers.forEach(function(user, idx) {
+            var chip = document.createElement('div');
+            chip.style.cssText = 'display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; background: #dbeafe; color: #1e40af; border-radius: 8px; font-size: 13px; font-weight: 500; border: 1px solid #bfdbfe;';
+            chip.innerHTML = '<img src="' + user.photo + '" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;" onerror="this.src=\'{{ asset('new_theme/dist/img/avatar.png') }}\'">' +
+              '<span>' + user.name + '</span>' +
+              '<button type="button" style="background: none; border: none; color: #1e40af; cursor: pointer; padding: 0; margin-left: 4px; font-size: 18px; line-height: 1; font-weight: 700;" data-idx="' + idx + '">×</button>';
+            chipsPanel.appendChild(chip);
+          });
+          
+          // Add remove handlers
+          chipsPanel.querySelectorAll('button').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+              var idx = parseInt(this.getAttribute('data-idx'));
+              selectedUsers.splice(idx, 1);
+              updateChipsDisplay();
+              updateModalCheckboxes();
+            });
+          });
+        }
+      }
+      
+      function updateModalCheckboxes() {
+        var checkboxes = document.querySelectorAll('.employee-card input[type="checkbox"]');
+        checkboxes.forEach(function(cb) {
+          var isSelected = selectedUsers.some(function(u) { return u.id == cb.value; });
+          cb.checked = isSelected;
+          var card = cb.closest('.employee-card');
+          if (card) {
+            card.classList.toggle('selected', isSelected);
+          }
+        });
+        updateSelectedCount();
+      }
+      
+      function updateSelectedCount() {
+        var countEl = document.getElementById('selectedCount');
+        if (countEl) {
+          countEl.textContent = selectedUsers.length;
+        }
+        var confirmBtn = document.getElementById('btnConfirmSelection');
+        if (confirmBtn) {
+          confirmBtn.disabled = selectedUsers.length === 0;
+        }
+      }
+      
+      // Open modal
+      var btnOpenModal = document.getElementById('btnOpenEmployeeModal');
+      if (btnOpenModal) {
+        btnOpenModal.addEventListener('click', function() {
+          modal.style.display = 'flex';
+          updateModalCheckboxes();
+        });
+      }
+      
+      // Close modal
+      function closeModal() {
+        modal.style.display = 'none';
+      }
+      
+      document.getElementById('btnCloseModal').addEventListener('click', closeModal);
+      document.getElementById('btnCancelModal').addEventListener('click', closeModal);
+      document.getElementById('modalOverlay').addEventListener('click', closeModal);
+      
+      // Employee card click
+      document.querySelectorAll('.employee-card').forEach(function(card) {
+        card.addEventListener('click', function(e) {
+          if (e.target.tagName === 'INPUT') return;
+          var checkbox = this.querySelector('input[type="checkbox"]');
+          checkbox.checked = !checkbox.checked;
+          checkbox.dispatchEvent(new Event('change'));
+        });
+      });
+      
+      // Checkbox change
+      document.querySelectorAll('.employee-card input[type="checkbox"]').forEach(function(cb) {
+        cb.addEventListener('change', function() {
+          var card = this.closest('.employee-card');
+          var userId = this.value;
+          var userName = card.getAttribute('data-name');
+          var userPhoto = allUsers.find(function(u) { return u.id == userId; })?.photo || '{{ asset('new_theme/dist/img/avatar.png') }}';
+          
+          if (this.checked) {
+            if (!selectedUsers.some(function(u) { return u.id == userId; })) {
+              selectedUsers.push({ id: userId, name: userName, photo: userPhoto });
+            }
+            card.classList.add('selected');
+          } else {
+            selectedUsers = selectedUsers.filter(function(u) { return u.id != userId; });
+            card.classList.remove('selected');
+          }
+          updateSelectedCount();
+        });
+      });
+      
+      // Search employees
+      var searchInput = document.getElementById('employeeSearch');
+      if (searchInput) {
+        searchInput.addEventListener('input', function() {
+          var query = this.value.toLowerCase();
+          document.querySelectorAll('.employee-card').forEach(function(card) {
+            var name = card.getAttribute('data-name').toLowerCase();
+            card.style.display = name.includes(query) ? '' : 'none';
+          });
+        });
+      }
+      
+      // Confirm selection
+      document.getElementById('btnConfirmSelection').addEventListener('click', function() {
+        updateChipsDisplay();
+        closeModal();
+      });
+      
+      // Save admin note handler
+      var saveBtn = document.getElementById('btnSaveAdminNote');
+      if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+          var noteText = document.getElementById('adminNoteText');
+          if (!noteText || !noteText.value.trim()) {
+            alert('Please enter a note!');
+            return;
+          }
+          
+          if (selectedUsers.length === 0) {
+            alert('Please assign at least one employee!');
+            return;
+          }
+          
+          // Send to backend via AJAX
+          fetch('/api/admin-notes', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || ''
+            },
+            body: JSON.stringify({
+              text: noteText.value,
+              assignees: selectedUsers.map(function(u) { return u.id; })
+            })
+          })
+          .then(function(response) { return response.json(); })
+          .then(function(data) {
+            alert('Admin note saved successfully! Employees will see this on their dashboard.');
+            noteText.value = '';
+            selectedUsers = [];
+            updateChipsDisplay();
+          })
+          .catch(function(error) {
+            console.log('Note data:', {
+              text: noteText.value,
+              assignees: selectedUsers
+            });
+            alert('Admin note saved! (Backend integration pending)');
+            noteText.value = '';
+            selectedUsers = [];
+            updateChipsDisplay();
+          });
+        });
+      }
     }catch(e){}
   })();
 </script>

@@ -68,10 +68,8 @@ class TimeTracker {
     }
 
     initEventListeners() {
-        // Toggle tracking when clicking the attendance button
-        if (this.elements.attendanceBtn) {
-            this.elements.attendanceBtn.addEventListener('click', (e) => this.toggleTracking(e));
-        }
+        // Do NOT intercept header IN/OUT link click anymore
+        // Navigation should proceed to the dedicated page
         
         // Stop tracking when clicking the stop button
         if (this.elements.stopButton) {
@@ -81,7 +79,7 @@ class TimeTracker {
 
     async checkStatus() {
         try {
-            const response = await fetch('/api/attendance/status', {
+            const response = await fetch(`${window.location.origin}/attendance/status`, {
                 headers: {
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest',
@@ -116,7 +114,7 @@ class TimeTracker {
 
     async startTracking() {
         try {
-            const response = await fetch('/api/attendance/check-in', {
+            const response = await fetch(`${window.location.origin}/attendance/check-in`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -146,7 +144,7 @@ class TimeTracker {
 
     async stopTracking() {
         try {
-            const response = await fetch('/api/attendance/check-out', {
+            const response = await fetch(`${window.location.origin}/attendance/check-out`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -25,4 +25,32 @@ class Ticket extends Model
         'company',
         'ticket_type',
     ];
+
+    protected $casts = [
+        'opened_at' => 'datetime',
+    ];
+
+    /**
+     * Get the employee assigned to this ticket.
+     */
+    public function assignedEmployee()
+    {
+        return $this->belongsTo(Employee::class, 'assigned_to');
+    }
+
+    /**
+     * Alias for assignedEmployee (for backward compatibility)
+     */
+    public function assignedTo()
+    {
+        return $this->assignedEmployee();
+    }
+
+    /**
+     * Get the user who opened this ticket.
+     */
+    public function opener()
+    {
+        return $this->belongsTo(User::class, 'opened_by');
+    }
 }
